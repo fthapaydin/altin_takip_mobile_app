@@ -65,7 +65,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         centerTitle: false,
       ),
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 150),
         children: [
           // User Profile Section
           _buildUserProfile(),
@@ -85,7 +86,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               onChanged: (val) =>
                   ref.read(preferenceProvider.notifier).toggleDynamicDate(val),
               activeColor: AppTheme.gold,
-              activeTrackColor: AppTheme.gold.withOpacity(0.3),
+              activeTrackColor: AppTheme.gold.withValues(alpha: 0.3),
             ),
           ),
           const Gap(32),
@@ -103,7 +104,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               value: _encryptionEnabled,
               onChanged: isLoading ? null : (val) => _showEncryptionSheet(val),
               activeColor: AppTheme.gold,
-              activeTrackColor: AppTheme.gold.withOpacity(0.3),
+              activeTrackColor: AppTheme.gold.withValues(alpha: 0.3),
             ),
             statusColor: _encryptionEnabled ? Colors.green : Colors.orange,
           ),
@@ -142,7 +143,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 Text(
                   'biriktirerek.com',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.3),
+                    color: Colors.white.withValues(alpha: 0.3),
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
@@ -151,7 +152,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 Text(
                   'v1.0.0',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     fontSize: 11,
                   ),
                 ),

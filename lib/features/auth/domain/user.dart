@@ -18,8 +18,6 @@ class User extends Equatable {
     this.oneSignalId,
   });
 
-  bool get isEncrypted;
-
   String get formattedName {
     if (name.isEmpty) return '';
     return name[0].toUpperCase() + name.substring(1).toLowerCase();

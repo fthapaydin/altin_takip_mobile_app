@@ -195,7 +195,7 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
         child: ReorderableListView.builder(
           physics: const AlwaysScrollableScrollPhysics(),
           scrollController: _scrollController,
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 150),
           itemCount: sortedGroups.length,
           proxyDecorator: (child, index, animation) {
             return Material(

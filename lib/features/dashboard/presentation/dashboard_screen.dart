@@ -488,7 +488,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         const SliverGap(16),
         _buildTransactionList(state),
         _buildTransactionList(state),
-        const SliverGap(100),
+        const SliverGap(150),
       ],
     );
   }
@@ -520,7 +520,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
       return ReorderableListView.builder(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(24, 16, 24, 100),
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 150),
         itemCount: sortedCurrencies.length,
         proxyDecorator: (child, index, animation) {
           return Material(
