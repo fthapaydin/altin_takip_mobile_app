@@ -42,7 +42,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 48),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

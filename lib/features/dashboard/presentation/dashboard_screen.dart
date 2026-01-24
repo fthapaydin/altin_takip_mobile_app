@@ -188,7 +188,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             Row(
               children: [
                 Text(
-                  'Merhaba, ${user?.name ?? "Misafir"}',
+                  'Merhaba, ${user?.formattedName ?? "Misafir"}',
                   style: context.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
@@ -464,6 +464,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   Widget _buildGenelTab(AssetState state) {
     return CustomScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
       slivers: [
         const SliverGap(24),
         SliverToBoxAdapter(child: _buildSectionTitle('Günün Özeti')),
@@ -486,7 +487,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         SliverToBoxAdapter(child: _buildSectionTitle('Son İşlemler')),
         const SliverGap(16),
         _buildTransactionList(state),
-        const SliverGap(32),
+        _buildTransactionList(state),
+        const SliverGap(100),
       ],
     );
   }
@@ -517,6 +519,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       final sortedCurrencies = _getSortedCurrencies(filteredCurrencies, isGold);
 
       return ReorderableListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(24, 16, 24, 100),
         itemCount: sortedCurrencies.length,
         proxyDecorator: (child, index, animation) {

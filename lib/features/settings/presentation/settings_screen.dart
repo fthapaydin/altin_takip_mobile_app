@@ -67,6 +67,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
+          // User Profile Section
+          _buildUserProfile(),
+          const Gap(32),
+
           // Appearance Section
           _buildSectionHeader('Görünüm', Icons.visibility_outlined),
           const Gap(16),
@@ -149,6 +153,89 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.2),
                     fontSize: 11,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUserProfile() {
+    final authState = ref.watch(authProvider);
+
+    if (authState is! AuthAuthenticated) {
+      return const SizedBox.shrink();
+    }
+
+    final user = authState.user;
+    final initials = user.name.isNotEmpty && user.surname.isNotEmpty
+        ? '${user.name[0]}${user.surname[0]}'.toUpperCase()
+        : '';
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppTheme.gold.withOpacity(0.1),
+            AppTheme.gold.withOpacity(0.05),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: AppTheme.gold.withOpacity(0.2),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: AppTheme.gold,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.gold.withOpacity(0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              initials,
+              style: const TextStyle(
+                color: Colors.black,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const Gap(20),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  user.fullName,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Gap(4),
+                Text(
+                  user.email,
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.6),
+                    fontSize: 14,
                   ),
                 ),
               ],
