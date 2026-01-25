@@ -47,7 +47,7 @@ class _MainShellState extends ConsumerState<MainShell> {
         floatingActionButton: keyboardVisible
             ? null
             : FloatingActionButton(
-                heroTag: 'main_fab',
+                heroTag: null,
                 onPressed: _showAddAssetBottomSheet,
                 backgroundColor: AppTheme.gold,
                 elevation: 4,

@@ -69,7 +69,7 @@ class _EncryptionScreenState extends ConsumerState<EncryptionScreen> {
                     ).animate().fadeIn().slideX(),
                     const Gap(8),
                     Text(
-                      'Hesabınız şifrelenmiş. Varlıklarınızı görüntülemek için şifreleme anahtarınızı (genellikle hesap şifreniz) girin.',
+                      'Hesabınız şifrelenmiş. Varlıklarınızı görüntülemek için şifreleme anahtarınızı girin.',
                       style: context.textTheme.bodyLarge?.copyWith(
                         color: Colors.white70,
                       ),
