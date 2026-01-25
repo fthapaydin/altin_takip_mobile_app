@@ -69,7 +69,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       ),
       body: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 150),
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
         children: [
           // User Profile Section
           _buildUserProfile(),

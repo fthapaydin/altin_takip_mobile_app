@@ -227,7 +227,7 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
         color: AppTheme.gold,
         child: ReorderableListView.builder(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(20, 10, 20, 100),
+          padding: const EdgeInsets.fromLTRB(20, 10, 20, 80),
           itemCount: sortedGroups.length,
           proxyDecorator: (child, index, animation) {
             return Material(

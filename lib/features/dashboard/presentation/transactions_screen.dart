@@ -106,7 +106,7 @@ class TransactionsScreen extends ConsumerWidget {
       }
 
       return ListView.builder(
-        padding: const EdgeInsets.only(bottom: 100, top: 20),
+        padding: const EdgeInsets.only(bottom: 80, top: 20),
         itemCount: groupedAssets.keys.length,
         itemBuilder: (context, index) {
           final dateKey = groupedAssets.keys.elementAt(index);
