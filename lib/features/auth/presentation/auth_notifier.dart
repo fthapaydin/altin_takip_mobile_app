@@ -126,6 +126,22 @@ class AuthNotifier extends Notifier<AuthState> {
           state = AuthAuthenticated(user);
         },
       );
+
+    }
+  }
+
+  void forceEncryptionRequired() {
+    final currentState = state;
+    if (currentState is AuthAuthenticated) {
+      // Preserve the user but switch state
+      state = AuthEncryptionRequired(currentState.user);
+    } else if (currentState is AuthEncryptionRequired) {
+       // Already in state
+    } else {
+       // If no user is loaded, we can't switch to EncryptionRequired(User), 
+       // but likely we are authenticated if we got this error.
+       // We'll rely on checkAuthStatus or re-login if totally lost.
+       checkAuthStatus();
     }
   }
 

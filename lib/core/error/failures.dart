@@ -25,3 +25,7 @@ class NetworkFailure extends Failure {
 class ValidationFailure extends Failure {
   const ValidationFailure(String message) : super(message);
 }
+
+class EncryptionRequiredFailure extends Failure {
+  const EncryptionRequiredFailure([String message = 'Şifreleme anahtarı gerekli.']) : super(message);
+}

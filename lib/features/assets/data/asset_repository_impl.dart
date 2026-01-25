@@ -79,6 +79,14 @@ class AssetRepositoryImpl implements AssetRepository {
 
       return Right((assets, pagination));
     } catch (e) {
+      if (e is DioException) {
+        final message = NetworkExceptionHandler.getErrorMessage(e);
+        // Check for specific backend message or status code indicating encryption is required
+        if (e.response?.statusCode == 400 &&
+            (message.contains('şifre') || message.contains('encryption') || message.contains('password'))) {
+           return const Left(EncryptionRequiredFailure());
+        }
+      }
       return Left(ServerFailure(NetworkExceptionHandler.getErrorMessage(e)));
     }
   }

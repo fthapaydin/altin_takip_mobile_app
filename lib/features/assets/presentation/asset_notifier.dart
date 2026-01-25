@@ -1,8 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:altin_takip/core/di.dart';
+import 'package:altin_takip/core/error/failures.dart';
 import 'package:altin_takip/features/assets/domain/asset_repository.dart';
 import 'package:altin_takip/features/assets/presentation/asset_state.dart';
 import 'package:altin_takip/features/currencies/domain/currency_repository.dart';
+import 'package:altin_takip/features/auth/presentation/auth_notifier.dart';
+import 'package:altin_takip/features/auth/presentation/auth_state.dart';
 
 final assetProvider = NotifierProvider<AssetNotifier, AssetState>(
   AssetNotifier.new,
@@ -25,7 +28,12 @@ class AssetNotifier extends Notifier<AssetState> {
     final assetsResult = await _assetRepository.getAssets();
     final currenciesResult = await _currencyRepository.getCurrencies();
 
-    assetsResult.fold((failure) => state = AssetError(failure.message), (data) {
+    assetsResult.fold((failure) {
+       if (failure is EncryptionRequiredFailure) {
+          ref.read(authProvider.notifier).forceEncryptionRequired();
+       } 
+       state = AssetError(failure.message);
+    }, (data) {
       final (assets, pagination) = data;
       currenciesResult.fold(
         (failure) => state = AssetError(failure.message),
