@@ -7,6 +7,7 @@ import 'package:altin_takip/core/theme/app_theme.dart';
 import 'package:altin_takip/core/utils/date_formatter.dart';
 import 'package:altin_takip/features/assets/presentation/asset_notifier.dart';
 import 'package:altin_takip/features/assets/presentation/asset_state.dart';
+import 'package:altin_takip/features/assets/domain/asset.dart';
 import 'package:altin_takip/features/currencies/domain/currency.dart';
 import 'package:altin_takip/features/assets/presentation/widgets/add_asset_bottom_sheet.dart';
 import 'package:altin_takip/features/auth/presentation/auth_notifier.dart';
@@ -16,6 +17,7 @@ import 'package:altin_takip/core/widgets/app_notification.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:altin_takip/features/dashboard/presentation/transactions_screen.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -484,7 +486,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
           ),
         const SliverGap(40),
-        SliverToBoxAdapter(child: _buildSectionTitle('Son İşlemler')),
+        SliverToBoxAdapter(
+          child: _buildSectionTitle(
+            'Son İşlemler',
+            onMoreTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const TransactionsScreen(),
+                ),
+              );
+            },
+          ),
+        ),
         const SliverGap(16),
         _buildTransactionList(state),
         _buildTransactionList(state),
@@ -719,16 +733,44 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   // Deprecated: Use _buildPremiumCurrencyCard instead
   // Widget _buildCurrencyListItem is no longer used
 
-  Widget _buildSectionTitle(String title, {double padding = 24}) {
+  Widget _buildSectionTitle(
+    String title, {
+    double padding = 24,
+    VoidCallback? onMoreTap,
+  }) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: padding),
-      child: Text(
-        title,
-        style: context.textTheme.titleLarge?.copyWith(
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-          letterSpacing: 0.5,
-        ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: context.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              letterSpacing: 0.5,
+            ),
+          ),
+          if (onMoreTap != null)
+            TextButton(
+              onPressed: onMoreTap,
+              style: TextButton.styleFrom(
+                foregroundColor: AppTheme.gold,
+                padding: EdgeInsets.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: const Row(
+                children: [
+                  Text(
+                    'Tümünü Gör',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                  Gap(4),
+                  Icon(Icons.arrow_forward, size: 14),
+                ],
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -975,7 +1017,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         );
       }
 
-      final displayAssets = state.assets.take(5).toList();
+      // Sort by date descending and take last 5
+      final sortedAssets = List<Asset>.from(state.assets)
+        ..sort((a, b) => b.date.compareTo(a.date));
+      final displayAssets = sortedAssets.take(5).toList();
 
       return SliverList(
         delegate: SliverChildBuilderDelegate((context, index) {
