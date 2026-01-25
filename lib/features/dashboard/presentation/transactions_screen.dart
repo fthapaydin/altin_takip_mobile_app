@@ -10,6 +10,7 @@ import 'package:altin_takip/features/assets/domain/asset.dart';
 import 'package:altin_takip/features/settings/presentation/preference_notifier.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:sticky_headers/sticky_headers.dart';
+import 'package:altin_takip/features/assets/presentation/widgets/add_asset_bottom_sheet.dart';
 
 class TransactionsScreen extends ConsumerWidget {
   const TransactionsScreen({super.key});
@@ -28,9 +29,27 @@ class TransactionsScreen extends ConsumerWidget {
             floating: false,
             pinned: true,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+              icon: const Icon(
+                Icons.arrow_back_ios_new,
+                color: Colors.white,
+                size: 20,
+              ),
               onPressed: () => Navigator.pop(context),
             ),
+            actions: [
+              IconButton(
+                onPressed: () => _showAddAssetBottomSheet(context),
+                icon: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppTheme.gold.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.add, color: AppTheme.gold, size: 20),
+                ),
+              ),
+              const Gap(16),
+            ],
             flexibleSpace: FlexibleSpaceBar(
               titlePadding: const EdgeInsets.only(left: 60, bottom: 16),
               centerTitle: false,
@@ -64,7 +83,9 @@ class TransactionsScreen extends ConsumerWidget {
 
   Widget _buildBody(BuildContext context, WidgetRef ref, AssetState state) {
     if (state is AssetLoading) {
-      return const Center(child: CircularProgressIndicator(color: AppTheme.gold));
+      return const Center(
+        child: CircularProgressIndicator(color: AppTheme.gold),
+      );
     }
 
     if (state is AssetLoaded) {
@@ -79,7 +100,11 @@ class TransactionsScreen extends ConsumerWidget {
                   color: Colors.white.withValues(alpha: 0.05),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.receipt_long_outlined, size: 48, color: Colors.white.withValues(alpha: 0.3)),
+                child: Icon(
+                  Icons.receipt_long_outlined,
+                  size: 48,
+                  color: Colors.white.withValues(alpha: 0.3),
+                ),
               ),
               const Gap(16),
               Text(
@@ -115,25 +140,32 @@ class TransactionsScreen extends ConsumerWidget {
         },
       );
     }
-    
+
     if (state is AssetError) {
       return Center(
-        child: Text(
-          state.message,
-          style: const TextStyle(color: Colors.red),
-        ),
+        child: Text(state.message, style: const TextStyle(color: Colors.red)),
       );
     }
 
     return const SizedBox();
   }
 
-  Widget _buildDateGroup(BuildContext context, WidgetRef ref, String dateKey, List<Asset> assets, int groupIndex) {
+  Widget _buildDateGroup(
+    BuildContext context,
+    WidgetRef ref,
+    String dateKey,
+    List<Asset> assets,
+    int groupIndex,
+  ) {
     final date = DateTime.parse(dateKey);
     final now = DateTime.now();
-    final isToday = date.year == now.year && date.month == now.month && date.day == now.day;
-    final isYesterday = date.year == now.year && date.month == now.month && date.day == now.day - 1;
-    
+    final isToday =
+        date.year == now.year && date.month == now.month && date.day == now.day;
+    final isYesterday =
+        date.year == now.year &&
+        date.month == now.month &&
+        date.day == now.day - 1;
+
     String headerText;
     if (isToday) {
       headerText = 'Bugün';
@@ -160,7 +192,12 @@ class TransactionsScreen extends ConsumerWidget {
               ),
             ),
             const Gap(8),
-            Expanded(child: Divider(color: AppTheme.gold.withValues(alpha: 0.2), height: 1)),
+            Expanded(
+              child: Divider(
+                color: AppTheme.gold.withValues(alpha: 0.2),
+                height: 1,
+              ),
+            ),
           ],
         ),
       ),
@@ -168,13 +205,23 @@ class TransactionsScreen extends ConsumerWidget {
         children: assets.asMap().entries.map((entry) {
           final index = entry.key;
           final asset = entry.value;
-          return _buildTransactionItem(context, ref, asset, index: index + (groupIndex * 10)); // Offset index for staggering
+          return _buildTransactionItem(
+            context,
+            ref,
+            asset,
+            index: index + (groupIndex * 10),
+          ); // Offset index for staggering
         }).toList(),
       ),
     );
   }
 
-  Widget _buildTransactionItem(BuildContext context, WidgetRef ref, Asset asset, {required int index}) {
+  Widget _buildTransactionItem(
+    BuildContext context,
+    WidgetRef ref,
+    Asset asset, {
+    required int index,
+  }) {
     final isBuy = asset.type == 'buy';
     final useDynamicDate = ref.watch(preferenceProvider).useDynamicDate;
     final formattedDate = DateFormatter.format(
@@ -182,7 +229,6 @@ class TransactionsScreen extends ConsumerWidget {
       useDynamic: useDynamicDate,
     );
     final timeStr = DateFormat('HH:mm').format(asset.date);
-
 
     double? profit;
     if (isBuy && asset.currency != null) {
@@ -222,10 +268,14 @@ class TransactionsScreen extends ConsumerWidget {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: (isBuy ? Colors.green : Colors.red).withValues(alpha: 0.1),
+                    color: (isBuy ? Colors.green : Colors.red).withValues(
+                      alpha: 0.1,
+                    ),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
-                      color: (isBuy ? Colors.green : Colors.red).withValues(alpha: 0.1),
+                      color: (isBuy ? Colors.green : Colors.red).withValues(
+                        alpha: 0.1,
+                      ),
                     ),
                   ),
                   child: Icon(
@@ -235,7 +285,7 @@ class TransactionsScreen extends ConsumerWidget {
                   ),
                 ),
                 const Gap(16),
-                
+
                 // Asset Info
                 Expanded(
                   child: Column(
@@ -252,7 +302,11 @@ class TransactionsScreen extends ConsumerWidget {
                       const Gap(4),
                       Row(
                         children: [
-                          Icon(Icons.access_time_rounded, size: 12, color: Colors.white.withValues(alpha: 0.3)),
+                          Icon(
+                            Icons.access_time_rounded,
+                            size: 12,
+                            color: Colors.white.withValues(alpha: 0.3),
+                          ),
                           const Gap(4),
                           Text(
                             useDynamicDate ? formattedDate : timeStr,
@@ -287,35 +341,45 @@ class TransactionsScreen extends ConsumerWidget {
                         fontSize: 12,
                       ),
                     ),
-                     if (profit != null) ...[
-                          const Gap(4),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: (isProfitPositive ? Colors.green : Colors.red).withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(4),
+                    if (profit != null) ...[
+                      const Gap(4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: (isProfitPositive ? Colors.green : Colors.red)
+                              .withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              isProfitPositive
+                                  ? Icons.trending_up
+                                  : Icons.trending_down,
+                              size: 10,
+                              color: isProfitPositive
+                                  ? Colors.green
+                                  : Colors.red,
                             ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  isProfitPositive ? Icons.trending_up : Icons.trending_down, 
-                                  size: 10, 
-                                  color: isProfitPositive ? Colors.green : Colors.red
-                                ),
-                                const Gap(2),
-                                Text(
-                                  '₺${NumberFormat('#,##0.0', 'tr_TR').format(profit.abs())}',
-                                  style: TextStyle(
-                                    color: isProfitPositive ? Colors.green : Colors.red,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
+                            const Gap(2),
+                            Text(
+                              '₺${NumberFormat('#,##0.0', 'tr_TR').format(profit.abs())}',
+                              style: TextStyle(
+                                color: isProfitPositive
+                                    ? Colors.green
+                                    : Colors.red,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ],
@@ -324,5 +388,14 @@ class TransactionsScreen extends ConsumerWidget {
         ),
       ),
     ).animate().fadeIn(delay: (50 * index).ms).slideX(begin: 0.1, curve: Curves.easeOut);
+  }
+
+  void _showAddAssetBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const AddAssetBottomSheet(),
+    );
   }
 }

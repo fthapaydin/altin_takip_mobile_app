@@ -14,6 +14,7 @@ import 'package:altin_takip/core/utils/date_formatter.dart';
 import 'package:altin_takip/features/settings/presentation/preference_notifier.dart';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:altin_takip/features/dashboard/presentation/transactions_screen.dart';
 
 class AssetsScreen extends ConsumerStatefulWidget {
   const AssetsScreen({super.key});
@@ -164,6 +165,29 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
               ),
             ),
             actions: [
+              IconButton(
+                onPressed: () {
+                    Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const TransactionsScreen(),
+                    ),
+                  );
+                },
+                icon: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.05),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.history,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+              ),
+              const Gap(8),
               IconButton(
                 onPressed: _showAddAssetBottomSheet,
                 icon: Container(

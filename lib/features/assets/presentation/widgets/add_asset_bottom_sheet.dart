@@ -8,6 +8,7 @@ import 'package:altin_takip/features/assets/presentation/asset_state.dart';
 import 'package:altin_takip/features/currencies/domain/currency.dart';
 import 'package:altin_takip/core/widgets/app_notification.dart';
 import 'package:intl/intl.dart';
+import 'package:altin_takip/features/dashboard/presentation/transactions_screen.dart';
 
 class AddAssetBottomSheet extends ConsumerStatefulWidget {
   const AddAssetBottomSheet({super.key});
@@ -114,7 +115,7 @@ class _AddAssetBottomSheetState extends ConsumerState<AddAssetBottomSheet>
       filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
       child: Container(
         padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 80,
           top: 24,
           left: 24,
           right: 24,
@@ -161,16 +162,39 @@ class _AddAssetBottomSheetState extends ConsumerState<AddAssetBottomSheet>
                       color: Colors.white,
                     ),
                   ),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.05),
-                        shape: BoxShape.circle,
+                  Row(
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                           Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const TransactionsScreen(),
+                            ),
+                          );
+                        },
+                        icon: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.05),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.history, size: 20, color: Colors.white),
+                        ),
                       ),
-                      child: const Icon(Icons.close, size: 20),
-                    ),
+                      const Gap(8),
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.05),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.close, size: 20),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
