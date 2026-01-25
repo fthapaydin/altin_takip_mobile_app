@@ -501,7 +501,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         ),
         const SliverGap(16),
         _buildTransactionList(state),
-        _buildTransactionList(state),
         const SliverGap(150),
       ],
     );
