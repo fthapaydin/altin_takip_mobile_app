@@ -17,11 +17,17 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
-  late bool _encryptionEnabled;
+  bool _encryptionEnabled = false;
 
   @override
   void initState() {
     super.initState();
+    final authState = ref.read(authProvider);
+    if (authState is AuthAuthenticated) {
+      _encryptionEnabled = authState.user.isEncrypted;
+    } else if (authState is AuthEncryptionRequired) {
+      _encryptionEnabled = authState.user.isEncrypted;
+    }
   }
 
   @override
@@ -54,6 +60,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     // Update local state from auth provider
     final authState = ref.watch(authProvider);
     if (authState is AuthAuthenticated) {
+       _encryptionEnabled = authState.user.isEncrypted;
+    } else if (authState is AuthEncryptionRequired) {
        _encryptionEnabled = authState.user.isEncrypted;
     }
 

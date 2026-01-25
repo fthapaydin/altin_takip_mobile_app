@@ -4,6 +4,7 @@ import 'package:gap/gap.dart';
 import 'package:altin_takip/core/theme/app_theme.dart';
 import 'package:altin_takip/features/auth/presentation/auth_notifier.dart';
 import 'package:altin_takip/features/auth/presentation/auth_state.dart';
+import 'package:altin_takip/features/assets/presentation/asset_notifier.dart';
 import 'package:altin_takip/core/widgets/app_notification.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
@@ -33,6 +34,9 @@ class _EncryptionScreenState extends ConsumerState<EncryptionScreen> {
           message: 'Şifreleme anahtarı doğrulandı.',
           type: NotificationType.success,
         );
+        // Refresh assets and close screen
+        ref.read(assetProvider.notifier).loadAllAssets(refresh: true);
+        Navigator.pop(context);
       }
     });
 
@@ -41,60 +45,85 @@ class _EncryptionScreenState extends ConsumerState<EncryptionScreen> {
 
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Gap(40),
-              Text(
-                'Şifreleme Anahtarı',
-                style: context.textTheme.headlineLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.gold,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(24.0),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight:
+                      constraints.maxHeight -
+                      48, // 48 is total vertical padding
                 ),
-              ).animate().fadeIn().slideX(),
-              const Gap(8),
-              Text(
-                'Hesabınız şifrelenmiş. Varlıklarınızı görüntülemek için şifreleme anahtarınızı (genellikle hesap şifreniz) girin.',
-                style: context.textTheme.bodyLarge?.copyWith(
-                  color: Colors.white70,
-                ),
-              ).animate().fadeIn(delay: 100.ms).slideX(),
-              const Gap(48),
-              TextField(
-                controller: _keyController,
-                obscureText: true,
-                enabled: !isLoading,
-                decoration: const InputDecoration(
-                  hintText: 'Şifreleme Şifresi / Anahtarı',
-                  prefixIcon: Icon(Icons.lock_person_outlined),
-                ),
-              ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1),
-              const Gap(32),
-              ElevatedButton(
-                onPressed: isLoading
-                    ? null
-                    : () {
-                        if (_keyController.text.isNotEmpty) {
-                          ref
-                              .read(authProvider.notifier)
-                              .setEncryptionKey(_keyController.text);
-                        }
-                      },
-                child: isLoading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.black,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Gap(40),
+                    Text(
+                      'Şifreleme Anahtarı',
+                      style: context.textTheme.headlineLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.gold,
+                      ),
+                    ).animate().fadeIn().slideX(),
+                    const Gap(8),
+                    Text(
+                      'Hesabınız şifrelenmiş. Varlıklarınızı görüntülemek için şifreleme anahtarınızı (genellikle hesap şifreniz) girin.',
+                      style: context.textTheme.bodyLarge?.copyWith(
+                        color: Colors.white70,
+                      ),
+                    ).animate().fadeIn(delay: 100.ms).slideX(),
+                    const Gap(48),
+                    TextField(
+                      controller: _keyController,
+                      obscureText: true,
+                      enabled: !isLoading,
+                      decoration: const InputDecoration(
+                        hintText: 'Şifreleme Şifresi / Anahtarı',
+                        prefixIcon: Icon(Icons.lock_person_outlined),
+                      ),
+                    ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1),
+                    const Gap(32),
+                    ElevatedButton(
+                      onPressed: isLoading
+                          ? null
+                          : () {
+                              if (_keyController.text.isNotEmpty) {
+                                ref
+                                    .read(authProvider.notifier)
+                                    .setEncryptionKey(_keyController.text);
+                              }
+                            },
+                      child: isLoading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.black,
+                              ),
+                            )
+                          : const Text('Devam Et'),
+                    ).animate().fadeIn(delay: 300.ms).scale(),
+                    const Gap(16),
+                    Center(
+                      child: TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text(
+                          'Vazgeç',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.5),
+                          ),
                         ),
-                      )
-                    : const Text('Devam Et'),
-              ).animate().fadeIn(delay: 300.ms).scale(),
-            ],
-          ),
+                      ),
+                    ).animate().fadeIn(delay: 400.ms),
+                    const Gap(40), // Bottom spacer
+                  ],
+                ),
+              ),
+            );
+          },
         ),
       ),
     );

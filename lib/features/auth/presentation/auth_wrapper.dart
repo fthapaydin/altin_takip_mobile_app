@@ -15,7 +15,7 @@ class AuthWrapper extends ConsumerWidget {
 
     return switch (state) {
       AuthAuthenticated _ => const MainShell(),
-      AuthEncryptionRequired _ => const EncryptionScreen(),
+      AuthEncryptionRequired _ => const MainShell(),
       _ => const LoginScreen(),
     };
   }

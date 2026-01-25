@@ -15,6 +15,10 @@ import 'package:altin_takip/features/settings/presentation/preference_notifier.d
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:altin_takip/features/dashboard/presentation/transactions_screen.dart';
+import 'package:altin_takip/features/auth/presentation/auth_notifier.dart';
+import 'package:altin_takip/features/auth/presentation/auth_state.dart';
+import 'package:altin_takip/features/auth/presentation/encryption_screen.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class AssetsScreen extends ConsumerStatefulWidget {
   const AssetsScreen({super.key});
@@ -37,6 +41,23 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
       await _loadSavedOrder();
     });
     _scrollController.addListener(_onScroll);
+
+    // Auto-prompt for encryption if needed
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authState = ref.read(authProvider);
+      if (authState is AuthEncryptionRequired) {
+        _showEncryptionScreen();
+      }
+    });
+  }
+
+  void _showEncryptionScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const EncryptionScreen(),
+      ),
+    );
   }
 
   Future<void> _loadSavedOrder() async {
@@ -213,6 +234,11 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
   }
 
   Widget _buildBody(AssetState state) {
+    final authState = ref.watch(authProvider);
+    if (authState is AuthEncryptionRequired) {
+      return _buildLockedView();
+    }
+
     if (state is AssetLoading || !_orderLoaded) {
       return _buildShimmerList();
     }
@@ -283,6 +309,69 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
     }
 
     return const SizedBox();
+  }
+
+  Widget _buildLockedView() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: AppTheme.gold.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.lock_outline_rounded,
+              color: AppTheme.gold,
+              size: 48,
+            ),
+          ).animate().fadeIn().scale(),
+          const Gap(24),
+          const Text(
+            'Portföy Kilitli',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ).animate().fadeIn(delay: 100.ms).slideY(begin: 0.2),
+          const Gap(8),
+          const Text(
+            'Varlıklarınızı görüntülemek için\nşifreleme anahtarınızı girin.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white54,
+              fontSize: 14,
+            ),
+          ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.2),
+          const Gap(32),
+          ElevatedButton(
+            onPressed: () {
+               Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const EncryptionScreen(),
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.gold,
+              foregroundColor: Colors.black,
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+            child: const Text(
+              'Kilidi Aç',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ).animate().fadeIn(delay: 300.ms).scale(),
+        ],
+      ),
+    );
   }
 
   Widget _buildAssetGroup({
