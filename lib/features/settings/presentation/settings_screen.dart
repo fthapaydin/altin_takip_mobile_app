@@ -22,9 +22,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   @override
   void initState() {
     super.initState();
-    final authState = ref.read(authProvider);
-    _encryptionEnabled =
-        authState is AuthAuthenticated && authState.user.isEncrypted;
   }
 
   @override
@@ -53,6 +50,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     final state = ref.watch(settingsProvider);
     final isLoading = state is SettingsLoading;
+    
+    // Update local state from auth provider
+    final authState = ref.watch(authProvider);
+    if (authState is AuthAuthenticated) {
+       _encryptionEnabled = authState.user.isEncrypted;
+    }
 
     return Scaffold(
       backgroundColor: AppTheme.background,
