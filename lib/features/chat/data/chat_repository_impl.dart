@@ -82,6 +82,31 @@ class ChatRepositoryImpl implements ChatRepository {
     } catch (e) {
       if (e is DioException) {
         dev.log('Start conversation error body: ${e.response?.data}');
+
+        // Special handling for 429 errors - conversation might be created
+        if (e.response?.statusCode == 429 && e.response?.data != null) {
+          try {
+            final data = e.response!.data;
+            // Try to extract conversation if it exists
+            if (data is Map<String, dynamic> && data['conversation'] != null) {
+              final conversation = ConversationDto.fromJson(
+                data['conversation'],
+              );
+              final errorMessage =
+                  data['error']?.toString() ??
+                  data['message']?.toString() ??
+                  'Yapay zeka servisi şu anda meşgul. Lütfen biraz sonra tekrar deneyin.';
+              dev.log(
+                'Extracted conversation from 429 error, showing error as message',
+              );
+              return Right((conversation, errorMessage));
+            }
+          } catch (parseError) {
+            dev.log(
+              'Failed to parse conversation from error response: $parseError',
+            );
+          }
+        }
       }
       dev.log('Start conversation error: $e');
       return Left(ServerFailure(NetworkExceptionHandler.getErrorMessage(e)));

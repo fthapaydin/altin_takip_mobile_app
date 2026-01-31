@@ -29,13 +29,16 @@ class NetworkExceptionHandler {
     final dynamic data = error.response?.data;
 
     try {
+      final apiMessage = data is Map<String, dynamic>
+          ? (data['error']?.toString() ?? data['message']?.toString())
+          : null;
+
       if (statusCode == 401) {
-        return data?['message'] ??
-            'Oturum süresi doldu. Lütfen tekrar giriş yapın.';
+        return apiMessage ?? 'Oturum süresi doldu. Lütfen tekrar giriş yapın.';
       } else if (statusCode == 403) {
-        return data?['message'] ?? 'Bu işlem için yetkiniz yok.';
+        return apiMessage ?? 'Bu işlem için yetkiniz yok.';
       } else if (statusCode == 404) {
-        return data?['message'] ?? 'İstenen kaynak bulunamadı.';
+        return apiMessage ?? 'İstenen kaynak bulunamadı.';
       } else if (statusCode == 422) {
         // Handle Laravel validation errors
         if (data is Map<String, dynamic> && data.containsKey('errors')) {
@@ -52,14 +55,16 @@ class NetworkExceptionHandler {
                 : 'Girdiğiniz bilgeri kontrol edin.';
           }
         }
-        return data?['message'] ?? 'Lütfen girdiğiniz bilgileri kontrol edin.';
+        return apiMessage ?? 'Lütfen girdiğiniz bilgileri kontrol edin.';
       } else if (statusCode == 429) {
-        return 'Çok fazla istek gönderdiniz. Lütfen biraz bekleyin.';
+        return apiMessage ??
+            'Çok fazla istek gönderdiniz. Lütfen biraz bekleyin.';
       } else if (statusCode != null && statusCode >= 500) {
-        return 'Sunucu kaynaklı bir hata oluştu. Lütfen daha sonra tekrar deneyin.';
+        return apiMessage ??
+            'Sunucu kaynaklı bir hata oluştu. Lütfen daha sonra tekrar deneyin.';
       }
 
-      return data?['message'] ?? 'Bir hata oluştu ($statusCode)';
+      return apiMessage ?? 'Bir hata oluştu ($statusCode)';
     } catch (_) {
       return 'Beklenmedik bir sunucu hatası oluştu.';
     }

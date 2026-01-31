@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:gap/gap.dart';
 import 'package:altin_takip/core/theme/app_theme.dart';
+import 'package:altin_takip/core/widgets/app_notification.dart';
 import 'package:altin_takip/features/chat/presentation/chat_notifier.dart';
 import 'package:altin_takip/features/chat/presentation/chat_state.dart';
 import 'package:altin_takip/features/chat/domain/chat_message.dart';
@@ -38,6 +39,23 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Listen for errors
+    ref.listen(chatRoomProvider, (previous, next) {
+      if (next is ChatRoomLoaded && next.error != null) {
+        AppNotification.show(
+          context,
+          message: next.error!,
+          type: NotificationType.error,
+        );
+      } else if (next is ChatRoomError) {
+        AppNotification.show(
+          context,
+          message: next.message,
+          type: NotificationType.error,
+        );
+      }
+    });
+
     final state = ref.watch(chatRoomProvider);
 
     if (state is ChatRoomLoaded) {

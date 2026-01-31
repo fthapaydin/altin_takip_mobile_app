@@ -1,3 +1,4 @@
+import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -5,6 +6,7 @@ import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:altin_takip/core/theme/app_theme.dart';
+import 'package:altin_takip/core/widgets/app_notification.dart';
 import 'package:altin_takip/features/chat/presentation/chat_notifier.dart';
 import 'package:altin_takip/features/chat/presentation/chat_state.dart';
 import 'package:altin_takip/features/chat/presentation/chat_room_screen.dart';
@@ -371,6 +373,7 @@ class _NewChatSheet extends ConsumerStatefulWidget {
 
 class _NewChatSheetState extends ConsumerState<_NewChatSheet> {
   final _controller = TextEditingController();
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -522,33 +525,87 @@ class _NewChatSheetState extends ConsumerState<_NewChatSheet> {
                 color: Colors.transparent,
                 child: InkWell(
                   borderRadius: BorderRadius.circular(16),
-                  onTap: () {
-                    if (_controller.text.trim().isEmpty) return;
-                    ref
-                        .read(chatRoomProvider.notifier)
-                        .startNewChat(_controller.text.trim());
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const ChatRoomScreen()),
-                    );
-                  },
-                  child: const Center(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'Gönder',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
+                  onTap: _isLoading
+                      ? null
+                      : () async {
+                          if (_controller.text.trim().isEmpty) return;
+
+                          setState(() => _isLoading = true);
+
+                          final message = _controller.text.trim();
+                          final notifier = ref.read(chatRoomProvider.notifier);
+                          final historyNotifier = ref.read(
+                            chatHistoryProvider.notifier,
+                          );
+
+                          // Start the conversation
+                          await notifier.startNewChat(message);
+
+                          if (!mounted) return;
+
+                          setState(() => _isLoading = false);
+
+                          // Check the result
+                          final chatState = ref.read(chatRoomProvider);
+                          dev.log('Chat state: ${chatState.runtimeType}');
+
+                          // Close the bottom sheet
+                          Navigator.pop(context);
+
+                          if (chatState is ChatRoomLoaded) {
+                            // Success - navigate to chat room
+                            dev.log('Navigating to chat room');
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const ChatRoomScreen(),
+                              ),
+                            );
+                          } else if (chatState is ChatRoomError) {
+                            // Error - show message
+                            dev.log('Showing error: ${chatState.message}');
+                            AppNotification.show(
+                              context,
+                              message: chatState.message,
+                              type: NotificationType.error,
+                            );
+                            // Refresh conversation list
+                            historyNotifier.loadConversations(
+                              isRefreshing: true,
+                            );
+                          }
+                        },
+                  child: Center(
+                    child: _isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.black,
+                              ),
+                            ),
+                          )
+                        : const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'Gönder',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 15,
+                                ),
+                              ),
+                              Gap(10),
+                              Icon(
+                                Iconsax.send_1,
+                                color: Colors.black,
+                                size: 20,
+                              ),
+                            ],
                           ),
-                        ),
-                        Gap(10),
-                        Icon(Iconsax.send_1, color: Colors.black, size: 20),
-                      ],
-                    ),
                   ),
                 ),
               ),
