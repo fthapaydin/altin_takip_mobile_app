@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:altin_takip/features/chat/presentation/chat_list_screen.dart';
 import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
 import 'package:altin_takip/core/theme/app_theme.dart';
@@ -56,30 +57,67 @@ class DashboardHeader extends StatelessWidget {
                 ),
               ],
             ),
-            Consumer(
-              builder: (context, ref, _) {
-                final assetState = ref.watch(assetProvider);
-                final isLoading =
-                    assetState is AssetLoaded && assetState.isRefreshing;
-
-                return IconButton(
-                  onPressed: () => ref
-                      .read(assetProvider.notifier)
-                      .loadDashboard(refresh: true),
+            Row(
+              children: [
+                IconButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const ChatListScreen()),
+                    );
+                  },
                   icon: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.05),
+                      gradient: LinearGradient(
+                        colors: [AppTheme.gold, AppTheme.gold.withOpacity(0.5)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
                       shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.gold.withOpacity(0.2),
+                          blurRadius: 8,
+                          spreadRadius: 1,
+                        ),
+                      ],
                     ),
-                    child: Icon(
-                      isLoading ? Icons.hourglass_empty : Icons.refresh_rounded,
+                    child: const Icon(
+                      Icons.auto_awesome_rounded,
                       size: 20,
-                      color: isLoading ? AppTheme.gold : Colors.white,
+                      color: Colors.black,
                     ),
                   ),
-                );
-              },
+                ).animate().scale(delay: 500.ms, curve: Curves.easeOutBack),
+                Consumer(
+                  builder: (context, ref, _) {
+                    final assetState = ref.watch(assetProvider);
+                    final isLoading =
+                        assetState is AssetLoaded && assetState.isRefreshing;
+
+                    return IconButton(
+                      onPressed: () => ref
+                          .read(assetProvider.notifier)
+                          .loadDashboard(refresh: true),
+                      icon: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.05),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          isLoading
+                              ? Icons.hourglass_empty
+                              : Icons.refresh_rounded,
+                          size: 20,
+                          color: isLoading ? AppTheme.gold : Colors.white,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
           ],
         ),

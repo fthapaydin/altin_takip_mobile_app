@@ -14,7 +14,7 @@ class DashboardRepositoryImpl implements DashboardRepository {
   @override
   Future<Either<Failure, DashboardData>> getDashboardData() async {
     try {
-      final response = await _dioClient.dio.get('/dashboard');
+      final response = await _dioClient.dio.get('dashboard');
 
       if (response.statusCode == 200 && response.data != null) {
         final dashboardData = DashboardDataDto.fromJson(

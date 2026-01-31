@@ -37,7 +37,7 @@ class AssetRepositoryImpl implements AssetRepository {
   }) async {
     try {
       final response = await _dioClient.dio.get(
-        '/assets',
+        'assets',
         queryParameters: {'page': page},
       );
 
@@ -83,8 +83,10 @@ class AssetRepositoryImpl implements AssetRepository {
         final message = NetworkExceptionHandler.getErrorMessage(e);
         // Check for specific backend message or status code indicating encryption is required
         if (e.response?.statusCode == 400 &&
-            (message.contains('şifre') || message.contains('encryption') || message.contains('password'))) {
-           return const Left(EncryptionRequiredFailure());
+            (message.contains('şifre') ||
+                message.contains('encryption') ||
+                message.contains('password'))) {
+          return const Left(EncryptionRequiredFailure());
         }
       }
       return Left(ServerFailure(NetworkExceptionHandler.getErrorMessage(e)));
@@ -102,7 +104,7 @@ class AssetRepositoryImpl implements AssetRepository {
   }) async {
     try {
       final response = await _dioClient.dio.post(
-        '/assets',
+        'assets',
         data: {
           'currency_id': currencyId,
           'type': 'buy',
@@ -131,7 +133,7 @@ class AssetRepositoryImpl implements AssetRepository {
   }) async {
     try {
       final response = await _dioClient.dio.post(
-        '/assets',
+        'assets',
         data: {
           'currency_id': currencyId,
           'type': 'sell',
@@ -157,7 +159,7 @@ class AssetRepositoryImpl implements AssetRepository {
   @override
   Future<Either<Failure, Unit>> deleteAsset(int id) async {
     try {
-      await _dioClient.dio.delete('/assets/$id');
+      await _dioClient.dio.delete('assets/$id');
       return const Right(unit);
     } catch (e) {
       return Left(ServerFailure(NetworkExceptionHandler.getErrorMessage(e)));

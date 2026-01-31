@@ -8,7 +8,7 @@ class DioClient {
   DioClient(this._storageService) {
     dio = Dio(
       BaseOptions(
-        baseUrl: 'https://altin.kiracilarim.com/api',
+        baseUrl: 'https://altin.kiracilarim.com/api/',
         connectTimeout: const Duration(seconds: 30),
         receiveTimeout: const Duration(seconds: 30),
         sendTimeout: const Duration(seconds: 30),

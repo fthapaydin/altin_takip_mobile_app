@@ -20,7 +20,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     try {
       final response = await _dioClient.dio.post(
-        '/auth/login',
+        'auth/login',
         data: {
           'email': email,
           'password': password,
@@ -40,7 +40,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, Unit>> forgotPassword({required String email}) async {
     try {
-      await _dioClient.dio.post('/auth/forgot-password', data: {'email': email});
+      await _dioClient.dio.post('auth/forgot-password', data: {'email': email});
       return const Right(unit);
     } catch (e) {
       return Left(ServerFailure(NetworkExceptionHandler.getErrorMessage(e)));
@@ -54,7 +54,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     try {
       await _dioClient.dio.post(
-        '/auth/reset-password',
+        'auth/reset-password',
         data: {
           'verification_code': verificationCode,
           'password': password,
@@ -77,7 +77,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     try {
       final response = await _dioClient.dio.post(
-        '/auth/register',
+        'auth/register',
         data: {
           'name': name,
           'surname': surname,
@@ -104,7 +104,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     try {
       await _dioClient.dio.post(
-        '/auth/change-password',
+        'auth/change-password',
         data: {
           'current_password': currentPassword,
           'password': newPassword,
@@ -123,7 +123,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     try {
       await _dioClient.dio.delete(
-        '/auth/delete-account',
+        'auth/delete-account',
         data: {'password': password},
       );
       return const Right(unit);
@@ -139,7 +139,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     try {
       await _dioClient.dio.post(
-        '/encryption/toggle',
+        'encryption/toggle',
         data: {'status': status, 'password': password},
       );
       return const Right(unit);
@@ -152,7 +152,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, bool>> verifyEncryptionKey(String key) async {
     try {
       await _dioClient.dio.get(
-        '/assets',
+        'assets',
         options: Options(headers: {'X-Encryption-Key': key}),
       );
       return const Right(true);
@@ -168,7 +168,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, User>> getUser() async {
     try {
-      await _dioClient.dio.get('/currencies');
+      await _dioClient.dio.get('currencies');
       return Left(ServerFailure('User data should be retrieved from storage.'));
     } catch (e) {
       if (e is DioException) {

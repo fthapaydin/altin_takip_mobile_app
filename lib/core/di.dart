@@ -9,6 +9,8 @@ import 'package:altin_takip/features/currencies/domain/currency_repository.dart'
 import 'package:altin_takip/features/currencies/data/currency_repository_impl.dart';
 import 'package:altin_takip/features/dashboard/domain/dashboard_repository.dart';
 import 'package:altin_takip/features/dashboard/data/dashboard_repository_impl.dart';
+import 'package:altin_takip/features/chat/domain/chat_repository.dart';
+import 'package:altin_takip/features/chat/data/chat_repository_impl.dart';
 
 final sl = GetIt.instance;
 
@@ -28,4 +30,5 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton<DashboardRepository>(
     () => DashboardRepositoryImpl(sl()),
   );
+  sl.registerLazySingleton<ChatRepository>(() => ChatRepositoryImpl(sl()));
 }
