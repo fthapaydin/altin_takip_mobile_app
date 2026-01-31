@@ -23,83 +23,79 @@ class CurrencyIcon extends StatelessWidget {
 
     // If we have a valid icon URL, try to load the image
     if (iconUrl != null && iconUrl!.isNotEmpty) {
-      print('🎨 CurrencyIcon: Loading icon from URL: $iconUrl');
-
-      // Check if it's an SVG (case-insensitive check)
-      if (iconUrl!.toLowerCase().endsWith('.svg')) {
-        print('🎨 CurrencyIcon: Detected SVG format');
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(24), // Perfect circle
-          child: SvgPicture.network(
-            iconUrl!,
-            width: size,
-            height: size,
-            // Don't apply color filter to SVGs - let them use their original colors
-            fit: BoxFit.cover, // Fill the entire space
-            placeholderBuilder: (context) {
-              print('🎨 CurrencyIcon: SVG loading...');
-              return SizedBox(
-                width: size,
-                height: size,
-                child: Center(
-                  child: SizedBox(
-                    width: size * 0.6,
-                    height: size * 0.6,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: effectiveColor.withOpacity(0.3),
-                    ),
-                  ),
-                ),
-              );
-            },
+      Widget wrapWithContainer(Widget child) {
+        return Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.05),
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.08),
+              width: 1,
+            ),
           ),
+          child: ClipOval(clipBehavior: Clip.antiAlias, child: child),
         );
       }
-      // Otherwise, treat it as a raster image (PNG, JPG, etc.)
-      else {
-        print('🎨 CurrencyIcon: Detected raster image format');
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(24), // Perfect circle
-          child: Image.network(
+
+      if (iconUrl!.toLowerCase().endsWith('.svg')) {
+        return wrapWithContainer(
+          SvgPicture.network(
             iconUrl!,
-            width: size,
-            height: size,
-            fit: BoxFit.cover, // Fill the entire space
-            cacheWidth: (size * 2).toInt(), // Cache at 2x for better quality
-            cacheHeight: (size * 2).toInt(),
-            // Don't apply color - let images use their original colors
+            fit: BoxFit.cover,
+            placeholderBuilder: (context) => _buildLoadingState(effectiveColor),
+          ),
+        );
+      } else {
+        return wrapWithContainer(
+          Image.network(
+            iconUrl!,
+            fit: BoxFit.cover,
+            cacheWidth: (size * 3).toInt(),
+            cacheHeight: (size * 3).toInt(),
             loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) {
-                print('🎨 CurrencyIcon: Image loaded successfully');
-                return child;
-              }
-              print('🎨 CurrencyIcon: Image loading progress...');
-              return _buildFallbackIcon(effectiveColor);
+              if (loadingProgress == null) return child;
+              return _buildLoadingState(effectiveColor);
             },
-            errorBuilder: (context, error, stackTrace) {
-              print('❌ CurrencyIcon: Error loading image from $iconUrl');
-              print('❌ CurrencyIcon: Error details: $error');
-              return _buildFallbackIcon(effectiveColor);
-            },
+            errorBuilder: (context, error, stackTrace) =>
+                _buildFallbackIcon(effectiveColor),
           ),
         );
       }
     }
 
-    print('🎨 CurrencyIcon: No icon URL provided, using fallback');
     // Fallback to Material icons
     return _buildFallbackIcon(effectiveColor);
   }
 
-  Widget _buildFallbackIcon(Color color) {
+  Widget _buildLoadingState(Color color) {
     return Center(
       child: SizedBox(
-        width: size * 0.6,
-        height: size * 0.6,
+        width: size * 0.4,
+        height: size * 0.4,
         child: CircularProgressIndicator(
-          strokeWidth: 2,
-          color: color.withValues(alpha: 0.3),
+          strokeWidth: 1.5,
+          color: color.withValues(alpha: 0.2),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFallbackIcon(Color color) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        shape: BoxShape.circle,
+        border: Border.all(color: color.withValues(alpha: 0.2), width: 1),
+      ),
+      child: Center(
+        child: Icon(
+          isGold ? Icons.auto_awesome : Icons.currency_exchange,
+          size: size * 0.5,
+          color: color,
         ),
       ),
     );
