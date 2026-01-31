@@ -6,6 +6,7 @@ import 'package:altin_takip/features/assets/domain/pagination.dart';
 import 'package:altin_takip/features/assets/presentation/asset_state.dart';
 import 'package:altin_takip/features/currencies/domain/currency_repository.dart';
 import 'package:altin_takip/features/auth/presentation/auth_notifier.dart';
+import 'package:altin_takip/features/dashboard/domain/dashboard_repository.dart';
 
 final assetProvider = NotifierProvider<AssetNotifier, AssetState>(
   AssetNotifier.new,
@@ -14,20 +15,23 @@ final assetProvider = NotifierProvider<AssetNotifier, AssetState>(
 class AssetNotifier extends Notifier<AssetState> {
   late final AssetRepository _assetRepository;
   late final CurrencyRepository _currencyRepository;
+  late final DashboardRepository _dashboardRepository;
 
   @override
   AssetState build() {
     _assetRepository = sl<AssetRepository>();
     _currencyRepository = sl<CurrencyRepository>();
+    _dashboardRepository = sl<DashboardRepository>();
     return const AssetInitial();
   }
 
   Future<void> loadDashboard() async {
     state = const AssetLoading();
 
-    // Always fetch both concurrently
+    // Fetch all data concurrently
     final assetsResult = await _assetRepository.getAssets();
     final currenciesResult = await _currencyRepository.getCurrencies();
+    final dashboardResult = await _dashboardRepository.getDashboardData();
 
     // Check currencies first - they are critical for the UI
     currenciesResult.fold(
@@ -56,6 +60,7 @@ class AssetNotifier extends Notifier<AssetState> {
               ),
               currencies: currencies,
               hasMore: false,
+              dashboardData: dashboardResult.fold((_) => null, (data) => data),
             );
           },
           (data) {
@@ -66,6 +71,7 @@ class AssetNotifier extends Notifier<AssetState> {
               pagination: pagination,
               currencies: currencies,
               hasMore: pagination.currentPage < pagination.lastPage,
+              dashboardData: dashboardResult.fold((_) => null, (data) => data),
             );
           },
         );

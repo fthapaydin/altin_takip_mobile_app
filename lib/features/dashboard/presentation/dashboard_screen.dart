@@ -20,6 +20,7 @@ import 'package:altin_takip/features/dashboard/presentation/transactions_screen.
 import 'package:altin_takip/features/currencies/presentation/history/currency_history_screen.dart';
 import 'package:altin_takip/features/assets/presentation/add_asset_screen.dart';
 import 'package:altin_takip/core/widgets/currency_icon.dart';
+import 'package:altin_takip/features/dashboard/presentation/widgets/portfolio_chart.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -294,11 +295,25 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       return _buildPortfolioShimmer();
     }
 
-    final totalWorth = state is AssetLoaded ? _calculateTotalWorth(state) : 0.0;
-    final profitLoss = state is AssetLoaded ? _calculateProfitLoss(state) : 0.0;
-    final profitPercentage = (totalWorth - profitLoss) > 0
-        ? (profitLoss / (totalWorth - profitLoss)) * 100
-        : 0.0;
+    // Use dashboard data if available, otherwise calculate from assets
+    final dashboardSummary = (state is AssetLoaded)
+        ? state.dashboardData?.summary
+        : null;
+    final chartData = (state is AssetLoaded)
+        ? state.dashboardData?.chartData
+        : null;
+
+    final totalWorth =
+        dashboardSummary?.totalValue ??
+        (state is AssetLoaded ? _calculateTotalWorth(state) : 0.0);
+    final profitLoss =
+        dashboardSummary?.profitLoss ??
+        (state is AssetLoaded ? _calculateProfitLoss(state) : 0.0);
+    final profitPercentage =
+        dashboardSummary?.profitLossPercentage ??
+        ((totalWorth - profitLoss) > 0
+            ? (profitLoss / (totalWorth - profitLoss)) * 100
+            : 0.0);
 
     return Container(
       width: double.infinity,
@@ -315,103 +330,122 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          // Chart background (semi-transparent)
+          if (chartData != null && chartData.isNotEmpty)
+            Positioned.fill(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 0,
+                  vertical: 20,
+                ),
+                child: PortfolioChart(chartData: chartData),
+              ),
+            ),
+
+          // Content overlay
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Toplam Portföy Değeri',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.6),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: (profitLoss >= 0 ? Colors.green : Colors.red)
+                          .withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: (profitLoss >= 0 ? Colors.green : Colors.red)
+                            .withOpacity(0.2),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          profitLoss >= 0
+                              ? Icons.trending_up
+                              : Icons.trending_down,
+                          color: profitLoss >= 0 ? Colors.green : Colors.red,
+                          size: 14,
+                        ),
+                        const Gap(6),
+                        Text(
+                          '%${NumberFormat('#,##0.1', 'tr_TR').format(profitPercentage.abs())}',
+                          style: TextStyle(
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                            color: profitLoss >= 0 ? Colors.green : Colors.red,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const Gap(16),
               Text(
-                'Toplam Portföy Değeri',
-                style: TextStyle(
-                  color: Colors.white.withOpacity(0.6),
-                  fontSize: 13,
-                  fontWeight: FontWeight.w400,
-                  letterSpacing: 0.5,
+                '₺${NumberFormat('#,##0.00', 'tr_TR').format(totalWorth)}',
+                style: const TextStyle(
+                  fontFeatures: [FontFeature.tabularFigures()],
+                  fontWeight: FontWeight.w300, // Thin luxury look
+                  color: Colors.white,
+                  fontSize: 42, // Hero size
+                  letterSpacing: -1.5,
                 ),
               ),
+              const Gap(24),
+              _buildDistributionBar(state),
+              const Gap(24),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: (profitLoss >= 0 ? Colors.green : Colors.red)
-                      .withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: (profitLoss >= 0 ? Colors.green : Colors.red)
-                        .withOpacity(0.2),
-                  ),
+                  color: AppTheme.glassColor,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppTheme.glassBorder),
                 ),
                 child: Row(
-                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Icon(
-                      profitLoss >= 0 ? Icons.trending_up : Icons.trending_down,
-                      color: profitLoss >= 0 ? Colors.green : Colors.red,
-                      size: 14,
-                    ),
-                    const Gap(6),
                     Text(
-                      '%${NumberFormat('#,##0.1', 'tr_TR').format(profitPercentage.abs())}',
+                      'Toplam Kar/Zarar',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.6),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Text(
+                      '${profitLoss >= 0 ? "+" : ""}₺${NumberFormat('#,##0.00', 'tr_TR').format(profitLoss)}',
                       style: TextStyle(
                         fontFeatures: const [FontFeature.tabularFigures()],
-                        color: profitLoss >= 0 ? Colors.green : Colors.red,
+                        color: profitLoss >= 0
+                            ? Color(0xFF4ADE80)
+                            : Color(0xFFF87171), // Softer Green/Red
                         fontWeight: FontWeight.w600,
-                        fontSize: 12,
+                        fontSize: 15,
                       ),
                     ),
                   ],
                 ),
               ),
             ],
-          ),
-          const Gap(16),
-          Text(
-            '₺${NumberFormat('#,##0.00', 'tr_TR').format(totalWorth)}',
-            style: const TextStyle(
-              fontFeatures: [FontFeature.tabularFigures()],
-              fontWeight: FontWeight.w300, // Thin luxury look
-              color: Colors.white,
-              fontSize: 42, // Hero size
-              letterSpacing: -1.5,
-            ),
-          ),
-          const Gap(24),
-          _buildDistributionBar(state),
-          const Gap(24),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppTheme.glassColor,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppTheme.glassBorder),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Toplam Kar/Zarar',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.6),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Text(
-                  '${profitLoss >= 0 ? "+" : ""}₺${NumberFormat('#,##0.00', 'tr_TR').format(profitLoss)}',
-                  style: TextStyle(
-                    fontFeatures: const [FontFeature.tabularFigures()],
-                    color: profitLoss >= 0
-                        ? Color(0xFF4ADE80)
-                        : Color(0xFFF87171), // Softer Green/Red
-                    fontWeight: FontWeight.w600,
-                    fontSize: 15,
-                  ),
-                ),
-              ],
-            ),
           ),
         ],
       ),
@@ -1070,10 +1104,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         );
       }
 
-      // Sort by date descending and take last 5
-      final sortedAssets = List<Asset>.from(state.assets)
-        ..sort((a, b) => b.date.compareTo(a.date));
-      final displayAssets = sortedAssets.take(5).toList();
+      // Use recent transactions from dashboard API if available
+      final displayAssets =
+          state.dashboardData?.recentTransactions.take(5).toList() ??
+          (List<Asset>.from(
+            state.assets,
+          )..sort((a, b) => b.date.compareTo(a.date))).take(5).toList();
 
       return SliverList(
         delegate: SliverChildBuilderDelegate((context, index) {

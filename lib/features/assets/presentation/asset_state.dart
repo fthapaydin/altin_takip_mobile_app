@@ -1,6 +1,7 @@
 import 'package:altin_takip/features/assets/domain/asset.dart';
 import 'package:altin_takip/features/assets/domain/pagination.dart';
 import 'package:altin_takip/features/currencies/domain/currency.dart';
+import 'package:altin_takip/features/dashboard/domain/dashboard_data.dart';
 
 sealed class AssetState {
   const AssetState();
@@ -21,6 +22,7 @@ class AssetLoaded extends AssetState {
   final bool isLoadingMore;
   final bool hasMore;
   final String? actionError; // For one-off errors like delete failure
+  final DashboardData? dashboardData; // Dashboard summary and chart data
 
   const AssetLoaded({
     required this.assets,
@@ -29,6 +31,7 @@ class AssetLoaded extends AssetState {
     this.isLoadingMore = false,
     this.hasMore = true,
     this.actionError,
+    this.dashboardData,
   });
 
   AssetLoaded copyWith({
@@ -38,6 +41,7 @@ class AssetLoaded extends AssetState {
     bool? isLoadingMore,
     bool? hasMore,
     String? actionError,
+    DashboardData? dashboardData,
   }) {
     return AssetLoaded(
       assets: assets ?? this.assets,
@@ -47,6 +51,7 @@ class AssetLoaded extends AssetState {
       hasMore: hasMore ?? this.hasMore,
       actionError:
           actionError, // Don't copy actionError by default unless specified
+      dashboardData: dashboardData ?? this.dashboardData,
     );
   }
 }
