@@ -32,8 +32,9 @@ class AssetNotifier extends Notifier<AssetState> {
   Future<void> loadDashboard({bool refresh = false}) async {
     final currentState = state;
 
-    // Prevent concurrent fetches using state-based check
-    if (currentState is AssetLoaded && currentState.isRefreshing) return;
+    // Allow concurrent loadDashboard calls to proceed to ensure we get data
+    // but preventing typical spamming if we are already fetching dashboard explicitly?
+    // For now, we prioritize getting data over preventing duplicate requests.
 
     // Only show full loading if we have no data or it's an explicit forced refresh
     if (currentState is! AssetLoaded) {
@@ -78,10 +79,11 @@ class AssetNotifier extends Notifier<AssetState> {
                 currencies: currencies,
                 hasMore: false,
                 isRefreshing: false,
-                dashboardData: dashboardResult.fold(
-                  (_) => null,
-                  (data) => data,
-                ),
+                dashboardData: dashboardResult.fold((_) {
+                  // Preserve existing data on failure if available
+                  final current = state; // Use latest state
+                  return current is AssetLoaded ? current.dashboardData : null;
+                }, (data) => data),
               );
             },
             (data) {
@@ -92,10 +94,11 @@ class AssetNotifier extends Notifier<AssetState> {
                 currencies: currencies,
                 hasMore: pagination.currentPage < pagination.lastPage,
                 isRefreshing: false,
-                dashboardData: dashboardResult.fold(
-                  (_) => null,
-                  (data) => data,
-                ),
+                dashboardData: dashboardResult.fold((_) {
+                  // Preserve existing data on failure if available
+                  final current = state; // Use latest state
+                  return current is AssetLoaded ? current.dashboardData : null;
+                }, (data) => data),
               );
             },
           );
@@ -113,7 +116,9 @@ class AssetNotifier extends Notifier<AssetState> {
   Future<void> loadAllAssets({bool refresh = false}) async {
     // If it's a refresh during dashboard view, loadDashboard is better as it's a superset
     if (refresh) {
-      return loadDashboard(refresh: true);
+      // However, loadDashboard is heavier. If we only need assets...
+      // But preserving dashboardData is key.
+      // Let's stick to specific implementation but careful with state.
     }
 
     final currentState = state;
@@ -135,16 +140,20 @@ class AssetNotifier extends Notifier<AssetState> {
         final (assets, pagination) = data;
         currenciesResult.fold(
           (failure) => state = AssetError(failure.message),
-          (currencies) => state = AssetLoaded(
-            assets: assets,
-            pagination: pagination,
-            currencies: currencies,
-            hasMore: pagination.currentPage < pagination.lastPage,
-            isRefreshing: false,
-            dashboardData: currentState is AssetLoaded
-                ? currentState.dashboardData
-                : null,
-          ),
+          (currencies) {
+            // Use latest state to preserve dashboardData
+            final current = state;
+            state = AssetLoaded(
+              assets: assets,
+              pagination: pagination,
+              currencies: currencies,
+              hasMore: pagination.currentPage < pagination.lastPage,
+              isRefreshing: false,
+              dashboardData: current is AssetLoaded
+                  ? current.dashboardData
+                  : null,
+            );
+          },
         );
       });
     } catch (e) {

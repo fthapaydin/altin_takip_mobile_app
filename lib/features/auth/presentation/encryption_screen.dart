@@ -35,7 +35,7 @@ class _EncryptionScreenState extends ConsumerState<EncryptionScreen> {
           type: NotificationType.success,
         );
         // Refresh assets and close screen
-        ref.read(assetProvider.notifier).loadAllAssets(refresh: true);
+        ref.read(assetProvider.notifier).loadDashboard(refresh: true);
         Navigator.pop(context);
       }
     });
