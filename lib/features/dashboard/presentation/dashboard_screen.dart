@@ -250,46 +250,85 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final user = authState is AuthAuthenticated ? authState.user : null;
     final isEncrypted = user?.isEncrypted ?? false;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Column(
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Row(
+                  children: [
+                    Text(
+                      'Merhaba, ${user?.formattedName ?? "Misafir"}',
+                      style: context.textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    if (isEncrypted) ...[
+                      const Gap(8),
+                      const Icon(
+                        Icons.enhanced_encryption,
+                        color: AppTheme.gold,
+                        size: 18,
+                      ),
+                    ],
+                  ],
+                ),
                 Text(
-                  'Merhaba, ${user?.formattedName ?? "Misafir"}',
-                  style: context.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                  DateFormat('d MMMM yyyy', 'tr_TR').format(DateTime.now()),
+                  style: context.textTheme.bodyMedium?.copyWith(
+                    color: Colors.white.withValues(alpha: 0.5),
                   ),
                 ),
-                if (isEncrypted) ...[
-                  const Gap(8),
-                  const Icon(
-                    Icons.enhanced_encryption,
-                    color: AppTheme.gold,
-                    size: 18,
-                  ),
-                ],
               ],
             ),
-            Text(
-              DateFormat('d MMMM yyyy', 'tr_TR').format(DateTime.now()),
-              style: context.textTheme.bodyMedium?.copyWith(
-                color: Colors.white70,
-              ),
+            Consumer(
+              builder: (context, ref, _) {
+                final assetState = ref.watch(assetProvider);
+                final isLoading =
+                    assetState is AssetLoaded && assetState.isRefreshing;
+
+                return IconButton(
+                  onPressed: () => ref
+                      .read(assetProvider.notifier)
+                      .loadDashboard(refresh: true),
+                  icon: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.05),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      isLoading ? Icons.hourglass_empty : Icons.refresh_rounded,
+                      size: 20,
+                      color: isLoading ? AppTheme.gold : Colors.white,
+                    ),
+                  ),
+                );
+              },
             ),
           ],
         ),
-        CircleAvatar(
-          radius: 24,
-          backgroundColor: AppTheme.surface,
-          child: Icon(
-            isEncrypted ? Icons.shield : Icons.person,
-            color: AppTheme.gold,
-          ),
+        const Gap(8),
+        Consumer(
+          builder: (context, ref, _) {
+            final assetState = ref.watch(assetProvider);
+            final isLoading =
+                assetState is AssetLoaded && assetState.isRefreshing;
+
+            return AnimatedOpacity(
+              opacity: isLoading ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 300),
+              child: LinearProgressIndicator(
+                backgroundColor: Colors.transparent,
+                color: AppTheme.gold.withValues(alpha: 0.3),
+                minHeight: 2,
+              ),
+            );
+          },
         ),
       ],
     ).animate().fadeIn().slideX();

@@ -21,6 +21,7 @@ class AssetLoaded extends AssetState {
   final List<Currency> currencies;
   final bool isLoadingMore;
   final bool hasMore;
+  final bool isRefreshing;
   final String? actionError; // For one-off errors like delete failure
   final DashboardData? dashboardData; // Dashboard summary and chart data
 
@@ -29,6 +30,7 @@ class AssetLoaded extends AssetState {
     required this.pagination,
     required this.currencies,
     this.isLoadingMore = false,
+    this.isRefreshing = false,
     this.hasMore = true,
     this.actionError,
     this.dashboardData,
@@ -39,6 +41,7 @@ class AssetLoaded extends AssetState {
     Pagination? pagination,
     List<Currency>? currencies,
     bool? isLoadingMore,
+    bool? isRefreshing,
     bool? hasMore,
     String? actionError,
     DashboardData? dashboardData,
@@ -48,6 +51,7 @@ class AssetLoaded extends AssetState {
       pagination: pagination ?? this.pagination,
       currencies: currencies ?? this.currencies,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      isRefreshing: isRefreshing ?? this.isRefreshing,
       hasMore: hasMore ?? this.hasMore,
       actionError:
           actionError, // Don't copy actionError by default unless specified

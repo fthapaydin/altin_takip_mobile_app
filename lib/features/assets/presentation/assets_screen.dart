@@ -226,7 +226,17 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
             ],
           ),
         ],
-        body: _buildBody(state),
+        body: Column(
+          children: [
+            if (state is AssetLoaded && state.isRefreshing)
+              LinearProgressIndicator(
+                backgroundColor: Colors.transparent,
+                color: AppTheme.gold.withValues(alpha: 0.3),
+                minHeight: 2,
+              ),
+            Expanded(child: _buildBody(state)),
+          ],
+        ),
       ),
     );
   }

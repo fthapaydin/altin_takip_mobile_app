@@ -29,19 +29,19 @@ class AssetNotifier extends Notifier<AssetState> {
     return const AssetInitial();
   }
 
-  bool _isFetching = false;
-
   Future<void> loadDashboard({bool refresh = false}) async {
-    if (_isFetching) return;
-
     final currentState = state;
-    // Only show full loading if we have no data or it's an explicit forced refresh
-    if (currentState is! AssetLoaded ||
-        (refresh && currentState.assets.isEmpty)) {
-      state = const AssetLoading();
-    }
 
-    _isFetching = true;
+    // Prevent concurrent fetches using state-based check
+    if (currentState is AssetLoaded && currentState.isRefreshing) return;
+
+    // Only show full loading if we have no data or it's an explicit forced refresh
+    if (currentState is! AssetLoaded) {
+      state = const AssetLoading();
+    } else if (refresh) {
+      // Set refreshing flag in state for reactivity
+      state = currentState.copyWith(isRefreshing: true);
+    }
 
     try {
       // Fetch all data concurrently
@@ -77,6 +77,7 @@ class AssetNotifier extends Notifier<AssetState> {
                 ),
                 currencies: currencies,
                 hasMore: false,
+                isRefreshing: false,
                 dashboardData: dashboardResult.fold(
                   (_) => null,
                   (data) => data,
@@ -90,6 +91,7 @@ class AssetNotifier extends Notifier<AssetState> {
                 pagination: pagination,
                 currencies: currencies,
                 hasMore: pagination.currentPage < pagination.lastPage,
+                isRefreshing: false,
                 dashboardData: dashboardResult.fold(
                   (_) => null,
                   (data) => data,
@@ -99,8 +101,12 @@ class AssetNotifier extends Notifier<AssetState> {
           );
         },
       );
-    } finally {
-      _isFetching = false;
+    } catch (e) {
+      if (currentState is AssetLoaded) {
+        state = currentState.copyWith(isRefreshing: false);
+      } else {
+        state = AssetError(e.toString());
+      }
     }
   }
 
@@ -110,14 +116,14 @@ class AssetNotifier extends Notifier<AssetState> {
       return loadDashboard(refresh: true);
     }
 
-    if (_isFetching) return;
-
     final currentState = state;
+    if (currentState is AssetLoaded && currentState.isRefreshing) return;
+
     if (currentState is! AssetLoaded) {
       state = const AssetLoading();
+    } else {
+      state = currentState.copyWith(isRefreshing: true);
     }
-
-    _isFetching = true;
 
     try {
       final assetsResult = await _assetRepository.getAssets(page: 1);
@@ -134,14 +140,19 @@ class AssetNotifier extends Notifier<AssetState> {
             pagination: pagination,
             currencies: currencies,
             hasMore: pagination.currentPage < pagination.lastPage,
+            isRefreshing: false,
             dashboardData: currentState is AssetLoaded
                 ? currentState.dashboardData
                 : null,
           ),
         );
       });
-    } finally {
-      _isFetching = false;
+    } catch (e) {
+      if (currentState is AssetLoaded) {
+        state = currentState.copyWith(isRefreshing: false);
+      } else {
+        state = AssetError(e.toString());
+      }
     }
   }
 

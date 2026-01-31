@@ -18,12 +18,21 @@ class User extends Equatable {
     this.oneSignalId,
   });
 
-  String get formattedName {
-    if (name.isEmpty) return '';
-    return name[0].toUpperCase() + name.substring(1).toLowerCase();
+  String _toTitleCase(String text) {
+    if (text.trim().isEmpty) return '';
+    return text
+        .trim()
+        .split(' ')
+        .map((word) {
+          if (word.isEmpty) return '';
+          return word[0].toUpperCase() + word.substring(1).toLowerCase();
+        })
+        .join(' ');
   }
 
-  String get formattedSurname => surname.toUpperCase();
+  String get formattedName => _toTitleCase(name);
+
+  String get formattedSurname => _toTitleCase(surname);
 
   String get fullName => '$formattedName $formattedSurname';
 

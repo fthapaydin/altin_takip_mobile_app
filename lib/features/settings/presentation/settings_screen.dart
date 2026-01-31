@@ -56,13 +56,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     final state = ref.watch(settingsProvider);
     final isLoading = state is SettingsLoading;
-    
+
     // Update local state from auth provider
     final authState = ref.watch(authProvider);
     if (authState is AuthAuthenticated) {
-       _encryptionEnabled = authState.user.isEncrypted;
+      _encryptionEnabled = authState.user.isEncrypted;
     } else if (authState is AuthEncryptionRequired) {
-       _encryptionEnabled = authState.user.isEncrypted;
+      _encryptionEnabled = authState.user.isEncrypted;
     }
 
     return Scaffold(
@@ -183,9 +183,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
 
     final user = authState.user;
-    final initials = user.name.isNotEmpty && user.surname.isNotEmpty
-        ? '${user.name[0]}${user.surname[0]}'.toUpperCase()
-        : '';
+    final initials =
+        (user.name.isNotEmpty && user.surname.isNotEmpty
+                ? '${user.name[0]}${user.surname[0]}'
+                : '')
+            .toUpperCase();
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -199,9 +201,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: AppTheme.gold.withOpacity(0.2),
-        ),
+        border: Border.all(color: AppTheme.gold.withOpacity(0.2)),
       ),
       child: Row(
         children: [
