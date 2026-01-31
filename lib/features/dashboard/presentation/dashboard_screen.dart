@@ -37,7 +37,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   void initState() {
     super.initState();
     Future.microtask(() async {
-      ref.read(assetProvider.notifier).loadDashboard();
+      final state = ref.read(assetProvider);
+      // Only trigger loading if we don't have dashboard data already
+      if (state is! AssetLoaded || state.dashboardData == null) {
+        ref.read(assetProvider.notifier).loadDashboard();
+      }
       await _loadSavedOrders();
     });
   }
@@ -173,7 +177,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       child: Scaffold(
         body: SafeArea(
           child: RefreshIndicator(
-            onRefresh: () => ref.read(assetProvider.notifier).loadDashboard(),
+            onRefresh: () =>
+                ref.read(assetProvider.notifier).loadDashboard(refresh: true),
             color: AppTheme.gold,
             child: NestedScrollView(
               headerSliverBuilder: (context, innerBoxIsScrolled) => [

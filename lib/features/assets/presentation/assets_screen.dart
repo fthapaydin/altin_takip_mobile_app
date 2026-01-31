@@ -39,7 +39,11 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
   void initState() {
     super.initState();
     Future.microtask(() async {
-      ref.read(assetProvider.notifier).loadAllAssets();
+      final state = ref.read(assetProvider);
+      // Only trigger loading if we don't have assets already
+      if (state is! AssetLoaded) {
+        ref.read(assetProvider.notifier).loadAllAssets();
+      }
       await _loadSavedOrder();
     });
     _scrollController.addListener(_onScroll);

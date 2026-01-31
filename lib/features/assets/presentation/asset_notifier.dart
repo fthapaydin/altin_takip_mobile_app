@@ -1,11 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:altin_takip/core/di.dart';
 import 'package:altin_takip/core/error/failures.dart';
+import 'package:altin_takip/features/assets/domain/asset.dart';
 import 'package:altin_takip/features/assets/domain/asset_repository.dart';
 import 'package:altin_takip/features/assets/domain/pagination.dart';
 import 'package:altin_takip/features/assets/presentation/asset_state.dart';
+import 'package:altin_takip/features/currencies/domain/currency.dart';
 import 'package:altin_takip/features/currencies/domain/currency_repository.dart';
 import 'package:altin_takip/features/auth/presentation/auth_notifier.dart';
+import 'package:altin_takip/features/dashboard/domain/dashboard_data.dart';
 import 'package:altin_takip/features/dashboard/domain/dashboard_repository.dart';
 
 final assetProvider = NotifierProvider<AssetNotifier, AssetState>(
@@ -25,80 +29,120 @@ class AssetNotifier extends Notifier<AssetState> {
     return const AssetInitial();
   }
 
-  Future<void> loadDashboard() async {
-    state = const AssetLoading();
+  bool _isFetching = false;
 
-    // Fetch all data concurrently
-    final assetsResult = await _assetRepository.getAssets();
-    final currenciesResult = await _currencyRepository.getCurrencies();
-    final dashboardResult = await _dashboardRepository.getDashboardData();
+  Future<void> loadDashboard({bool refresh = false}) async {
+    if (_isFetching) return;
 
-    // Check currencies first - they are critical for the UI
-    currenciesResult.fold(
-      (currencyFailure) {
-        // If currencies fail, we can't show anything useful
-        state = AssetError(currencyFailure.message);
-      },
-      (currencies) {
-        // We have currencies, now check assets
-        assetsResult.fold(
-          (assetFailure) {
-            // Handle encryption required specially
-            if (assetFailure is EncryptionRequiredFailure) {
-              ref.read(authProvider.notifier).forceEncryptionRequired();
-            }
-
-            // Show currencies with empty assets list
-            // This prevents the blank screen issue
-            state = AssetLoaded(
-              assets: [], // Empty assets, but we still show currencies
-              pagination: const Pagination(
-                currentPage: 1,
-                lastPage: 1,
-                perPage: 0,
-                total: 0,
-              ),
-              currencies: currencies,
-              hasMore: false,
-              dashboardData: dashboardResult.fold((_) => null, (data) => data),
-            );
-          },
-          (data) {
-            // Both succeeded - show everything
-            final (assets, pagination) = data;
-            state = AssetLoaded(
-              assets: assets,
-              pagination: pagination,
-              currencies: currencies,
-              hasMore: pagination.currentPage < pagination.lastPage,
-              dashboardData: dashboardResult.fold((_) => null, (data) => data),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Future<void> loadAllAssets({bool refresh = false}) async {
-    if (refresh) {
+    final currentState = state;
+    // Only show full loading if we have no data or it's an explicit forced refresh
+    if (currentState is! AssetLoaded ||
+        (refresh && currentState.assets.isEmpty)) {
       state = const AssetLoading();
     }
 
-    final assetsResult = await _assetRepository.getAssets(page: 1);
-    final currenciesResult = await _currencyRepository.getCurrencies();
+    _isFetching = true;
 
-    assetsResult.fold((failure) => state = AssetError(failure.message), (data) {
-      final (assets, pagination) = data;
+    try {
+      // Fetch all data concurrently
+      final results = await Future.wait([
+        _assetRepository.getAssets(),
+        _currencyRepository.getCurrencies(),
+        _dashboardRepository.getDashboardData(),
+      ]);
+
+      final assetsResult =
+          results[0] as Either<Failure, (List<Asset>, Pagination)>;
+      final currenciesResult = results[1] as Either<Failure, List<Currency>>;
+      final dashboardResult = results[2] as Either<Failure, DashboardData>;
+
       currenciesResult.fold(
-        (failure) => state = AssetError(failure.message),
-        (currencies) => state = AssetLoaded(
-          assets: assets,
-          pagination: pagination,
-          currencies: currencies,
-          hasMore: pagination.currentPage < pagination.lastPage,
-        ),
+        (currencyFailure) {
+          state = AssetError(currencyFailure.message);
+        },
+        (currencies) {
+          assetsResult.fold(
+            (assetFailure) {
+              if (assetFailure is EncryptionRequiredFailure) {
+                ref.read(authProvider.notifier).forceEncryptionRequired();
+              }
+
+              state = AssetLoaded(
+                assets: [],
+                pagination: const Pagination(
+                  currentPage: 1,
+                  lastPage: 1,
+                  perPage: 0,
+                  total: 0,
+                ),
+                currencies: currencies,
+                hasMore: false,
+                dashboardData: dashboardResult.fold(
+                  (_) => null,
+                  (data) => data,
+                ),
+              );
+            },
+            (data) {
+              final (assets, pagination) = data;
+              state = AssetLoaded(
+                assets: assets,
+                pagination: pagination,
+                currencies: currencies,
+                hasMore: pagination.currentPage < pagination.lastPage,
+                dashboardData: dashboardResult.fold(
+                  (_) => null,
+                  (data) => data,
+                ),
+              );
+            },
+          );
+        },
       );
-    });
+    } finally {
+      _isFetching = false;
+    }
+  }
+
+  Future<void> loadAllAssets({bool refresh = false}) async {
+    // If it's a refresh during dashboard view, loadDashboard is better as it's a superset
+    if (refresh) {
+      return loadDashboard(refresh: true);
+    }
+
+    if (_isFetching) return;
+
+    final currentState = state;
+    if (currentState is! AssetLoaded) {
+      state = const AssetLoading();
+    }
+
+    _isFetching = true;
+
+    try {
+      final assetsResult = await _assetRepository.getAssets(page: 1);
+      final currenciesResult = await _currencyRepository.getCurrencies();
+
+      assetsResult.fold((failure) => state = AssetError(failure.message), (
+        data,
+      ) {
+        final (assets, pagination) = data;
+        currenciesResult.fold(
+          (failure) => state = AssetError(failure.message),
+          (currencies) => state = AssetLoaded(
+            assets: assets,
+            pagination: pagination,
+            currencies: currencies,
+            hasMore: pagination.currentPage < pagination.lastPage,
+            dashboardData: currentState is AssetLoaded
+                ? currentState.dashboardData
+                : null,
+          ),
+        );
+      });
+    } finally {
+      _isFetching = false;
+    }
   }
 
   Future<void> loadMoreAssets() async {
