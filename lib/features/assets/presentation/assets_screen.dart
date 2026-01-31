@@ -9,7 +9,7 @@ import 'package:altin_takip/core/widgets/premium_error_view.dart';
 import 'package:altin_takip/features/assets/domain/asset.dart';
 import 'package:altin_takip/features/assets/presentation/asset_notifier.dart';
 import 'package:altin_takip/features/assets/presentation/asset_state.dart';
-import 'package:altin_takip/features/assets/presentation/widgets/add_asset_bottom_sheet.dart';
+import 'package:altin_takip/features/assets/presentation/add_asset_screen.dart';
 import 'package:altin_takip/core/utils/date_formatter.dart';
 import 'package:altin_takip/features/settings/presentation/preference_notifier.dart';
 import 'package:intl/intl.dart';
@@ -18,6 +18,7 @@ import 'package:altin_takip/features/dashboard/presentation/transactions_screen.
 import 'package:altin_takip/features/auth/presentation/auth_notifier.dart';
 import 'package:altin_takip/features/auth/presentation/auth_state.dart';
 import 'package:altin_takip/features/auth/presentation/encryption_screen.dart';
+import 'package:altin_takip/features/currencies/presentation/history/currency_history_screen.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 class AssetsScreen extends ConsumerStatefulWidget {
@@ -54,9 +55,7 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
   void _showEncryptionScreen() {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => const EncryptionScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const EncryptionScreen()),
     );
   }
 
@@ -91,12 +90,10 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
     }
   }
 
-  void _showAddAssetBottomSheet() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => const AddAssetBottomSheet(),
+  void _showAddAssetScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AddAssetScreen()),
     );
   }
 
@@ -188,7 +185,7 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
             actions: [
               IconButton(
                 onPressed: () {
-                    Navigator.push(
+                  Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const TransactionsScreen(),
@@ -210,18 +207,14 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
               ),
               const Gap(8),
               IconButton(
-                onPressed: _showAddAssetBottomSheet,
+                onPressed: _showAddAssetScreen,
                 icon: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: AppTheme.gold.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
-                    Icons.add,
-                    color: AppTheme.gold,
-                    size: 20,
-                  ),
+                  child: const Icon(Icons.add, color: AppTheme.gold, size: 20),
                 ),
               ),
               const Gap(12),
@@ -284,7 +277,7 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
               color: Colors.transparent,
               elevation: 8,
               shadowColor: Colors.black54,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(16),
               child: child,
             );
           },
@@ -341,15 +334,12 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
           const Text(
             'Varlıklarınızı görüntülemek için\nşifreleme anahtarınızı girin.',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.white54,
-              fontSize: 14,
-            ),
+            style: TextStyle(color: Colors.white54, fontSize: 14),
           ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.2),
           const Gap(32),
           ElevatedButton(
             onPressed: () {
-               Navigator.push(
+              Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => const EncryptionScreen(),
@@ -400,7 +390,7 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
         color: isExpanded
             ? AppTheme.surface
             : AppTheme.surface.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isExpanded
               ? AppTheme.gold.withValues(alpha: 0.1)
@@ -428,12 +418,12 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
                 }
               });
             },
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(16),
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: Row(
                 children: [
-                   // Drag Handle (Simplified)
+                  // Drag Handle (Simplified)
                   ReorderableDragStartListener(
                     index: _customOrder.indexOf(currencyCode),
                     child: Padding(
@@ -489,32 +479,72 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
                             letterSpacing: 0.5,
                           ),
                         ),
-                         const Gap(4),
+                        const Gap(4),
                         Row(
                           children: [
-                            Container(
-                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                               decoration: BoxDecoration(
-                                   color: Colors.white.withValues(alpha: 0.05),
-                                   borderRadius: BorderRadius.circular(4)
-                               ),
-                               child: Text(
-                                '${assets.length} işlem',
-                                style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.5),
-                                  fontSize: 10,
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => CurrencyHistoryScreen(
+                                      currencyCode: currencyCode,
+                                      currencyId: currency?.id.toString() ?? '',
+                                      currencyName:
+                                          currency?.name ?? currencyCode,
+                                      isGold: isGold,
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.1),
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      '${assets.length} işlem',
+                                      style: TextStyle(
+                                        color: Colors.white.withValues(
+                                          alpha: 0.9,
+                                        ),
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    const Gap(4),
+                                    Icon(
+                                      Icons.arrow_forward_ios_rounded,
+                                      size: 10,
+                                      color: Colors.white.withValues(
+                                        alpha: 0.5,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
                           ],
-                        )
+                        ),
                       ],
                     ),
                   ),
+                  // History Button
+                  const Gap(8),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                       Text(
+                      Text(
                         '${_formatAmount(totalAmount)} adet',
                         style: TextStyle(
                           color: isGold ? AppTheme.gold : Colors.white,
@@ -555,7 +585,7 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
             ),
           ),
           // Expandable transactions
-           AnimatedCrossFade(
+          AnimatedCrossFade(
             firstChild: const SizedBox.shrink(),
             secondChild: _buildGroupedTransactions(assets),
             crossFadeState: isExpanded
@@ -585,21 +615,31 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
           const Gap(16),
           // Buys section
           if (buys.isNotEmpty) ...[
-            // Optional: Header can be removed if we only show buys, 
+            // Optional: Header can be removed if we only show buys,
             // but keeping it for clarity as "Alışlar" (Purchases/Holdings)
-            _buildTransactionSectionHeader('Varlıklar', buys.length, Colors.green),
+            _buildTransactionSectionHeader(
+              'Varlıklar',
+              buys.length,
+              Colors.green,
+            ),
             const Gap(8),
-            ...buys.map((asset) => _buildTransactionItem(asset, isLast: asset == buys.last)),
+            ...buys.map(
+              (asset) =>
+                  _buildTransactionItem(asset, isLast: asset == buys.last),
+            ),
           ],
-          
+
           if (buys.isEmpty)
-             Padding(
-               padding: const EdgeInsets.all(16),
-               child: Text(
-                 'Görüntülenecek aktif varlık bulunamadı.',
-                 style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 12),
-               ),
-             )
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                'Görüntülenecek aktif varlık bulunamadı.',
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.5),
+                  fontSize: 12,
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -617,10 +657,7 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
               color: color,
               shape: BoxShape.circle,
               boxShadow: [
-                BoxShadow(
-                  color: color.withValues(alpha: 0.5),
-                  blurRadius: 6,
-                ),
+                BoxShadow(color: color.withValues(alpha: 0.5), blurRadius: 6),
               ],
             ),
           ),
@@ -662,21 +699,19 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
         children: [
           // Connecting Line (Timeline)
           if (!isLast)
-          Positioned(
-            left: 23, // 20 pad + 3 center of dot
-            top: 24,
-            bottom: 0,
-            width: 1,
-            child: Container(
-              color: Colors.white.withValues(alpha: 0.05),
+            Positioned(
+              left: 23, // 20 pad + 3 center of dot
+              top: 24,
+              bottom: 0,
+              width: 1,
+              child: Container(color: Colors.white.withValues(alpha: 0.05)),
             ),
-          ),
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                 // Dot
+                // Dot
                 Container(
                   margin: const EdgeInsets.only(top: 8),
                   width: 6,
@@ -711,8 +746,8 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
                           fontSize: 11,
                         ),
                       ),
-                       // Profit Badge (Inline)
-                       if (profit != null) ...[
+                      // Profit Badge (Inline)
+                      if (profit != null) ...[
                         const Gap(6),
                         Container(
                           padding: const EdgeInsets.symmetric(
@@ -720,27 +755,35 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
                             vertical: 3,
                           ),
                           decoration: BoxDecoration(
-                            color: (isProfitPositive ? Colors.green : Colors.red)
-                                .withValues(alpha: 0.1),
+                            color:
+                                (isProfitPositive ? Colors.green : Colors.red)
+                                    .withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(6),
                             border: Border.all(
-                                color: (isProfitPositive ? Colors.green : Colors.red)
-                                .withValues(alpha: 0.2),
+                              color:
+                                  (isProfitPositive ? Colors.green : Colors.red)
+                                      .withValues(alpha: 0.2),
                             ),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                               Icon(
-                                isProfitPositive ? Icons.trending_up : Icons.trending_down,
+                              Icon(
+                                isProfitPositive
+                                    ? Icons.trending_up
+                                    : Icons.trending_down,
                                 size: 10,
-                                color: isProfitPositive ? Colors.green : Colors.red
-                               ),
-                               const Gap(4),
+                                color: isProfitPositive
+                                    ? Colors.green
+                                    : Colors.red,
+                              ),
+                              const Gap(4),
                               Text(
                                 '%${NumberFormat('0.00', 'tr_TR').format(((profit / (asset.amount * asset.price)) * 100).abs())}',
                                 style: TextStyle(
-                                  color: isProfitPositive ? Colors.green : Colors.red,
+                                  color: isProfitPositive
+                                      ? Colors.green
+                                      : Colors.red,
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -756,17 +799,20 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                       decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.05),
-                          borderRadius: BorderRadius.circular(6),
-                       ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.05),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
                       child: Text(
                         '${_formatAmount(asset.amount)} adet',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 12,
-                          color: Colors.white
+                          color: Colors.white,
                         ),
                       ),
                     ),
@@ -822,52 +868,72 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
         padding: const EdgeInsets.all(24),
         decoration: const BoxDecoration(
           image: DecorationImage(
-             image: AssetImage('assets/images/noise.png'),
-             opacity: 0.05,
-             fit: BoxFit.cover,
+            image: AssetImage('assets/images/noise.png'),
+            opacity: 0.05,
+            fit: BoxFit.cover,
           ),
           color: AppTheme.background,
           borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
           boxShadow: [
-             BoxShadow(color: Colors.black26, blurRadius: 40, spreadRadius: 10),
-          ]
+            BoxShadow(color: Colors.black26, blurRadius: 40, spreadRadius: 10),
+          ],
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-             Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2)))),
-             const Gap(24),
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white24,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const Gap(24),
             Row(
               children: [
-                 Container(
-                   padding: const EdgeInsets.all(12),
-                   decoration: BoxDecoration(
-                      color: AppTheme.gold.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppTheme.gold.withValues(alpha: 0.2))
-                   ),
-                   child: Icon(asset.currency?.isGold == true ? Icons.workspace_premium : Icons.currency_exchange, color: AppTheme.gold, size: 24),
-                 ),
-                 const Gap(16),
-                 Expanded(
-                   child: Column(
-                     crossAxisAlignment: CrossAxisAlignment.start,
-                     children: [
-                        Text(
-                          _getCurrencyDisplayName(asset),
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.gold.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: AppTheme.gold.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  child: Icon(
+                    asset.currency?.isGold == true
+                        ? Icons.workspace_premium
+                        : Icons.currency_exchange,
+                    color: AppTheme.gold,
+                    size: 24,
+                  ),
+                ),
+                const Gap(16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _getCurrencyDisplayName(asset),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
                         ),
-                        Text(
-                          '${_formatAmount(asset.amount)} adet • ₺${NumberFormat('#,##0.00', 'tr_TR').format(asset.price)}',
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.5),
-                            fontSize: 13,
-                          ),
+                      ),
+                      Text(
+                        '${_formatAmount(asset.amount)} adet • ₺${NumberFormat('#,##0.00', 'tr_TR').format(asset.price)}',
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.5),
+                          fontSize: 13,
                         ),
-                     ],
-                   ),
-                 )
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
 
@@ -1048,7 +1114,9 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
                   labelText: 'Miktar',
                   hintText: 'Maks: ${_formatAmount(availableBalance)}',
                   prefixIcon: const Icon(Icons.balance_rounded),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                 ),
               ),
               const Gap(16),
@@ -1059,7 +1127,9 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
                 decoration: InputDecoration(
                   labelText: 'Satış Fiyatı',
                   prefixIcon: const Icon(Icons.payments_rounded),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                 ),
               ),
               const Gap(32),
@@ -1134,10 +1204,15 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                   ),
-                  child: const Text('Satışı Onayla', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  child: const Text(
+                    'Satışı Onayla',
+                    style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14),
+                  ),
                 ),
               ),
               const Gap(16),
@@ -1165,7 +1240,16 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                   Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2)))),
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.white24,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
                   const Gap(24),
                   Container(
                     padding: const EdgeInsets.all(20),
@@ -1205,7 +1289,9 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
                               color: Colors.white.withValues(alpha: 0.2),
                             ),
                             padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
                           ),
                           child: const Text('Vazgeç'),
                         ),
@@ -1234,7 +1320,9 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.red,
                             padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
                           ),
                           child: isLoading
                               ? const SizedBox(
@@ -1245,7 +1333,13 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
                                     strokeWidth: 2,
                                   ),
                                 )
-                              : const Text('Evet, Sil'),
+                              : const Text(
+                                  'Evet, Sil',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 14,
+                                  ),
+                                ),
                         ),
                       ),
                     ],
@@ -1257,15 +1351,6 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
           },
         );
       },
-    );
-  }
-
-  Widget _buildLoadingIndicator() {
-    return const Padding(
-      padding: EdgeInsets.all(16),
-      child: Center(
-        child: CircularProgressIndicator(color: AppTheme.gold, strokeWidth: 2),
-      ),
     );
   }
 

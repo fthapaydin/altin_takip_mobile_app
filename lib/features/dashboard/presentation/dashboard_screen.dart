@@ -9,7 +9,6 @@ import 'package:altin_takip/features/assets/presentation/asset_notifier.dart';
 import 'package:altin_takip/features/assets/presentation/asset_state.dart';
 import 'package:altin_takip/features/assets/domain/asset.dart';
 import 'package:altin_takip/features/currencies/domain/currency.dart';
-import 'package:altin_takip/features/assets/presentation/widgets/add_asset_bottom_sheet.dart';
 import 'package:altin_takip/features/auth/presentation/auth_notifier.dart';
 import 'package:altin_takip/features/auth/presentation/auth_state.dart';
 import 'package:altin_takip/features/settings/presentation/preference_notifier.dart';
@@ -18,6 +17,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:altin_takip/features/dashboard/presentation/transactions_screen.dart';
+import 'package:altin_takip/features/currencies/presentation/history/currency_history_screen.dart';
+import 'package:altin_takip/features/assets/presentation/add_asset_screen.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -58,6 +59,67 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   Future<void> _saveForexOrder() async {
     await sl<StorageService>().saveDashboardForexOrder(_forexOrder);
+  }
+
+  List<Currency> _getPersonalizedCurrencies(AssetLoaded state) {
+    // If user has no assets, return default list
+    if (state.assets.isEmpty) {
+      return state.currencies.where((c) {
+        final code = c.code.toLowerCase();
+        return code == 'gram_altin' ||
+            code == 'ceyrek_altin' ||
+            code == 'usd' ||
+            code == 'eur';
+      }).toList();
+    }
+
+    // Get unique currency IDs from user assets, sorted by date (most recent first)
+    final userAssets = List<Asset>.from(state.assets);
+    userAssets.sort((a, b) => b.date.compareTo(a.date));
+
+    final Set<int> uniqueCurrencyIds = {};
+    for (var asset in userAssets) {
+      uniqueCurrencyIds.add(asset.currencyId);
+      if (uniqueCurrencyIds.length >= 3) break; // Limit to 3 most recent
+    }
+
+    // Find these currencies in the loaded currencies list
+    final personalizedList = <Currency>[];
+    for (var id in uniqueCurrencyIds) {
+      try {
+        final currency = state.currencies.firstWhere((c) => c.id == id);
+        personalizedList.add(currency);
+      } catch (_) {
+        // Currency not found
+      }
+    }
+
+    // If for some reason we found nothing (e.g. ID mismatch), fallback to defaults
+    if (personalizedList.isEmpty) {
+      return state.currencies.where((c) {
+        final code = c.code.toLowerCase();
+        return code == 'gram_altin' ||
+            code == 'ceyrek_altin' ||
+            code == 'usd' ||
+            code == 'eur';
+      }).toList();
+    }
+
+    return personalizedList;
+  }
+
+  void _navigateToHistory(Currency currency, bool isGold) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CurrencyHistoryScreen(
+          currencyCode: currency.code,
+          currencyId: currency.id.toString(),
+          currencyName: currency.name,
+          isGold: isGold,
+        ),
+      ),
+    );
   }
 
   List<Currency> _getSortedCurrencies(List<Currency> currencies, bool isGold) {
@@ -475,15 +537,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           SliverToBoxAdapter(child: _buildCarouselShimmer())
         else if (state is AssetLoaded)
           SliverToBoxAdapter(
-            child: _buildCurrencyCarousel(
-              state.currencies.where((c) {
-                final code = c.code.toLowerCase();
-                return code == 'gram_altin' ||
-                    code == 'ceyrek_altin' ||
-                    code == 'usd' ||
-                    code == 'eur';
-              }).toList(),
-            ),
+            child: _buildCurrencyCarousel(_getPersonalizedCurrencies(state)),
           ),
         const SliverGap(40),
         SliverToBoxAdapter(
@@ -523,13 +577,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       );
     }
     if (state is AssetLoaded) {
-      final isGold = type == 'Altın';
+      final isGoldTab = type == 'Altın';
       final filteredCurrencies = state.currencies.where((c) {
-        if (isGold) return c.type == 'Altın';
-        return c.type != 'Altın';
+        if (isGoldTab) return c.isGold;
+        return !c.isGold;
       }).toList();
 
-      final sortedCurrencies = _getSortedCurrencies(filteredCurrencies, isGold);
+      final sortedCurrencies = _getSortedCurrencies(
+        filteredCurrencies,
+        isGoldTab,
+      );
 
       return ReorderableListView.builder(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -551,7 +608,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             sortedCurrencies.insert(newIndex, item);
 
             final newOrder = sortedCurrencies.map((c) => c.code).toList();
-            if (isGold) {
+            if (isGoldTab) {
               _goldOrder = newOrder;
               _saveGoldOrder();
             } else {
@@ -567,7 +624,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             margin: const EdgeInsets.only(bottom: 16),
             child: _buildPremiumCurrencyCard(
               currency,
-              isGold: isGold,
+              isGold: isGoldTab,
               index: index,
             ),
           );
@@ -586,144 +643,147 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final priceChange = currency.selling - currency.buying;
     final isPositive = priceChange >= 0;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            // Icon
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    AppTheme.gold.withOpacity(0.2),
-                    AppTheme.gold.withOpacity(0.05),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppTheme.gold.withOpacity(0.2)),
-              ),
-              child: Center(
-                child: Text(
-                  isGold
-                      ? (currency.name.length >= 2
-                            ? currency.name.substring(0, 2)
-                            : currency.name)
-                      : (currency.code.length >= 3
-                            ? currency.code.substring(0, 3)
-                            : currency.code),
-                  style: const TextStyle(
-                    color: AppTheme.gold,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
-                ),
-              ),
+    return GestureDetector(
+      onTap: () => _navigateToHistory(currency, isGold),
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppTheme.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.white.withOpacity(0.05)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
-            const Gap(16),
-            // Info
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    isGold ? currency.name : currency.code,
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              // Icon
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      AppTheme.gold.withOpacity(0.2),
+                      AppTheme.gold.withOpacity(0.05),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppTheme.gold.withOpacity(0.2)),
+                ),
+                child: Center(
+                  child: Text(
+                    isGold
+                        ? (currency.name.length >= 2
+                              ? currency.name.substring(0, 2)
+                              : currency.name)
+                        : (currency.code.length >= 3
+                              ? currency.code.substring(0, 3)
+                              : currency.code),
                     style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 15,
-                      color: Colors.white,
-                      letterSpacing: 0.3,
+                      color: AppTheme.gold,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const Gap(4),
-                  Text(
-                    DateFormatter.format(
-                      currency.lastUpdatedAt,
-                      useDynamic: useDynamicDate,
-                    ),
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.4),
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            // Prices
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  '₺${NumberFormat('#,##0.00', 'tr_TR').format(currency.selling)}',
-                  style: const TextStyle(
-                    fontFeatures: [FontFeature.tabularFigures()],
-                    color: AppTheme.gold,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    letterSpacing: 0.5,
                   ),
                 ),
-                const Gap(4),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
+              ),
+              const Gap(16),
+              // Info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Alış: ₺${NumberFormat('#,##0.00', 'tr_TR').format(currency.buying)}',
+                      isGold ? currency.name : currency.code,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                        color: Colors.white,
+                        letterSpacing: 0.3,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const Gap(4),
+                    Text(
+                      DateFormatter.format(
+                        currency.lastUpdatedAt,
+                        useDynamic: useDynamicDate,
+                      ),
                       style: TextStyle(
-                        fontFeatures: const [FontFeature.tabularFigures()],
-                        color: Colors.white.withOpacity(0.5),
+                        color: Colors.white.withOpacity(0.4),
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const Gap(8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: (isPositive ? Colors.green : Colors.red)
-                            .withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        '${isPositive ? "+" : ""}%${NumberFormat('#,##0.00', 'tr_TR').format((priceChange / currency.buying) * 100)}',
-                        style: TextStyle(
-                          fontFeatures: const [FontFeature.tabularFigures()],
-                          fontSize: 10,
-                          color: isPositive
-                              ? Color(0xFF4ADE80)
-                              : Color(0xFFF87171),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
                   ],
                 ),
-              ],
-            ),
-          ],
+              ),
+              // Prices
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '₺${NumberFormat('#,##0.00', 'tr_TR').format(currency.selling)}',
+                    style: const TextStyle(
+                      fontFeatures: [FontFeature.tabularFigures()],
+                      color: AppTheme.gold,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  const Gap(4),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Alış: ₺${NumberFormat('#,##0.00', 'tr_TR').format(currency.buying)}',
+                        style: TextStyle(
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                          color: Colors.white.withOpacity(0.5),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const Gap(8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: (isPositive ? Colors.green : Colors.red)
+                              .withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          '${isPositive ? "+" : ""}%${NumberFormat('#,##0.00', 'tr_TR').format((priceChange / currency.buying) * 100)}',
+                          style: TextStyle(
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                            fontSize: 10,
+                            color: isPositive
+                                ? Color(0xFF4ADE80)
+                                : Color(0xFFF87171),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -840,56 +900,59 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           final currency = currencies[index];
           final useDynamicDate = ref.watch(preferenceProvider).useDynamicDate;
 
-          return Container(
-            width: 140,
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: AppTheme.glassColor,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppTheme.glassBorder),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        currency.isGold ? currency.name : currency.code,
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.7),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
+          return GestureDetector(
+            onTap: () => _navigateToHistory(currency, currency.isGold),
+            child: Container(
+              width: 140,
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: AppTheme.glassColor,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppTheme.glassBorder),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          currency.isGold ? currency.name : currency.code,
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.7),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                    Text(
-                      DateFormatter.format(
-                        currency.lastUpdatedAt,
-                        useDynamic: useDynamicDate,
+                      Text(
+                        DateFormatter.format(
+                          currency.lastUpdatedAt,
+                          useDynamic: useDynamicDate,
+                        ),
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.3),
+                          fontSize: 9,
+                        ),
                       ),
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.3),
-                        fontSize: 9,
-                      ),
-                    ),
-                  ],
-                ),
-                Text(
-                  '₺${NumberFormat('#,##0.00', 'tr_TR').format(currency.selling)}',
-                  style: const TextStyle(
-                    fontFeatures: [FontFeature.tabularFigures()],
-                    color: AppTheme.gold,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 17,
-                    letterSpacing: -0.5,
+                    ],
                   ),
-                ),
-              ],
+                  Text(
+                    '₺${NumberFormat('#,##0.00', 'tr_TR').format(currency.selling)}',
+                    style: const TextStyle(
+                      fontFeatures: [FontFeature.tabularFigures()],
+                      color: AppTheme.gold,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 17,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         },
@@ -993,7 +1056,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 ),
                 const Gap(24),
                 ElevatedButton(
-                  onPressed: () => _showAddAssetBottomSheet(context),
+                  onPressed: () => _showAddAssetScreen(context),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.gold,
                     foregroundColor: Colors.black,
@@ -1177,12 +1240,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     return currentVal - totalCost;
   }
 
-  void _showAddAssetBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => const AddAssetBottomSheet(),
+  void _showAddAssetScreen(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AddAssetScreen()),
     );
   }
 }

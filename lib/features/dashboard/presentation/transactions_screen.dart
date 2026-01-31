@@ -10,7 +10,7 @@ import 'package:altin_takip/features/assets/domain/asset.dart';
 import 'package:altin_takip/features/settings/presentation/preference_notifier.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:sticky_headers/sticky_headers.dart';
-import 'package:altin_takip/features/assets/presentation/widgets/add_asset_bottom_sheet.dart';
+import 'package:altin_takip/features/assets/presentation/add_asset_screen.dart';
 
 class TransactionsScreen extends ConsumerWidget {
   const TransactionsScreen({super.key});
@@ -38,7 +38,7 @@ class TransactionsScreen extends ConsumerWidget {
             ),
             actions: [
               IconButton(
-                onPressed: () => _showAddAssetBottomSheet(context),
+                onPressed: () => _showAddAssetScreen(context),
                 icon: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
@@ -390,12 +390,10 @@ class TransactionsScreen extends ConsumerWidget {
     ).animate().fadeIn(delay: (50 * index).ms).slideX(begin: 0.1, curve: Curves.easeOut);
   }
 
-  void _showAddAssetBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => const AddAssetBottomSheet(),
+  void _showAddAssetScreen(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AddAssetScreen()),
     );
   }
 }

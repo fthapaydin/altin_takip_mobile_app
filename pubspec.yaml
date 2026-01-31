@@ -27,6 +27,7 @@ dependencies:
   google_fonts: ^7.0.2
   equatable: ^2.0.8
   sticky_headers: ^0.3.0+2
+  fl_chart: ^1.1.1
   
 dev_dependencies:
   flutter_test:

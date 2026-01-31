@@ -60,7 +60,9 @@ class AssetDto extends Asset {
       type: json['type'],
       amount: double.parse(json['amount'].toString()),
       price: double.parse(json['price'].toString()),
-      date: DateTime.parse(json['date']),
+      date: json['created_at'] != null
+          ? DateTime.parse(json['created_at'])
+          : DateTime.parse(json['date']),
       place: json['place'],
       note: json['note'],
       encryptedOwnerId: json['encrypted_owner_id'],

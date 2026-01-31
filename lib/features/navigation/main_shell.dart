@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:altin_takip/core/theme/app_theme.dart';
 import 'package:altin_takip/features/assets/presentation/assets_screen.dart';
-import 'package:altin_takip/features/assets/presentation/widgets/add_asset_bottom_sheet.dart';
+import 'package:altin_takip/features/assets/presentation/add_asset_screen.dart';
 import 'package:altin_takip/features/calculator/presentation/calculator_screen.dart';
 import 'package:altin_takip/features/dashboard/presentation/dashboard_screen.dart';
 import 'package:altin_takip/features/settings/presentation/settings_screen.dart';
@@ -24,12 +24,10 @@ class _MainShellState extends ConsumerState<MainShell> {
     SettingsScreen(),
   ];
 
-  void _showAddAssetBottomSheet() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => const AddAssetBottomSheet(),
+  void _showAddAssetScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AddAssetScreen()),
     );
   }
 
@@ -48,7 +46,7 @@ class _MainShellState extends ConsumerState<MainShell> {
             ? null
             : FloatingActionButton(
                 heroTag: null,
-                onPressed: _showAddAssetBottomSheet,
+                onPressed: _showAddAssetScreen,
                 backgroundColor: AppTheme.gold,
                 elevation: 4,
                 shape: const CircleBorder(),
