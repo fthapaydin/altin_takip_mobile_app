@@ -34,13 +34,8 @@ class CurrencyHistoryScreen extends ConsumerStatefulWidget {
 class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
   @override
   Widget build(BuildContext context) {
-    final historyAsync = ref.watch(currencyHistoryProvider(widget.currencyId));
     final selectedRange =
         ref.watch(currencyHistoryRangeProvider)[widget.currencyId] ?? '1w';
-
-    print(
-      'DEBUG: CurrencyHistoryScreen ref.watch historyAsync for ${widget.currencyCode} (ID: ${widget.currencyId}): $historyAsync',
-    );
 
     return Scaffold(
       backgroundColor: AppTheme.background,
@@ -75,14 +70,47 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
       body: Column(
         children: [
           Expanded(
-            child: historyAsync.when(
-              data: (data) => _buildContent(data, selectedRange),
-              loading: () => _buildLoading(),
-              error: (error, stack) => PremiumErrorView(
-                message: error.toString(),
-                onRetry: () =>
-                    ref.refresh(currencyHistoryProvider(widget.currencyId)),
-              ),
+            child: Consumer(
+              builder: (context, ref, child) {
+                final historyAsync = ref.watch(
+                  currencyHistoryProvider(widget.currencyId),
+                );
+                final isLoading =
+                    historyAsync.isRefreshing ||
+                    (historyAsync.isLoading && historyAsync.hasValue);
+
+                if (historyAsync.hasValue) {
+                  return Stack(
+                    children: [
+                      _buildContent(historyAsync.value!, selectedRange),
+                      if (isLoading)
+                        Positioned(
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          child: LinearProgressIndicator(
+                            backgroundColor: Colors.transparent,
+                            color:
+                                (widget.isGold ? AppTheme.gold : Colors.white)
+                                    .withValues(alpha: 0.5),
+                            minHeight: 2,
+                          ),
+                        ),
+                    ],
+                  );
+                }
+
+                return historyAsync.when(
+                  data: (data) => _buildContent(data, selectedRange),
+                  loading: () => _buildLoading(),
+                  error: (error, stack) => PremiumErrorView(
+                    message: error.toString(),
+                    onRetry: () => ref.invalidate(
+                      currencyHistoryProvider(widget.currencyId),
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ],
