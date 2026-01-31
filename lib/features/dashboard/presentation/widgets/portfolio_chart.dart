@@ -7,8 +7,9 @@ import 'package:altin_takip/features/dashboard/domain/dashboard_models.dart';
 /// Semi-transparent portfolio value chart widget
 class PortfolioChart extends StatelessWidget {
   final List<ChartDataPoint> chartData;
+  final double? totalCost;
 
-  const PortfolioChart({super.key, required this.chartData});
+  const PortfolioChart({super.key, required this.chartData, this.totalCost});
 
   @override
   Widget build(BuildContext context) {
@@ -16,12 +17,27 @@ class PortfolioChart extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    // Find min/max values for scaling
+    // Find min/max values for scaling and highlighting
     final values = chartData.map((e) => e.value).toList();
     final minValue = values.reduce((a, b) => a < b ? a : b);
     final maxValue = values.reduce((a, b) => a > b ? a : b);
+
+    // Identify indices for min/max to highlight dots
+    final minIndex = values.indexOf(minValue);
+    final maxIndex = values.indexOf(maxValue);
+
+    // Calculate Y range padding
     final range = maxValue - minValue;
-    final padding = range * 0.1; // 10% padding
+    final padding = range == 0 ? 100.0 : range * 0.15; // 15% padding
+
+    // Ensure cost line is visible if provided
+    double effectiveMinY = minValue;
+    double effectiveMaxY = maxValue;
+
+    if (totalCost != null && totalCost! > 0) {
+      if (totalCost! < effectiveMinY) effectiveMinY = totalCost!;
+      if (totalCost! > effectiveMaxY) effectiveMaxY = totalCost!;
+    }
 
     return LineChart(
       LineChartData(
@@ -30,8 +46,30 @@ class PortfolioChart extends StatelessWidget {
         borderData: FlBorderData(show: false),
         minX: 0,
         maxX: (chartData.length - 1).toDouble(),
-        minY: minValue - padding,
-        maxY: maxValue + padding,
+        minY: effectiveMinY - padding,
+        maxY: effectiveMaxY + padding,
+        extraLinesData: ExtraLinesData(
+          horizontalLines: [
+            if (totalCost != null && totalCost! > 0)
+              HorizontalLine(
+                y: totalCost!,
+                color: Colors.white.withOpacity(0.3),
+                strokeWidth: 1,
+                dashArray: [5, 5],
+                label: HorizontalLineLabel(
+                  show: true,
+                  alignment: Alignment.topRight,
+                  padding: const EdgeInsets.only(right: 5, bottom: 2),
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.3),
+                    fontSize: 9,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  labelResolver: (line) => 'MALİYET',
+                ),
+              ),
+          ],
+        ),
         lineBarsData: [
           LineChartBarData(
             spots: chartData.asMap().entries.map((entry) {
@@ -44,6 +82,19 @@ class PortfolioChart extends StatelessWidget {
             dotData: FlDotData(
               show: true,
               getDotPainter: (spot, percent, barData, index) {
+                // Highlight Min/Max
+                if (index == minIndex || index == maxIndex) {
+                  final isMax = index == maxIndex;
+                  return FlDotCirclePainter(
+                    radius: 5, // Larger radius
+                    color: isMax
+                        ? const Color(0xFF4CAF50)
+                        : const Color(0xFFE57373), // Green for Max, Red for Low
+                    strokeWidth: 2,
+                    strokeColor: Colors.white,
+                  );
+                }
+                // Default dots
                 return FlDotCirclePainter(
                   radius: 3,
                   color: AppTheme.gold,

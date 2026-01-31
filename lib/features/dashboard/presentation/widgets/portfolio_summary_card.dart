@@ -180,7 +180,10 @@ class PortfolioSummaryCard extends ConsumerWidget {
                     height: 120,
                     width: double.infinity,
                     child: chartData != null && chartData.isNotEmpty
-                        ? PortfolioChart(chartData: chartData)
+                        ? PortfolioChart(
+                            chartData: chartData,
+                            totalCost: totalWorth - profitLoss,
+                          )
                         : Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
