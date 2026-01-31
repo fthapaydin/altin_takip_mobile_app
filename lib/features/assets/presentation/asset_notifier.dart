@@ -17,9 +17,9 @@ final assetProvider = NotifierProvider<AssetNotifier, AssetState>(
 );
 
 class AssetNotifier extends Notifier<AssetState> {
-  late final AssetRepository _assetRepository;
-  late final CurrencyRepository _currencyRepository;
-  late final DashboardRepository _dashboardRepository;
+  late AssetRepository _assetRepository;
+  late CurrencyRepository _currencyRepository;
+  late DashboardRepository _dashboardRepository;
 
   @override
   AssetState build() {

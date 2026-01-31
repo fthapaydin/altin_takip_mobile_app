@@ -8,6 +8,7 @@ import 'package:altin_takip/features/auth/presentation/auth_state.dart';
 import 'package:altin_takip/features/settings/presentation/settings_notifier.dart';
 import 'package:altin_takip/features/settings/presentation/settings_state.dart';
 import 'package:altin_takip/features/settings/presentation/preference_notifier.dart';
+import 'package:altin_takip/features/assets/presentation/asset_notifier.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -87,6 +88,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           _buildSectionHeader('Görünüm', Icons.visibility_outlined),
           const Gap(16),
           _buildSettingCard(
+            icon: Icons.privacy_tip_outlined,
+            title: 'Gizlilik Modu',
+            subtitle: ref.watch(preferenceProvider).isPrivacyModeEnabled
+                ? 'Bakiyeler gizlendi'
+                : 'Bakiyeler görünür',
+            trailing: Switch(
+              value: ref.watch(preferenceProvider).isPrivacyModeEnabled,
+              onChanged: (val) =>
+                  ref.read(preferenceProvider.notifier).togglePrivacyMode(val),
+              activeColor: AppTheme.gold,
+              activeTrackColor: AppTheme.gold.withValues(alpha: 0.3),
+            ),
+          ),
+          const Gap(12),
+          _buildSettingCard(
             icon: Icons.calendar_today_outlined,
             title: 'Tarih Formatı',
             subtitle: ref.watch(preferenceProvider).useDynamicDate
@@ -132,6 +148,29 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             title: 'Şifre Değiştir',
             subtitle: 'Hesap şifrenizi güncelleyin',
             onTap: isLoading ? null : _showChangePasswordSheet,
+          ),
+          const Gap(32),
+
+          // Maintenance & Support Section
+          _buildSectionHeader('Bakım & Destek', Icons.build_circle_outlined),
+          const Gap(16),
+          _buildSettingCard(
+            icon: Icons.cleaning_services_outlined,
+            title: 'Önbelleği Temizle',
+            subtitle: 'Olası takılmaları giderir ve verileri yeniler',
+            onTap: () {
+              // Invalidate providers to force reload
+              ref.invalidate(assetProvider);
+              // Trigger reload immediately
+              ref.read(assetProvider.notifier).loadDashboard(refresh: true);
+
+              // Show confirmation
+              AppNotification.show(
+                context,
+                message: 'Önbellek temizlendi ve veriler yenileniyor.',
+                type: NotificationType.success,
+              );
+            },
           ),
           const Gap(32),
 

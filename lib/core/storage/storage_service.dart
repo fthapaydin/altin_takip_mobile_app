@@ -109,6 +109,18 @@ class StorageService {
     return prefs.getBool(_useDynamicDateKey) ?? true;
   }
 
+  static const _privacyModeKey = 'privacy_mode_enabled';
+
+  Future<void> savePrivacyMode(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_privacyModeKey, enabled);
+  }
+
+  Future<bool> getPrivacyMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_privacyModeKey) ?? false;
+  }
+
   Future<void> clearAssetOrdering() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_assetOrderKey);

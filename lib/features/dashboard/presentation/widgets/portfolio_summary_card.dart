@@ -11,6 +11,8 @@ import 'package:altin_takip/features/dashboard/presentation/widgets/portfolio_ch
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:altin_takip/features/assets/presentation/asset_notifier.dart';
 
+import 'package:altin_takip/features/settings/presentation/preference_notifier.dart';
+
 class PortfolioSummaryCard extends ConsumerWidget {
   final AssetState state;
 
@@ -18,6 +20,8 @@ class PortfolioSummaryCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isPrivacyMode = ref.watch(preferenceProvider).isPrivacyModeEnabled;
+
     if (state is AssetLoading) {
       return _buildPortfolioShimmer();
     }
@@ -120,7 +124,9 @@ class PortfolioSummaryCard extends ConsumerWidget {
                           ),
                           const Gap(8),
                           Text(
-                            '₺${NumberFormat('#,##0.00', 'tr_TR').format(totalWorth)}',
+                            isPrivacyMode
+                                ? '₺ ••••••'
+                                : '₺${NumberFormat('#,##0.00', 'tr_TR').format(totalWorth)}',
                             style: const TextStyle(
                               fontFeatures: [FontFeature.tabularFigures()],
                               color: Colors.white,
@@ -158,7 +164,9 @@ class PortfolioSummaryCard extends ConsumerWidget {
                             ),
                             const Gap(4),
                             Text(
-                              '%${NumberFormat('#,##0.1', 'tr_TR').format(profitPercentage.abs())}',
+                              isPrivacyMode
+                                  ? '% ••'
+                                  : '%${NumberFormat('#,##0.1', 'tr_TR').format(profitPercentage.abs())}',
                               style: TextStyle(
                                 color: profitLoss >= 0
                                     ? Colors.green
@@ -220,7 +228,7 @@ class PortfolioSummaryCard extends ConsumerWidget {
                   const Gap(32),
 
                   // Detailed Asset Allocation
-                  _buildAssetAllocation(state),
+                  _buildAssetAllocation(state, isPrivacyMode: isPrivacyMode),
                 ],
               ),
             ),
@@ -230,7 +238,7 @@ class PortfolioSummaryCard extends ConsumerWidget {
     ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.1, end: 0);
   }
 
-  Widget _buildAssetAllocation(AssetState state) {
+  Widget _buildAssetAllocation(AssetState state, {bool isPrivacyMode = false}) {
     if (state is! AssetLoaded) return const SizedBox();
 
     double goldValue = 0;
@@ -326,6 +334,7 @@ class PortfolioSummaryCard extends ConsumerWidget {
     required double percentage,
     required Color color,
     bool isRight = false,
+    bool isPrivacyMode = false,
   }) {
     return Padding(
       padding: EdgeInsets.only(left: isRight ? 24 : 0, right: isRight ? 0 : 24),
@@ -363,7 +372,9 @@ class PortfolioSummaryCard extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '₺${NumberFormat('#,##0.00', 'tr_TR').format(amount)}',
+                isPrivacyMode
+                    ? '₺ ••••'
+                    : '₺${NumberFormat('#,##0.00', 'tr_TR').format(amount)}',
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
@@ -371,7 +382,7 @@ class PortfolioSummaryCard extends ConsumerWidget {
                 ),
               ),
               Text(
-                '%${percentage.toStringAsFixed(0)}',
+                isPrivacyMode ? '% ••' : '%${percentage.toStringAsFixed(0)}',
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.4),
                   fontWeight: FontWeight.w500,
