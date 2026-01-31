@@ -1,4 +1,4 @@
-package com.fatalsoft.altin_takip
+package com.fatalsoft.altintakip.app
 
 import io.flutter.embedding.android.FlutterActivity
 

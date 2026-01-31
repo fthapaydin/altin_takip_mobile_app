@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:gap/gap.dart';
@@ -19,23 +20,31 @@ class ChatRoomScreen extends ConsumerStatefulWidget {
 class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
   final _controller = TextEditingController();
   final _scrollController = ScrollController();
+  bool _showScrollToBottom = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_scrollListener);
+  }
+
+  void _scrollListener() {
+    if (_scrollController.offset > 200 && !_showScrollToBottom) {
+      setState(() => _showScrollToBottom = true);
+    } else if (_scrollController.offset <= 200 && _showScrollToBottom) {
+      setState(() => _showScrollToBottom = false);
+    }
+  }
 
   @override
   void dispose() {
+    _scrollController.removeListener(_scrollListener);
     _controller.dispose();
     _scrollController.dispose();
     super.dispose();
   }
 
-  void _scrollToBottom() {
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    }
-  }
+  // Removed manual scroll logic as reverse: true handles it better
 
   @override
   Widget build(BuildContext context) {
@@ -58,10 +67,6 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
 
     final state = ref.watch(chatRoomProvider);
 
-    if (state is ChatRoomLoaded) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
-    }
-
     return Scaffold(
       backgroundColor: AppTheme.background,
       body: SafeArea(
@@ -73,6 +78,24 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
           ],
         ),
       ),
+      floatingActionButton: _showScrollToBottom
+          ? Padding(
+              padding: const EdgeInsets.only(bottom: 80),
+              child: FloatingActionButton.small(
+                onPressed: () {
+                  _scrollController.animateTo(
+                    0,
+                    duration: 300.ms,
+                    curve: Curves.easeOut,
+                  );
+                  HapticFeedback.mediumImpact();
+                },
+                backgroundColor: AppTheme.gold,
+                foregroundColor: Colors.black,
+                child: const Icon(Icons.keyboard_arrow_down_rounded, size: 28),
+              ).animate().scale(duration: 200.ms).fadeIn(),
+            )
+          : null,
     );
   }
 
@@ -124,7 +147,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                       Text(
                         state is ChatRoomLoaded && state.isSending
                             ? 'Düşünüyor...'
-                            : 'AI Asistan',
+                            : 'Yapay Zeka Danışmanı',
                         style: TextStyle(
                           fontSize: 11,
                           color: AppTheme.gold.withOpacity(0.7),
@@ -176,23 +199,86 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
         );
       }
 
+      final displayMessages = state.messages.reversed.toList();
+      final hasTyping = state.isSending;
+
       return ListView.builder(
         controller: _scrollController,
+        reverse: true,
         padding: const EdgeInsets.all(20),
-        itemCount: state.messages.length + (state.isSending ? 1 : 0),
+        itemCount: displayMessages.length + (hasTyping ? 1 : 0) + 1,
         itemBuilder: (context, index) {
-          if (index == state.messages.length) {
+          if (index == displayMessages.length + (hasTyping ? 1 : 0)) {
+            return _buildDisclaimer();
+          }
+
+          if (hasTyping && index == 0) {
             return _buildTypingIndicator();
           }
-          // Only apply typing effect to the last AI message if it's new
-          final isLastMessage = index == state.messages.length - 1;
-          final message = state.messages[index];
-          return _buildMessageBubble(message, isLastMessage);
+
+          final messageIndex = hasTyping ? index - 1 : index;
+          if (messageIndex < 0 || messageIndex >= displayMessages.length) {
+            return const SizedBox();
+          }
+
+          final message = displayMessages[messageIndex];
+          final isLastMessage = index == (hasTyping ? 1 : 0);
+
+          return _buildMessageBubble(message, isLastMessage, state);
         },
       );
     }
 
     return const SizedBox();
+  }
+
+  Widget _buildDisclaimer() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 32, top: 8),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppTheme.gold.withOpacity(0.03),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppTheme.gold.withOpacity(0.1), width: 1),
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppTheme.gold.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.shield_outlined,
+              color: AppTheme.gold,
+              size: 20,
+            ),
+          ),
+          const Gap(12),
+          const Text(
+            'Yasal Bilgilendirme',
+            style: TextStyle(
+              color: AppTheme.gold,
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.5,
+            ),
+          ),
+          const Gap(8),
+          Text(
+            'Yapay Zeka Danışmanı tarafından sunulan analiz ve yorumlar tamamen bilgilendirme amaçlıdır. Bu bilgiler hiçbir şekilde yatırım tavsiyesi (YTD) niteliği taşımaz. Finansal kararlar almadan önce profesyonel bir uzmana danışmanız önerilir.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.5),
+              fontSize: 12,
+              height: 1.6,
+              letterSpacing: 0.1,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildMessageSkeleton(int index) {
@@ -234,45 +320,61 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
     );
   }
 
-  Widget _buildMessageBubble(ChatMessage message, bool isLastMessage) {
+  Widget _buildMessageBubble(
+    ChatMessage message,
+    bool isLastMessage,
+    ChatRoomLoaded state,
+  ) {
     final isUser = message.isUser;
-    final shouldAnimate = isLastMessage && !isUser;
+    final shouldAnimate =
+        isLastMessage && !isUser && message.id == state.lastAddedMessageId;
 
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.75,
-        ),
-        decoration: BoxDecoration(
-          color: isUser ? AppTheme.gold : Colors.white.withOpacity(0.05),
-          borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(20),
-            topRight: const Radius.circular(20),
-            bottomLeft: Radius.circular(isUser ? 20 : 0),
-            bottomRight: Radius.circular(isUser ? 0 : 20),
+      child: GestureDetector(
+        onLongPress: () {
+          Clipboard.setData(ClipboardData(text: message.content));
+          HapticFeedback.lightImpact();
+          AppNotification.show(
+            context,
+            message: 'Mesaj kopyalandı',
+            type: NotificationType.success,
+          );
+        },
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width * 0.75,
           ),
-          border: isUser
-              ? null
-              : Border.all(color: Colors.white.withOpacity(0.05)),
-        ),
-        child: shouldAnimate
-            ? _TypeWriterText(
-                key: ValueKey(message.id),
-                text: message.content,
-                isUser: isUser,
-              )
-            : Text(
-                message.content,
-                style: TextStyle(
-                  color: isUser ? Colors.black : Colors.white,
-                  fontSize: 14,
-                  height: 1.4,
-                  fontWeight: isUser ? FontWeight.w600 : FontWeight.normal,
+          decoration: BoxDecoration(
+            color: isUser ? AppTheme.gold : Colors.white.withOpacity(0.05),
+            borderRadius: BorderRadius.only(
+              topLeft: const Radius.circular(20),
+              topRight: const Radius.circular(20),
+              bottomLeft: Radius.circular(isUser ? 20 : 0),
+              bottomRight: Radius.circular(isUser ? 0 : 20),
+            ),
+            border: isUser
+                ? null
+                : Border.all(color: Colors.white.withOpacity(0.05)),
+          ),
+          child: shouldAnimate
+              ? _TypeWriterText(
+                  key: ValueKey(message.id),
+                  text: message.content,
+                  isUser: isUser,
+                )
+              : Text(
+                  message.content,
+                  style: TextStyle(
+                    color: isUser ? Colors.black : Colors.white,
+                    fontSize: 14,
+                    height: 1.4,
+                    fontWeight: isUser ? FontWeight.w600 : FontWeight.normal,
+                  ),
                 ),
-              ),
+        ),
       ).animate().fade(duration: 300.ms).slideY(begin: 0.1, end: 0),
     );
   }
@@ -291,21 +393,43 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
             bottomRight: Radius.circular(20),
           ),
         ),
-        child: const Row(
+        child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(
-              width: 12,
-              height: 12,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: AppTheme.gold,
-              ),
+            Row(
+              children: List.generate(3, (index) {
+                return Container(
+                      width: 6,
+                      height: 6,
+                      margin: const EdgeInsets.symmetric(horizontal: 2),
+                      decoration: const BoxDecoration(
+                        color: AppTheme.gold,
+                        shape: BoxShape.circle,
+                      ),
+                    )
+                    .animate(onPlay: (controller) => controller.repeat())
+                    .scale(
+                      delay: (index * 150).ms,
+                      duration: 600.ms,
+                      begin: const Offset(0.6, 0.6),
+                      end: const Offset(1.2, 1.2),
+                    )
+                    .then()
+                    .scale(
+                      duration: 600.ms,
+                      begin: const Offset(1.2, 1.2),
+                      end: const Offset(0.6, 0.6),
+                    );
+              }),
             ),
-            Gap(8),
+            const Gap(12),
             Text(
-              'AI Düşünüyor...',
-              style: TextStyle(color: Colors.white54, fontSize: 12),
+              'AI Düşünüyor',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.5),
+                fontSize: 12,
+                letterSpacing: 0.5,
+              ),
             ),
           ],
         ),

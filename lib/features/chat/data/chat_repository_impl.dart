@@ -139,4 +139,17 @@ class ChatRepositoryImpl implements ChatRepository {
       return Left(ServerFailure(NetworkExceptionHandler.getErrorMessage(e)));
     }
   }
+
+  @override
+  Future<Either<Failure, Unit>> deleteConversation(int id) async {
+    try {
+      dev.log('Deleting conversation $id');
+      await _dioClient.dio.delete('chat/conversations/$id');
+      dev.log('Conversation $id deleted successfully');
+      return const Right(unit);
+    } catch (e) {
+      dev.log('Delete conversation error: $e');
+      return Left(ServerFailure(NetworkExceptionHandler.getErrorMessage(e)));
+    }
+  }
 }

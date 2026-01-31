@@ -1,6 +1,8 @@
 import 'dart:developer' as dev;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:altin_takip/core/di.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:altin_takip/core/error/failures.dart';
 import 'package:altin_takip/features/chat/domain/chat_repository.dart';
 import 'package:altin_takip/features/chat/presentation/chat_state.dart';
 import 'package:altin_takip/features/chat/domain/chat_message.dart';
@@ -50,6 +52,30 @@ class ChatHistoryNotifier extends Notifier<ChatHistoryState> {
       },
     );
   }
+
+  Future<Either<Failure, Unit>> deleteConversation(int id) async {
+    final currentState = state;
+    if (currentState is ChatHistoryLoaded) {
+      state = currentState.copyWith(isDeleting: true);
+    }
+
+    final result = await _chatRepository.deleteConversation(id);
+
+    result.fold(
+      (failure) {
+        dev.log('Delete conversation error: ${failure.message}');
+        if (state is ChatHistoryLoaded) {
+          state = (state as ChatHistoryLoaded).copyWith(isDeleting: false);
+        }
+      },
+      (_) {
+        dev.log('Delete conversation success, reloading...');
+        loadConversations(isRefreshing: true);
+      },
+    );
+
+    return result;
+  }
 }
 
 // --- Room Notifier ---
@@ -94,6 +120,12 @@ class ChatRoomNotifier extends Notifier<ChatRoomState> {
 
     result.fold((failure) => state = ChatRoomError(failure.message), (data) {
       final (conversation, aiResponse) = data;
+      final aiMessage = ChatMessage(
+        id: DateTime.now().millisecondsSinceEpoch + 1,
+        role: 'model',
+        content: aiResponse,
+        isToolCall: false,
+      );
       state = ChatRoomLoaded(
         conversation: conversation,
         messages: [
@@ -103,13 +135,9 @@ class ChatRoomNotifier extends Notifier<ChatRoomState> {
             content: firstMessage,
             isToolCall: false,
           ),
-          ChatMessage(
-            id: DateTime.now().millisecondsSinceEpoch + 1,
-            role: 'model',
-            content: aiResponse,
-            isToolCall: false,
-          ),
+          aiMessage,
         ],
+        lastAddedMessageId: aiMessage.id,
       );
       // Refresh history in background
       ref
@@ -160,6 +188,7 @@ class ChatRoomNotifier extends Notifier<ChatRoomState> {
         state = (state as ChatRoomLoaded).copyWith(
           messages: [...(state as ChatRoomLoaded).messages, modelMessage],
           isSending: false,
+          lastAddedMessageId: modelMessage.id,
         );
       },
     );

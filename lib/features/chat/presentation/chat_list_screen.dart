@@ -10,6 +10,7 @@ import 'package:altin_takip/core/widgets/app_notification.dart';
 import 'package:altin_takip/features/chat/presentation/chat_notifier.dart';
 import 'package:altin_takip/features/chat/presentation/chat_state.dart';
 import 'package:altin_takip/features/chat/presentation/chat_room_screen.dart';
+import 'package:altin_takip/features/chat/domain/conversation.dart';
 
 class ChatListScreen extends ConsumerStatefulWidget {
   const ChatListScreen({super.key});
@@ -74,6 +75,18 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                 ],
               ),
             ),
+            // Progress Indicator for Deletion
+            if (state is ChatHistoryLoaded && state.isDeleting)
+              Container(
+                height: 1.5,
+                margin: const EdgeInsets.symmetric(horizontal: 48),
+                child: const LinearProgressIndicator(
+                  backgroundColor: Colors.transparent,
+                  color: AppTheme.gold,
+                  minHeight: 1.5,
+                ).animate().fadeIn(),
+              ),
+            const SizedBox(height: 8),
             // Divider
             Container(
               height: 1,
@@ -161,18 +174,26 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
       );
     }
 
-    return ListView.separated(
-      padding: const EdgeInsets.all(24),
-      itemCount: conversations.length,
-      separatorBuilder: (_, __) => const Gap(16),
-      itemBuilder: (context, index) {
-        final conv = conversations[index];
-        return _buildConversationCard(conv, index);
-      },
+    return RefreshIndicator(
+      onRefresh: () => ref
+          .read(chatHistoryProvider.notifier)
+          .loadConversations(isRefreshing: true),
+      color: AppTheme.gold,
+      backgroundColor: AppTheme.surface,
+      strokeWidth: 2,
+      child: ListView.separated(
+        padding: const EdgeInsets.all(24),
+        itemCount: conversations.length,
+        separatorBuilder: (_, __) => const Gap(16),
+        itemBuilder: (context, index) {
+          final conv = conversations[index] as Conversation;
+          return _buildConversationCard(conv, index);
+        },
+      ),
     );
   }
 
-  Widget _buildConversationCard(dynamic conv, int index) {
+  Widget _buildConversationCard(Conversation conv, int index) {
     return Material(
           color: Colors.transparent,
           child: InkWell(
@@ -183,6 +204,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                 MaterialPageRoute(builder: (_) => const ChatRoomScreen()),
               );
             },
+            onLongPress: () => _showDeleteConfirmation(conv),
             borderRadius: BorderRadius.circular(12),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -249,6 +271,118 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
         .animate()
         .fadeIn(delay: (index * 40).ms, duration: 300.ms)
         .slideX(begin: -0.1, end: 0, curve: Curves.easeOut);
+  }
+
+  void _showDeleteConfirmation(Conversation conv) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(32),
+        decoration: BoxDecoration(
+          color: AppTheme.background,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+          border: Border(
+            top: BorderSide(color: Colors.red.withValues(alpha: 0.2), width: 1),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.red.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Iconsax.trash, color: Colors.red, size: 32),
+            ),
+            const Gap(24),
+            const Text(
+              'Sohbeti Sil',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
+            const Gap(12),
+            Text(
+              'Bu sohbeti ve tüm mesajları kalıcı olarak silmek istediğinize emin misiniz?',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.5),
+                fontSize: 14,
+                height: 1.5,
+              ),
+            ),
+            const Gap(32),
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    child: Text(
+                      'Vazgeç',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.5),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                const Gap(16),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      Navigator.pop(ctx);
+                      final result = await ref
+                          .read(chatHistoryProvider.notifier)
+                          .deleteConversation(conv.id);
+
+                      result.fold(
+                        (failure) {
+                          if (!mounted) return;
+                          AppNotification.show(
+                            context,
+                            message: failure.message,
+                            type: NotificationType.error,
+                          );
+                        },
+                        (_) {
+                          if (!mounted) return;
+                          AppNotification.show(
+                            context,
+                            message: 'Sohbet başarıyla silindi.',
+                            type: NotificationType.success,
+                          );
+                        },
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      'Sil',
+                      style: TextStyle(fontWeight: FontWeight.w400),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _startNewConversation(BuildContext context) {

@@ -13,4 +13,5 @@ abstract class ChatRepository {
   );
 
   Future<Either<Failure, String>> sendMessage(int id, String message);
+  Future<Either<Failure, Unit>> deleteConversation(int id);
 }
