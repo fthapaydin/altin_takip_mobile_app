@@ -4,12 +4,14 @@ import 'package:altin_takip/core/storage/storage_service.dart';
 
 class PreferenceState {
   final bool useDynamicDate;
+  final int resetToken;
 
-  const PreferenceState({required this.useDynamicDate});
+  const PreferenceState({required this.useDynamicDate, this.resetToken = 0});
 
-  PreferenceState copyWith({bool? useDynamicDate}) {
+  PreferenceState copyWith({bool? useDynamicDate, int? resetToken}) {
     return PreferenceState(
       useDynamicDate: useDynamicDate ?? this.useDynamicDate,
+      resetToken: resetToken ?? this.resetToken,
     );
   }
 }
@@ -37,5 +39,10 @@ class PreferenceNotifier extends Notifier<PreferenceState> {
   Future<void> toggleDynamicDate(bool value) async {
     await _storageService.saveUseDynamicDate(value);
     state = state.copyWith(useDynamicDate: value);
+  }
+
+  Future<void> resetOrdering() async {
+    await _storageService.clearAssetOrdering();
+    state = state.copyWith(resetToken: state.resetToken + 1);
   }
 }

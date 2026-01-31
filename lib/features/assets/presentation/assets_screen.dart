@@ -67,13 +67,11 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
   Future<void> _loadSavedOrder() async {
     final storageService = sl<StorageService>();
     final savedOrder = await storageService.getAssetOrder();
-    if (savedOrder != null && mounted) {
+    if (mounted) {
       setState(() {
-        _customOrder = savedOrder;
+        _customOrder = savedOrder ?? [];
         _orderLoaded = true;
       });
-    } else {
-      setState(() => _orderLoaded = true);
     }
   }
 
@@ -152,6 +150,12 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
           message: next.actionError!,
           type: NotificationType.error,
         );
+      }
+    });
+
+    ref.listen<PreferenceState>(preferenceProvider, (prev, next) {
+      if (prev?.resetToken != next.resetToken) {
+        _loadSavedOrder();
       }
     });
 

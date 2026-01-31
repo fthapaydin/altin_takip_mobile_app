@@ -53,8 +53,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
     if (mounted) {
       setState(() {
-        if (savedGoldOrder != null) _goldOrder = savedGoldOrder;
-        if (savedForexOrder != null) _forexOrder = savedForexOrder;
+        _goldOrder = savedGoldOrder ?? [];
+        _forexOrder = savedForexOrder ?? [];
       });
     }
   }
@@ -169,6 +169,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           message: next.message,
           type: NotificationType.error,
         );
+      }
+    });
+
+    ref.listen<PreferenceState>(preferenceProvider, (prev, next) {
+      if (prev?.resetToken != next.resetToken) {
+        _loadSavedOrders();
       }
     });
 

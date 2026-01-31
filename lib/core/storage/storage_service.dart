@@ -108,4 +108,11 @@ class StorageService {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(_useDynamicDateKey) ?? true;
   }
+
+  Future<void> clearAssetOrdering() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_assetOrderKey);
+    await prefs.remove(_dashboardGoldOrderKey);
+    await prefs.remove(_dashboardForexOrderKey);
+  }
 }

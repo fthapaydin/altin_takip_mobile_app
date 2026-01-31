@@ -100,6 +100,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               activeTrackColor: AppTheme.gold.withValues(alpha: 0.3),
             ),
           ),
+          const Gap(12),
+          _buildSettingCard(
+            icon: Icons.sort_rounded,
+            title: 'Sıralamayı Sıfırla',
+            subtitle: 'Varlık sıralamasını varsayılana döndür',
+            onTap: () => _showResetOrderSheet(),
+          ),
           const Gap(32),
 
           // Security Section
@@ -841,6 +848,81 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  void _showResetOrderSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: AppTheme.background,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppTheme.gold.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.sort_rounded,
+                color: AppTheme.gold,
+                size: 32,
+              ),
+            ),
+            const Gap(20),
+            const Text(
+              'Sıralamayı Sıfırla',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+            const Gap(8),
+            Text(
+              'Varlık ve gösterge sıralamalarınız varsayılana döndürülecektir. Emin misiniz?',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.5),
+                fontSize: 13,
+              ),
+            ),
+            const Gap(24),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: Colors.white.withOpacity(0.2)),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    child: const Text('Vazgeç'),
+                  ),
+                ),
+                const Gap(12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      ref.read(preferenceProvider.notifier).resetOrdering();
+                      AppNotification.show(
+                        context,
+                        message: 'Sıralama tercihleri sıfırlandı',
+                        type: NotificationType.success,
+                      );
+                    },
+                    child: const Text('Sıfırla'),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
