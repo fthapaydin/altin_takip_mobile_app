@@ -322,6 +322,14 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                   hintText: 'Mesajınızı yazın...',
                   hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
                   border: InputBorder.none,
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    borderSide: BorderSide.none,
+                  ),
                   contentPadding: const EdgeInsets.symmetric(vertical: 8),
                 ),
                 onSubmitted: (_) => _handleSend(),
