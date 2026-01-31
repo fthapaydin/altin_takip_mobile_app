@@ -93,10 +93,15 @@ class CurrencyIcon extends StatelessWidget {
   }
 
   Widget _buildFallbackIcon(Color color) {
-    return Icon(
-      isGold ? Icons.workspace_premium : Icons.currency_exchange,
-      size: size,
-      color: color,
+    return Center(
+      child: SizedBox(
+        width: size * 0.6,
+        height: size * 0.6,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          color: color.withValues(alpha: 0.3),
+        ),
+      ),
     );
   }
 }
