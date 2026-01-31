@@ -60,164 +60,169 @@ class PortfolioSummaryCard extends ConsumerWidget {
           ),
         ],
       ),
-      child: Stack(
-        children: [
-          // Ambient Gradient Mesh
-          Positioned(
-            top: -50,
-            right: -50,
-            child: ImageFiltered(
-              imageFilter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
-              child: Container(
-                width: 150,
-                height: 150,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppTheme.gold.withOpacity(0.15),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(32),
+        child: Stack(
+          children: [
+            // Ambient Gradient Mesh
+            Positioned(
+              top: -50,
+              right: -50,
+              child: ImageFiltered(
+                imageFilter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
+                child: Container(
+                  width: 150,
+                  height: 150,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppTheme.gold.withOpacity(0.15),
+                  ),
                 ),
               ),
             ),
-          ),
-          Positioned(
-            bottom: -50,
-            left: -30,
-            child: ImageFiltered(
-              imageFilter: ImageFilter.blur(sigmaX: 60, sigmaY: 60),
-              child: Container(
-                width: 200,
-                height: 200,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.blueAccent.withOpacity(0.1),
+            Positioned(
+              bottom: -50,
+              left: -30,
+              child: ImageFiltered(
+                imageFilter: ImageFilter.blur(sigmaX: 60, sigmaY: 60),
+                child: Container(
+                  width: 200,
+                  height: 200,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.blueAccent.withOpacity(0.1),
+                  ),
                 ),
               ),
             ),
-          ),
 
-          // Main Content
-          Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header: Title & Profit Pill
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'TOPLAM VARLIK',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.5),
-                            fontSize: 10,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 1.5,
-                          ),
-                        ),
-                        const Gap(8),
-                        Text(
-                          '₺${NumberFormat('#,##0.00', 'tr_TR').format(totalWorth)}',
-                          style: const TextStyle(
-                            fontFeatures: [FontFeature.tabularFigures()],
-                            color: Colors.white,
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: -1,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: (profitLoss >= 0 ? Colors.green : Colors.red)
-                            .withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: (profitLoss >= 0 ? Colors.green : Colors.red)
-                              .withOpacity(0.2),
-                        ),
-                      ),
-                      child: Row(
+            // Main Content
+            Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header: Title & Profit Pill
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(
-                            profitLoss >= 0
-                                ? Icons.arrow_upward_rounded
-                                : Icons.arrow_downward_rounded,
-                            color: profitLoss >= 0 ? Colors.green : Colors.red,
-                            size: 14,
-                          ),
-                          const Gap(4),
                           Text(
-                            '%${NumberFormat('#,##0.1', 'tr_TR').format(profitPercentage.abs())}',
+                            'TOPLAM VARLIK',
                             style: TextStyle(
-                              color: profitLoss >= 0
-                                  ? Colors.green
-                                  : Colors.red,
+                              color: Colors.white.withOpacity(0.5),
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 1.5,
+                            ),
+                          ),
+                          const Gap(8),
+                          Text(
+                            '₺${NumberFormat('#,##0.00', 'tr_TR').format(totalWorth)}',
+                            style: const TextStyle(
+                              fontFeatures: [FontFeature.tabularFigures()],
+                              color: Colors.white,
+                              fontSize: 32,
                               fontWeight: FontWeight.bold,
-                              fontSize: 13,
+                              letterSpacing: -1,
                             ),
                           ),
                         ],
                       ),
-                    ),
-                  ],
-                ),
-
-                const Gap(32),
-
-                // Chart Area
-                SizedBox(
-                  height: 120,
-                  width: double.infinity,
-                  child: chartData != null && chartData.isNotEmpty
-                      ? PortfolioChart(chartData: chartData)
-                      : Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Grafik verisi alınamadı',
-                                style: TextStyle(
-                                  color: Colors.white.withOpacity(0.3),
-                                  fontSize: 12,
-                                ),
-                              ),
-                              if (state is AssetLoaded &&
-                                  !(state as AssetLoaded).isRefreshing) ...[
-                                const Gap(8),
-                                TextButton.icon(
-                                  onPressed: () {
-                                    ref
-                                        .read(assetProvider.notifier)
-                                        .loadDashboard(refresh: true);
-                                  },
-                                  icon: const Icon(Icons.refresh, size: 16),
-                                  label: const Text('Tekrar Dene'),
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: AppTheme.gold,
-                                    textStyle: const TextStyle(fontSize: 12),
-                                  ),
-                                ),
-                              ],
-                            ],
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: (profitLoss >= 0 ? Colors.green : Colors.red)
+                              .withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: (profitLoss >= 0 ? Colors.green : Colors.red)
+                                .withOpacity(0.2),
                           ),
                         ),
-                ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              profitLoss >= 0
+                                  ? Icons.arrow_upward_rounded
+                                  : Icons.arrow_downward_rounded,
+                              color: profitLoss >= 0
+                                  ? Colors.green
+                                  : Colors.red,
+                              size: 14,
+                            ),
+                            const Gap(4),
+                            Text(
+                              '%${NumberFormat('#,##0.1', 'tr_TR').format(profitPercentage.abs())}',
+                              style: TextStyle(
+                                color: profitLoss >= 0
+                                    ? Colors.green
+                                    : Colors.red,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
 
-                const Gap(32),
+                  const Gap(32),
 
-                // Detailed Asset Allocation
-                _buildAssetAllocation(state),
-              ],
+                  // Chart Area
+                  SizedBox(
+                    height: 120,
+                    width: double.infinity,
+                    child: chartData != null && chartData.isNotEmpty
+                        ? PortfolioChart(chartData: chartData)
+                        : Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Grafik verisi alınamadı',
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.3),
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                if (state is AssetLoaded &&
+                                    !(state as AssetLoaded).isRefreshing) ...[
+                                  const Gap(8),
+                                  TextButton.icon(
+                                    onPressed: () {
+                                      ref
+                                          .read(assetProvider.notifier)
+                                          .loadDashboard(refresh: true);
+                                    },
+                                    icon: const Icon(Icons.refresh, size: 16),
+                                    label: const Text('Tekrar Dene'),
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: AppTheme.gold,
+                                      textStyle: const TextStyle(fontSize: 12),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                  ),
+
+                  const Gap(32),
+
+                  // Detailed Asset Allocation
+                  _buildAssetAllocation(state),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.1, end: 0);
   }
@@ -355,7 +360,7 @@ class PortfolioSummaryCard extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '₺${NumberFormat.compactCurrency(symbol: '', locale: 'tr_TR').format(amount)}',
+                '₺${NumberFormat('#,##0.00', 'tr_TR').format(amount)}',
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
