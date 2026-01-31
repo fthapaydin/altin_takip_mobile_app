@@ -10,6 +10,7 @@ class CurrencyDto extends Currency {
     required super.buying,
     required super.selling,
     required super.lastUpdatedAt,
+    super.iconUrl,
   });
 
   factory CurrencyDto.fromJson(Map<String, dynamic> json) {
@@ -21,6 +22,7 @@ class CurrencyDto extends Currency {
       buying: double.parse(json['buying'].toString()),
       selling: double.parse(json['selling'].toString()),
       lastUpdatedAt: DateTime.parse(json['last_updated_at']),
+      iconUrl: json['icon_url'] as String?,
     );
   }
 

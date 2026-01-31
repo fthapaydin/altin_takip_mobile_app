@@ -20,6 +20,7 @@ import 'package:altin_takip/features/auth/presentation/auth_state.dart';
 import 'package:altin_takip/features/auth/presentation/encryption_screen.dart';
 import 'package:altin_takip/features/currencies/presentation/history/currency_history_screen.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:altin_takip/core/widgets/currency_icon.dart';
 
 class AssetsScreen extends ConsumerStatefulWidget {
   const AssetsScreen({super.key});
@@ -436,32 +437,25 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    width: 48,
+                    height: 48,
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          isGold ? const Color(0xFFFFD700) : Colors.blueGrey,
-                          isGold ? const Color(0xFFB8860B) : Colors.black,
+                          AppTheme.gold.withOpacity(0.2),
+                          AppTheme.gold.withOpacity(0.05),
                         ],
                       ),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: (isGold ? AppTheme.gold : Colors.blueGrey)
-                              .withValues(alpha: 0.3),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
+                      shape: BoxShape.circle, // Perfect circle
+                      border: Border.all(color: AppTheme.gold.withOpacity(0.2)),
                     ),
-                    child: Icon(
-                      isGold
-                          ? Icons.workspace_premium
-                          : Icons.currency_exchange,
+                    child: CurrencyIcon(
+                      iconUrl: currency?.iconUrl,
+                      isGold: isGold,
                       color: Colors.white,
-                      size: 20,
+                      size: 48, // Match container
                     ),
                   ),
                   const Gap(16),
@@ -896,20 +890,25 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  width: 40,
+                  height: 40,
                   decoration: BoxDecoration(
-                    color: AppTheme.gold.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: AppTheme.gold.withValues(alpha: 0.2),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        AppTheme.gold.withOpacity(0.2),
+                        AppTheme.gold.withOpacity(0.05),
+                      ],
                     ),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: AppTheme.gold.withOpacity(0.2)),
                   ),
-                  child: Icon(
-                    asset.currency?.isGold == true
-                        ? Icons.workspace_premium
-                        : Icons.currency_exchange,
+                  child: CurrencyIcon(
+                    iconUrl: asset.currency?.iconUrl,
+                    isGold: asset.currency?.isGold == true,
                     color: AppTheme.gold,
-                    size: 24,
+                    size: 40,
                   ),
                 ),
                 const Gap(16),

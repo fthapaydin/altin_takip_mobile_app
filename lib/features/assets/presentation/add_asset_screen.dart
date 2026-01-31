@@ -8,6 +8,7 @@ import 'package:altin_takip/features/assets/presentation/asset_notifier.dart';
 import 'package:altin_takip/features/assets/presentation/asset_state.dart';
 import 'package:altin_takip/features/currencies/domain/currency.dart';
 import 'package:altin_takip/core/widgets/app_notification.dart';
+import 'package:altin_takip/core/widgets/currency_icon.dart';
 import 'package:intl/intl.dart';
 import 'package:altin_takip/features/dashboard/presentation/transactions_screen.dart';
 
@@ -459,16 +460,24 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(10),
+              width: 40,
+              height: 40,
               decoration: BoxDecoration(
-                color: AppTheme.gold.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    AppTheme.gold.withOpacity(0.2),
+                    AppTheme.gold.withOpacity(0.05),
+                  ],
+                ),
+                shape: BoxShape.circle, // Perfect circle
+                border: Border.all(color: AppTheme.gold.withOpacity(0.2)),
               ),
-              child: Icon(
-                _tabController.index == 0
-                    ? Icons.workspace_premium
-                    : Icons.currency_exchange,
-                size: 20,
+              child: CurrencyIcon(
+                iconUrl: _selectedCurrency?.iconUrl,
+                isGold: _tabController.index == 0,
+                size: 40, // Larger icon
                 color: AppTheme.gold,
               ),
             ),
@@ -573,17 +582,43 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
                         ),
                         child: Row(
                           children: [
-                            Text(
-                              currency.name,
-                              style: TextStyle(
-                                color: isSelected
-                                    ? AppTheme.gold
-                                    : Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w400,
+                            Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    AppTheme.gold.withOpacity(0.2),
+                                    AppTheme.gold.withOpacity(0.05),
+                                  ],
+                                ),
+                                shape: BoxShape.circle, // Perfect circle
+                                border: Border.all(
+                                  color: AppTheme.gold.withOpacity(0.2),
+                                ),
+                              ),
+                              child: CurrencyIcon(
+                                iconUrl: currency.iconUrl,
+                                isGold: currency.isGold,
+                                size: 40, // Larger icon
+                                color: AppTheme.gold,
                               ),
                             ),
-                            const Spacer(),
+                            const Gap(12),
+                            Expanded(
+                              child: Text(
+                                currency.name,
+                                style: TextStyle(
+                                  color: isSelected
+                                      ? AppTheme.gold
+                                      : Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ),
                             if (isSelected)
                               const Icon(Icons.check, color: AppTheme.gold),
                           ],

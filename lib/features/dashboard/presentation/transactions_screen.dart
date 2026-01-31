@@ -11,6 +11,7 @@ import 'package:altin_takip/features/settings/presentation/preference_notifier.d
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:sticky_headers/sticky_headers.dart';
 import 'package:altin_takip/features/assets/presentation/add_asset_screen.dart';
+import 'package:altin_takip/core/widgets/currency_icon.dart';
 
 class TransactionsScreen extends ConsumerWidget {
   const TransactionsScreen({super.key});
@@ -268,20 +269,22 @@ class TransactionsScreen extends ConsumerWidget {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: (isBuy ? Colors.green : Colors.red).withValues(
-                      alpha: 0.1,
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        AppTheme.gold.withOpacity(0.2),
+                        AppTheme.gold.withOpacity(0.05),
+                      ],
                     ),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(
-                      color: (isBuy ? Colors.green : Colors.red).withValues(
-                        alpha: 0.1,
-                      ),
-                    ),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: AppTheme.gold.withOpacity(0.2)),
                   ),
-                  child: Icon(
-                    isBuy ? Icons.download_rounded : Icons.upload_rounded,
-                    color: isBuy ? Colors.green : Colors.red,
-                    size: 24,
+                  child: CurrencyIcon(
+                    iconUrl: asset.currency?.iconUrl,
+                    isGold: asset.currency?.isGold ?? false,
+                    size: 44,
+                    color: AppTheme.gold,
                   ),
                 ),
                 const Gap(16),

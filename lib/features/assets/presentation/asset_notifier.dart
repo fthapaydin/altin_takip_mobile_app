@@ -2,10 +2,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:altin_takip/core/di.dart';
 import 'package:altin_takip/core/error/failures.dart';
 import 'package:altin_takip/features/assets/domain/asset_repository.dart';
+import 'package:altin_takip/features/assets/domain/pagination.dart';
 import 'package:altin_takip/features/assets/presentation/asset_state.dart';
 import 'package:altin_takip/features/currencies/domain/currency_repository.dart';
 import 'package:altin_takip/features/auth/presentation/auth_notifier.dart';
-import 'package:altin_takip/features/auth/presentation/auth_state.dart';
 
 final assetProvider = NotifierProvider<AssetNotifier, AssetState>(
   AssetNotifier.new,
@@ -25,26 +25,52 @@ class AssetNotifier extends Notifier<AssetState> {
   Future<void> loadDashboard() async {
     state = const AssetLoading();
 
+    // Always fetch both concurrently
     final assetsResult = await _assetRepository.getAssets();
     final currenciesResult = await _currencyRepository.getCurrencies();
 
-    assetsResult.fold((failure) {
-       if (failure is EncryptionRequiredFailure) {
-          ref.read(authProvider.notifier).forceEncryptionRequired();
-       } 
-       state = AssetError(failure.message);
-    }, (data) {
-      final (assets, pagination) = data;
-      currenciesResult.fold(
-        (failure) => state = AssetError(failure.message),
-        (currencies) => state = AssetLoaded(
-          assets: assets,
-          pagination: pagination,
-          currencies: currencies,
-          hasMore: pagination.currentPage < pagination.lastPage,
-        ),
-      );
-    });
+    // Check currencies first - they are critical for the UI
+    currenciesResult.fold(
+      (currencyFailure) {
+        // If currencies fail, we can't show anything useful
+        state = AssetError(currencyFailure.message);
+      },
+      (currencies) {
+        // We have currencies, now check assets
+        assetsResult.fold(
+          (assetFailure) {
+            // Handle encryption required specially
+            if (assetFailure is EncryptionRequiredFailure) {
+              ref.read(authProvider.notifier).forceEncryptionRequired();
+            }
+
+            // Show currencies with empty assets list
+            // This prevents the blank screen issue
+            state = AssetLoaded(
+              assets: [], // Empty assets, but we still show currencies
+              pagination: const Pagination(
+                currentPage: 1,
+                lastPage: 1,
+                perPage: 0,
+                total: 0,
+              ),
+              currencies: currencies,
+              hasMore: false,
+            );
+          },
+          (data) {
+            // Both succeeded - show everything
+            final (assets, pagination) = data;
+            state = AssetLoaded(
+              assets: assets,
+              pagination: pagination,
+              currencies: currencies,
+              hasMore: pagination.currentPage < pagination.lastPage,
+            );
+          },
+        );
+      },
+    );
   }
 
   Future<void> loadAllAssets({bool refresh = false}) async {

@@ -19,6 +19,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:altin_takip/features/dashboard/presentation/transactions_screen.dart';
 import 'package:altin_takip/features/currencies/presentation/history/currency_history_screen.dart';
 import 'package:altin_takip/features/assets/presentation/add_asset_screen.dart';
+import 'package:altin_takip/core/widgets/currency_icon.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -675,24 +676,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       AppTheme.gold.withOpacity(0.05),
                     ],
                   ),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(24), // Perfect circle
                   border: Border.all(color: AppTheme.gold.withOpacity(0.2)),
                 ),
-                child: Center(
-                  child: Text(
-                    isGold
-                        ? (currency.name.length >= 2
-                              ? currency.name.substring(0, 2)
-                              : currency.name)
-                        : (currency.code.length >= 3
-                              ? currency.code.substring(0, 3)
-                              : currency.code),
-                    style: const TextStyle(
-                      color: AppTheme.gold,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
+                child: CurrencyIcon(
+                  iconUrl: currency.iconUrl,
+                  isGold: isGold,
+                  size: 48, // Match container size
+                  color: AppTheme.gold,
                 ),
               ),
               const Gap(16),
