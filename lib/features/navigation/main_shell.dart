@@ -6,6 +6,7 @@ import 'package:altin_takip/features/assets/presentation/add_asset_screen.dart';
 import 'package:altin_takip/features/calculator/presentation/calculator_screen.dart';
 import 'package:altin_takip/features/dashboard/presentation/dashboard_screen.dart';
 import 'package:altin_takip/features/settings/presentation/settings_screen.dart';
+import 'package:iconsax/iconsax.dart';
 
 class MainShell extends ConsumerStatefulWidget {
   const MainShell({super.key});
@@ -50,11 +51,7 @@ class _MainShellState extends ConsumerState<MainShell> {
                 backgroundColor: AppTheme.gold,
                 elevation: 4,
                 shape: const CircleBorder(),
-                child: const Icon(
-                  Icons.add_rounded,
-                  color: Colors.black,
-                  size: 28,
-                ),
+                child: const Icon(Iconsax.add, color: Colors.black, size: 28),
               ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         bottomNavigationBar: BottomAppBar(
@@ -66,11 +63,11 @@ class _MainShellState extends ConsumerState<MainShell> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildNavItem(0, Icons.home_rounded, 'Anasayfa'),
-              _buildNavItem(1, Icons.pie_chart_rounded, 'Portföy'),
+              _buildNavItem(0, Iconsax.home, 'Anasayfa'),
+              _buildNavItem(1, Iconsax.wallet_3, 'Portföy'),
               const SizedBox(width: 48), // Space for FAB
-              _buildNavItem(2, Icons.calculate_rounded, 'Hesaplama'),
-              _buildNavItem(3, Icons.settings_rounded, 'Ayarlar'),
+              _buildNavItem(2, Iconsax.calculator, 'Hesaplama'),
+              _buildNavItem(3, Iconsax.setting_2, 'Ayarlar'),
             ],
           ),
         ),

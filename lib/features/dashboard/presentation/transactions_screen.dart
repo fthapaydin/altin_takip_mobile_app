@@ -12,6 +12,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:sticky_headers/sticky_headers.dart';
 import 'package:altin_takip/features/assets/presentation/add_asset_screen.dart';
 import 'package:altin_takip/core/widgets/currency_icon.dart';
+import 'package:iconsax/iconsax.dart';
 
 class TransactionsScreen extends ConsumerWidget {
   const TransactionsScreen({super.key});
@@ -31,7 +32,7 @@ class TransactionsScreen extends ConsumerWidget {
             pinned: true,
             leading: IconButton(
               icon: const Icon(
-                Icons.arrow_back_ios_new,
+                Iconsax.arrow_left_2,
                 color: Colors.white,
                 size: 20,
               ),
@@ -46,7 +47,11 @@ class TransactionsScreen extends ConsumerWidget {
                     color: AppTheme.gold.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.add, color: AppTheme.gold, size: 20),
+                  child: const Icon(
+                    Iconsax.add,
+                    color: AppTheme.gold,
+                    size: 20,
+                  ),
                 ),
               ),
               const Gap(16),
@@ -102,7 +107,7 @@ class TransactionsScreen extends ConsumerWidget {
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
-                  Icons.receipt_long_outlined,
+                  Iconsax.receipt_1,
                   size: 48,
                   color: Colors.white.withValues(alpha: 0.3),
                 ),
@@ -306,7 +311,7 @@ class TransactionsScreen extends ConsumerWidget {
                       Row(
                         children: [
                           Icon(
-                            Icons.access_time_rounded,
+                            Iconsax.clock,
                             size: 12,
                             color: Colors.white.withValues(alpha: 0.3),
                           ),
@@ -361,8 +366,8 @@ class TransactionsScreen extends ConsumerWidget {
                           children: [
                             Icon(
                               isProfitPositive
-                                  ? Icons.trending_up
-                                  : Icons.trending_down,
+                                  ? Iconsax.trend_up
+                                  : Iconsax.trend_down,
                               size: 10,
                               color: isProfitPositive
                                   ? Colors.green

@@ -8,6 +8,7 @@ import 'package:altin_takip/core/theme/app_theme.dart';
 import 'package:altin_takip/features/auth/presentation/auth_state.dart';
 import 'package:altin_takip/features/assets/presentation/asset_notifier.dart';
 import 'package:altin_takip/features/assets/presentation/asset_state.dart';
+import 'package:iconsax/iconsax.dart';
 
 class DashboardHeader extends StatelessWidget {
   final AuthState authState;
@@ -42,7 +43,7 @@ class DashboardHeader extends StatelessWidget {
                     if (isEncrypted) ...[
                       const Gap(8),
                       const Icon(
-                        Icons.enhanced_encryption,
+                        Iconsax.security_safe,
                         color: AppTheme.gold,
                         size: 18,
                       ),
@@ -84,7 +85,7 @@ class DashboardHeader extends StatelessWidget {
                       ],
                     ),
                     child: const Icon(
-                      Icons.auto_awesome_rounded,
+                      Iconsax.magic_star,
                       size: 20,
                       color: Colors.black,
                     ),
@@ -107,9 +108,7 @@ class DashboardHeader extends StatelessWidget {
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
-                          isLoading
-                              ? Icons.hourglass_empty
-                              : Icons.refresh_rounded,
+                          isLoading ? Iconsax.timer_1 : Iconsax.refresh,
                           size: 20,
                           color: isLoading ? AppTheme.gold : Colors.white,
                         ),

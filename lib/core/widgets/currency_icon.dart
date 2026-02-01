@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:altin_takip/core/theme/app_theme.dart';
+import 'package:iconsax/iconsax.dart';
 
 /// A widget that displays currency icons from either a URL (SVG) or falls back to Material icons
 class CurrencyIcon extends StatelessWidget {
@@ -93,7 +94,7 @@ class CurrencyIcon extends StatelessWidget {
       ),
       child: Center(
         child: Icon(
-          isGold ? Icons.auto_awesome : Icons.currency_exchange,
+          isGold ? Iconsax.magic_star : Iconsax.dollar_circle,
           size: size * 0.5,
           color: color,
         ),

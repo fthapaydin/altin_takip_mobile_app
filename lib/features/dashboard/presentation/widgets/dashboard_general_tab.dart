@@ -11,6 +11,7 @@ import 'package:altin_takip/features/assets/domain/asset.dart';
 import 'package:altin_takip/features/currencies/domain/currency.dart';
 import 'package:altin_takip/features/settings/presentation/preference_notifier.dart';
 import 'package:altin_takip/features/dashboard/presentation/transactions_screen.dart';
+import 'package:iconsax/iconsax.dart';
 
 class DashboardGeneralTab extends ConsumerWidget {
   final AssetState state;
@@ -145,7 +146,7 @@ class DashboardGeneralTab extends ConsumerWidget {
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                   ),
                   Gap(4),
-                  Icon(Icons.arrow_forward, size: 14),
+                  Icon(Iconsax.arrow_right_1, size: 14),
                 ],
               ),
             ),
@@ -202,7 +203,7 @@ class DashboardGeneralTab extends ConsumerWidget {
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
-                    Icons.stacked_line_chart,
+                    Iconsax.chart_2,
                     color: AppTheme.gold,
                     size: 24,
                   ),
@@ -354,7 +355,7 @@ class DashboardGeneralTab extends ConsumerWidget {
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
-                    Icons.savings_outlined,
+                    Iconsax.wallet_money,
                     color: AppTheme.gold,
                     size: 32,
                   ),

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:gap/gap.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:altin_takip/core/theme/app_theme.dart';
 import 'package:altin_takip/features/currencies/presentation/history/currency_history_providers.dart';
 import 'package:altin_takip/features/currencies/domain/currency_history.dart';
@@ -225,7 +226,7 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
                 border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
               ),
               child: Icon(
-                Icons.ssid_chart_rounded,
+                Iconsax.chart_21,
                 size: 48,
                 color: Colors.white.withValues(alpha: 0.2),
               ),
@@ -303,8 +304,8 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
                           children: [
                             Icon(
                               isPositive
-                                  ? Icons.trending_up
-                                  : Icons.trending_down,
+                                  ? Iconsax.trend_up
+                                  : Iconsax.trend_down,
                               size: 14,
                               color: isPositive ? Colors.green : Colors.red,
                             ),
@@ -393,7 +394,7 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
-                  isBuy ? Icons.arrow_downward : Icons.arrow_upward,
+                  isBuy ? Iconsax.arrow_down : Iconsax.arrow_up,
                   color: isBuy ? Colors.green : Colors.red,
                   size: 20,
                 ),
@@ -618,7 +619,7 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
             shape: BoxShape.circle,
           ),
           child: Icon(
-            Icons.history_toggle_off_rounded,
+            Iconsax.timer_1,
             size: 32,
             color: Colors.white.withValues(alpha: 0.3),
           ),
@@ -664,7 +665,7 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
           child: const Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.add_circle_outline_rounded, size: 18),
+              Icon(Iconsax.add_circle, size: 18),
               Gap(8),
               Text('İşlem Ekle'),
             ],

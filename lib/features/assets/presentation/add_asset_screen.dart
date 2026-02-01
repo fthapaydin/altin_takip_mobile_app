@@ -1,6 +1,5 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:altin_takip/core/theme/app_theme.dart';
@@ -8,9 +7,13 @@ import 'package:altin_takip/features/assets/presentation/asset_notifier.dart';
 import 'package:altin_takip/features/assets/presentation/asset_state.dart';
 import 'package:altin_takip/features/currencies/domain/currency.dart';
 import 'package:altin_takip/core/widgets/app_notification.dart';
-import 'package:altin_takip/core/widgets/currency_icon.dart';
 import 'package:intl/intl.dart';
 import 'package:altin_takip/features/dashboard/presentation/transactions_screen.dart';
+import 'package:iconsax/iconsax.dart';
+import 'package:altin_takip/features/assets/presentation/widgets/add_asset/transaction_type_selector.dart';
+import 'package:altin_takip/features/assets/presentation/widgets/add_asset/asset_currency_selector.dart';
+import 'package:altin_takip/features/assets/presentation/widgets/add_asset/custom_asset_text_field.dart';
+import 'package:altin_takip/features/assets/presentation/widgets/add_asset/asset_date_picker.dart';
 
 class AddAssetScreen extends ConsumerStatefulWidget {
   final String? initialCurrencyCode;
@@ -179,7 +182,7 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
                 color: Colors.white.withValues(alpha: 0.05),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.history, size: 20, color: Colors.white),
+              child: const Icon(Iconsax.timer_1, size: 20, color: Colors.white),
             ),
           ),
           const Gap(16),
@@ -236,8 +239,14 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
               ),
               const Gap(24),
 
-              // Custom Segmented Control for Buy/Sell
-              _buildTypeSelector(),
+              // Transaction Type Selector
+              TransactionTypeSelector(
+                isBuy: _isBuy,
+                onTypeChanged: (value) {
+                  setState(() => _isBuy = value);
+                  _updatePriceField();
+                },
+              ),
               const Gap(24),
 
               // Currency Selection
@@ -250,7 +259,19 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
                 ),
               ),
               const Gap(8),
-              _buildCurrencySelector(),
+              AssetCurrencySelector(
+                selectedCurrency: _selectedCurrency,
+                currencies: _tabController.index == 0
+                    ? _goldCurrencies
+                    : _forexCurrencies,
+                isGold: _tabController.index == 0,
+                onCurrencyChanged: (currency) {
+                  setState(() {
+                    _selectedCurrency = currency;
+                    _updatePriceField();
+                  });
+                },
+              ),
               const Gap(20),
 
               // Amount & Price Inputs
@@ -269,10 +290,10 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
                           ),
                         ),
                         const Gap(8),
-                        _buildTextField(
-                          _amountForDisplayController,
-                          '0',
-                          Icons.scale_rounded,
+                        CustomAssetTextField(
+                          controller: _amountForDisplayController,
+                          hint: '0',
+                          icon: Iconsax.weight,
                           keyboardType: const TextInputType.numberWithOptions(
                             decimal: true,
                           ),
@@ -294,10 +315,10 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
                           ),
                         ),
                         const Gap(8),
-                        _buildTextField(
-                          _priceForDisplayController,
-                          '0,00',
-                          Icons.attach_money_rounded,
+                        CustomAssetTextField(
+                          controller: _priceForDisplayController,
+                          hint: '0,00',
+                          icon: Iconsax.money,
                           keyboardType: const TextInputType.numberWithOptions(
                             decimal: true,
                           ),
@@ -319,20 +340,23 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
                 ),
               ),
               const Gap(8),
-              _buildDatePicker(),
+              AssetDatePicker(
+                selectedDate: _selectedDate,
+                onDateChanged: (date) => setState(() => _selectedDate = date),
+              ),
               const Gap(20),
 
               // Optional Fields
-              _buildTextField(
-                _placeController,
-                'Alınan Yer / Platform (Opsiyonel)',
-                Icons.store_mall_directory_outlined,
+              CustomAssetTextField(
+                controller: _placeController,
+                hint: 'Alınan Yer / Platform (Opsiyonel)',
+                icon: Iconsax.shop,
               ),
               const Gap(16),
-              _buildTextField(
-                _noteController,
-                'İşlem Notu (Opsiyonel)',
-                Icons.edit_note_rounded,
+              CustomAssetTextField(
+                controller: _noteController,
+                hint: 'İşlem Notu (Opsiyonel)',
+                icon: Iconsax.note,
               ),
               const Gap(32),
 
@@ -374,391 +398,6 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTypeSelector() {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                setState(() => _isBuy = true);
-                _updatePriceField();
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                height: 48,
-                decoration: BoxDecoration(
-                  color: _isBuy ? const Color(0xFF00C853) : Colors.transparent,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Center(
-                  child: Text(
-                    'Alım',
-                    style: TextStyle(
-                      color: _isBuy ? Colors.white : Colors.white54,
-                      fontWeight: FontWeight.w400,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                setState(() => _isBuy = false);
-                _updatePriceField();
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                height: 48,
-                decoration: BoxDecoration(
-                  color: !_isBuy ? const Color(0xFFFF5252) : Colors.transparent,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Center(
-                  child: Text(
-                    'Satım',
-                    style: TextStyle(
-                      color: !_isBuy ? Colors.white : Colors.white54,
-                      fontWeight: FontWeight.w400,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCurrencySelector() {
-    return GestureDetector(
-      onTap: _showCurrencyPicker,
-      child: Container(
-        height: 64,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    AppTheme.gold.withOpacity(0.2),
-                    AppTheme.gold.withOpacity(0.05),
-                  ],
-                ),
-                shape: BoxShape.circle, // Perfect circle
-                border: Border.all(color: AppTheme.gold.withOpacity(0.2)),
-              ),
-              child: CurrencyIcon(
-                iconUrl: _selectedCurrency?.iconUrl,
-                isGold: _tabController.index == 0,
-                size: 40, // Larger icon
-                color: AppTheme.gold,
-              ),
-            ),
-            const Gap(16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Varlık',
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.5),
-                      fontSize: 12,
-                    ),
-                  ),
-                  const Gap(2),
-                  Text(
-                    _selectedCurrency?.name ?? 'Seçiniz',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-            Icon(
-              Icons.keyboard_arrow_down_rounded,
-              color: Colors.white.withValues(alpha: 0.3),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showCurrencyPicker() {
-    final currencies = _tabController.index == 0
-        ? _goldCurrencies
-        : _forexCurrencies;
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) {
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.7,
-          decoration: const BoxDecoration(
-            color: Color(0xFF1E1E1E),
-            borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-          ),
-          child: Column(
-            children: [
-              const Gap(16),
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.white24,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const Gap(24),
-              const Text(
-                'Varlık Seçin',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400),
-              ),
-              const Gap(24),
-              Expanded(
-                child: ListView.separated(
-                  padding: const EdgeInsets.all(24),
-                  itemCount: currencies.length,
-                  separatorBuilder: (_, __) => const Gap(12),
-                  itemBuilder: (context, index) {
-                    final currency = currencies[index];
-                    final isSelected = currency.id == _selectedCurrency?.id;
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _selectedCurrency = currency;
-                          _updatePriceField();
-                        });
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? AppTheme.gold.withValues(alpha: 0.1)
-                              : Colors.white.withValues(alpha: 0.05),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: isSelected
-                                ? AppTheme.gold.withValues(alpha: 0.5)
-                                : Colors.transparent,
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    AppTheme.gold.withOpacity(0.2),
-                                    AppTheme.gold.withOpacity(0.05),
-                                  ],
-                                ),
-                                shape: BoxShape.circle, // Perfect circle
-                                border: Border.all(
-                                  color: AppTheme.gold.withOpacity(0.2),
-                                ),
-                              ),
-                              child: CurrencyIcon(
-                                iconUrl: currency.iconUrl,
-                                isGold: currency.isGold,
-                                size: 40, // Larger icon
-                                color: AppTheme.gold,
-                              ),
-                            ),
-                            const Gap(12),
-                            Expanded(
-                              child: Text(
-                                currency.name,
-                                style: TextStyle(
-                                  color: isSelected
-                                      ? AppTheme.gold
-                                      : Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                            ),
-                            if (isSelected)
-                              const Icon(Icons.check, color: AppTheme.gold),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildTextField(
-    TextEditingController controller,
-    String hint,
-    IconData icon, {
-    TextInputType? keyboardType,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: TextField(
-        controller: controller,
-        keyboardType: keyboardType,
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.w400,
-          fontSize: 16,
-        ),
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
-          filled: true,
-          fillColor: Colors.white.withOpacity(0.05),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 16,
-          ),
-          prefixIcon: Icon(
-            icon,
-            size: 20,
-            color: AppTheme.gold.withOpacity(0.7),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: AppTheme.gold, width: 1.5),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDatePicker() {
-    return InkWell(
-      onTap: () async {
-        final date = await showDatePicker(
-          context: context,
-          initialDate: _selectedDate,
-          firstDate: DateTime(2000),
-          lastDate: DateTime.now(),
-          locale: const Locale('tr', 'TR'),
-          builder: (context, child) {
-            return Theme(
-              data: Theme.of(context).copyWith(
-                colorScheme: const ColorScheme.dark(
-                  primary: AppTheme.gold, // Header background & selection
-                  onPrimary: Colors.black, // Header text & selection text
-                  surface: Color(0xFF1E1E1E), // Background
-                  onSurface: Colors.white, // Body text
-                ),
-                dialogBackgroundColor: const Color(0xFF1E1E1E),
-                datePickerTheme: DatePickerThemeData(
-                  headerBackgroundColor: const Color(0xFF1E1E1E),
-                  headerForegroundColor: AppTheme.gold,
-                  backgroundColor: const Color(0xFF1E1E1E),
-                  surfaceTintColor: Colors.transparent,
-                  dividerColor: Colors.white.withOpacity(0.1),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    side: BorderSide(color: Colors.white.withOpacity(0.1)),
-                  ),
-                  headerHeadlineStyle: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.gold,
-                  ),
-                ),
-              ),
-              child: child!,
-            );
-          },
-        );
-        if (date != null) setState(() => _selectedDate = date);
-      },
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        height: 56,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              Icons.calendar_today_rounded,
-              size: 20,
-              color: AppTheme.gold.withValues(alpha: 0.7),
-            ),
-            const Gap(12),
-            Text(
-              DateFormat('d MMMM yyyy', 'tr_TR').format(_selectedDate),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-            const Spacer(),
-            Icon(
-              Icons.arrow_drop_down,
-              color: Colors.white.withValues(alpha: 0.3),
-            ),
-          ],
         ),
       ),
     );
@@ -807,7 +446,6 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
         );
         return;
       }
-
       if (price <= 0) {
         AppNotification.show(
           context,
@@ -825,15 +463,14 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
             currencyId: _selectedCurrency!.id,
             amount: amount,
             price: price,
-            date: _selectedDate,
             isBuy: _isBuy,
+            date: _selectedDate,
             place: _placeController.text.trim(),
             note: _noteController.text.trim(),
           );
 
-      if (mounted) {
-        setState(() => _isLoading = false);
-        if (success) {
+      if (success) {
+        if (mounted) {
           Navigator.pop(context);
           AppNotification.show(
             context,
@@ -843,18 +480,22 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
         }
       }
     } catch (e) {
-      AppNotification.show(
-        context,
-        message: 'Geçersiz sayı formatı',
-        type: NotificationType.error,
-      );
+      if (mounted) {
+        AppNotification.show(
+          context,
+          message: 'Bir hata oluştu: ${e.toString()}',
+          type: NotificationType.error,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
-  double _parseCurrency(String text) {
-    // Remove all dots (thousands separators in TR)
-    // Replace comma with dot (decimal separator in TR)
-    final cleaned = text.replaceAll('.', '').replaceAll(',', '.');
-    return double.parse(cleaned);
+  double _parseCurrency(String value) {
+    if (value.isEmpty) return 0.0;
+    // Replace comma with dot for parsing if using TR locale format
+    String normalized = value.replaceAll('.', '').replaceAll(',', '.');
+    return double.tryParse(normalized) ?? 0.0;
   }
 }

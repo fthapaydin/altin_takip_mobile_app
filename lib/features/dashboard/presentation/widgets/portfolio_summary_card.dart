@@ -7,11 +7,10 @@ import 'package:shimmer/shimmer.dart';
 import 'package:altin_takip/core/theme/app_theme.dart';
 import 'package:altin_takip/features/assets/presentation/asset_state.dart';
 import 'package:altin_takip/features/dashboard/presentation/widgets/portfolio_chart.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:altin_takip/features/assets/presentation/asset_notifier.dart';
-
 import 'package:altin_takip/features/settings/presentation/preference_notifier.dart';
+import 'package:iconsax/iconsax.dart';
 
 class PortfolioSummaryCard extends ConsumerWidget {
   final AssetState state;
@@ -155,8 +154,8 @@ class PortfolioSummaryCard extends ConsumerWidget {
                           children: [
                             Icon(
                               profitLoss >= 0
-                                  ? Icons.arrow_upward_rounded
-                                  : Icons.arrow_downward_rounded,
+                                  ? Iconsax.arrow_up
+                                  : Iconsax.arrow_down,
                               color: profitLoss >= 0
                                   ? Colors.green
                                   : Colors.red,
@@ -212,7 +211,7 @@ class PortfolioSummaryCard extends ConsumerWidget {
                                           .read(assetProvider.notifier)
                                           .loadDashboard(refresh: true);
                                     },
-                                    icon: const Icon(Icons.refresh, size: 16),
+                                    icon: const Icon(Iconsax.refresh, size: 16),
                                     label: const Text('Tekrar Dene'),
                                     style: TextButton.styleFrom(
                                       foregroundColor: AppTheme.gold,
