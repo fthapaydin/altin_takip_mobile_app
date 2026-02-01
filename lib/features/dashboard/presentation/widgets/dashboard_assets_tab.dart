@@ -72,7 +72,7 @@ class _DashboardAssetsTabState extends ConsumerState<DashboardAssetsTab> {
           return Material(
             color: Colors.transparent,
             elevation: 4,
-            shadowColor: AppTheme.gold.withOpacity(0.3),
+            //shadowColor: AppTheme.gold.withOpacity(0.3),
             borderRadius: BorderRadius.circular(16),
             child: child,
           );
@@ -156,18 +156,6 @@ class _DashboardAssetsTabState extends ConsumerState<DashboardAssetsTab> {
               Container(
                 width: 48,
                 height: 48,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      AppTheme.gold.withOpacity(0.2),
-                      AppTheme.gold.withOpacity(0.05),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(24), // Perfect circle
-                  border: Border.all(color: AppTheme.gold.withOpacity(0.2)),
-                ),
                 child: CurrencyIcon(
                   iconUrl: currency.iconUrl,
                   isGold: isGold,

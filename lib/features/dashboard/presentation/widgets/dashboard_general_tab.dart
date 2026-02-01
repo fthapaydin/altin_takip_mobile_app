@@ -12,6 +12,7 @@ import 'package:altin_takip/features/currencies/domain/currency.dart';
 import 'package:altin_takip/features/settings/presentation/preference_notifier.dart';
 import 'package:altin_takip/features/dashboard/presentation/transactions_screen.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:altin_takip/features/dashboard/presentation/widgets/transaction_list_item.dart';
 
 class DashboardGeneralTab extends ConsumerWidget {
   final AssetState state;
@@ -414,95 +415,7 @@ class DashboardGeneralTab extends ConsumerWidget {
       return SliverList(
         delegate: SliverChildBuilderDelegate((context, index) {
           final asset = displayAssets[index];
-          final isBuy = asset.type == 'buy';
-          final currentPrice = asset.currency?.selling ?? asset.price;
-          final diff = (currentPrice - asset.price) * asset.amount;
-
-          return Container(
-            margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
-            decoration: BoxDecoration(
-              color: AppTheme.surface,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: Colors.white.withOpacity(0.04)),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(14),
-              child: IntrinsicHeight(
-                child: Row(
-                  children: [
-                    Container(
-                      width: 4,
-                      color: isBuy ? Colors.green : Colors.red,
-                    ),
-                    const Gap(14),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              asset.currency?.name ?? 'Bilinmeyen Varlık',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                              ),
-                            ),
-                            const Gap(2),
-                            Text(
-                              DateFormat(
-                                'd MMM yyyy',
-                                'tr_TR',
-                              ).format(asset.date),
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.35),
-                                fontSize: 11,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(14.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 3,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppTheme.gold.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              '${NumberFormat('#,##0.##', 'tr_TR').format(asset.amount)} adet',
-                              style: const TextStyle(
-                                color: AppTheme.gold,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 11,
-                              ),
-                            ),
-                          ),
-                          const Gap(4),
-                          Text(
-                            '${diff >= 0 ? "+" : ""}₺${NumberFormat('#,##0.00', 'tr_TR').format(diff)}',
-                            style: TextStyle(
-                              color: diff >= 0 ? Colors.green : Colors.red,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 11,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
+          return TransactionListItem(asset: asset);
         }, childCount: displayAssets.length),
       );
     }

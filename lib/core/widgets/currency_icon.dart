@@ -28,14 +28,6 @@ class CurrencyIcon extends StatelessWidget {
         return Container(
           width: size,
           height: size,
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.05),
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.08),
-              width: 1,
-            ),
-          ),
           child: ClipOval(clipBehavior: Clip.antiAlias, child: child),
         );
       }
@@ -88,7 +80,6 @@ class CurrencyIcon extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
         shape: BoxShape.circle,
         border: Border.all(color: color.withValues(alpha: 0.2), width: 1),
       ),

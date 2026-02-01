@@ -89,18 +89,6 @@ class AssetGroupCard extends ConsumerWidget {
                   Container(
                     width: 48,
                     height: 48,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          AppTheme.gold.withOpacity(0.2),
-                          AppTheme.gold.withOpacity(0.05),
-                        ],
-                      ),
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppTheme.gold.withOpacity(0.2)),
-                    ),
                     child: CurrencyIcon(
                       iconUrl: currency?.iconUrl,
                       isGold: isGold,

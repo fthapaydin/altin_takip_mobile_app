@@ -38,7 +38,6 @@ class EncryptionSheet extends StatefulWidget {
 
 class _EncryptionSheetState extends State<EncryptionSheet> {
   final _passwordController = TextEditingController();
-  bool _encryptionEnabled = false;
 
   @override
   void initState() {
@@ -88,7 +87,7 @@ class _EncryptionSheetState extends State<EncryptionSheet> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: AppTheme.gold.withOpacity(0.1),
+                          color: AppTheme.gold.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Icon(
@@ -128,7 +127,7 @@ class _EncryptionSheetState extends State<EncryptionSheet> {
                         Icon(
                           Iconsax.info_circle,
                           size: 18,
-                          color: Colors.white.withOpacity(0.5),
+                          color: Colors.white.withValues(alpha: 0.5),
                         ),
                         const Gap(12),
                         Expanded(
@@ -137,7 +136,7 @@ class _EncryptionSheetState extends State<EncryptionSheet> {
                                 ? 'Verilerinizi korumak için bir şifre belirleyin. Bu şifre olmadan verilerinize erişilemez.'
                                 : 'Şifrelemeyi kapatmak için mevcut şifrenizi girin.',
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.6),
+                              color: Colors.white.withValues(alpha: 0.6),
                               fontSize: 12,
                             ),
                           ),
@@ -167,7 +166,7 @@ class _EncryptionSheetState extends State<EncryptionSheet> {
                               : () => Navigator.pop(context),
                           style: OutlinedButton.styleFrom(
                             side: BorderSide(
-                              color: Colors.white.withOpacity(0.2),
+                              color: Colors.white.withValues(alpha: 0.2),
                             ),
                             padding: const EdgeInsets.symmetric(vertical: 14),
                           ),

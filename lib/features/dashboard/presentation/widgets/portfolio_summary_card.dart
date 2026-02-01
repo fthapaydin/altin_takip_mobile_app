@@ -143,11 +143,11 @@ class PortfolioSummaryCard extends ConsumerWidget {
                         ),
                         decoration: BoxDecoration(
                           color: (profitLoss >= 0 ? Colors.green : Colors.red)
-                              .withOpacity(0.1),
+                              .withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
                             color: (profitLoss >= 0 ? Colors.green : Colors.red)
-                                .withOpacity(0.2),
+                                .withValues(alpha: 0.2),
                           ),
                         ),
                         child: Row(
@@ -276,20 +276,33 @@ class PortfolioSummaryCard extends ConsumerWidget {
       children: [
         // Progress Bar
         ClipRRect(
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: BorderRadius.circular(8),
           child: SizedBox(
-            height: 6,
+            height: 12,
             child: Row(
               children: [
                 if (goldValue > 0)
                   Expanded(
-                    flex: goldPercent.toInt(),
-                    child: Container(color: AppTheme.gold),
+                    flex: goldPercent.round(),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            AppTheme.gold,
+                            AppTheme.gold.withValues(alpha: 0.7),
+                          ],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ),
+                      ),
+                    ),
                   ),
                 if (forexValue > 0)
                   Expanded(
-                    flex: forexPercent.toInt(),
-                    child: Container(color: const Color(0xFF4C82F7)),
+                    flex: forexPercent.round(),
+                    child: Container(
+                      color: const Color(0xFF4C82F7).withValues(alpha: 0.3),
+                    ),
                   ),
               ],
             ),
@@ -310,7 +323,7 @@ class PortfolioSummaryCard extends ConsumerWidget {
             Container(
               width: 1,
               height: 32,
-              color: Colors.white.withOpacity(0.1),
+              color: Colors.white.withValues(alpha: 0.1),
             ),
             Expanded(
               child: _buildAllocationItem(
@@ -349,7 +362,10 @@ class PortfolioSummaryCard extends ConsumerWidget {
                   color: color,
                   shape: BoxShape.circle,
                   boxShadow: [
-                    BoxShadow(color: color.withOpacity(0.5), blurRadius: 6),
+                    BoxShadow(
+                      color: color.withValues(alpha: 0.5),
+                      blurRadius: 6,
+                    ),
                   ],
                 ),
               ),
@@ -357,7 +373,7 @@ class PortfolioSummaryCard extends ConsumerWidget {
               Text(
                 label,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.6),
+                  color: Colors.white.withValues(alpha: 0.6),
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 1,
@@ -383,7 +399,7 @@ class PortfolioSummaryCard extends ConsumerWidget {
               Text(
                 isPrivacyMode ? '% ••' : '%${percentage.toStringAsFixed(0)}',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.4),
+                  color: Colors.white.withValues(alpha: 0.4),
                   fontWeight: FontWeight.w500,
                   fontSize: 12,
                 ),
