@@ -415,7 +415,14 @@ class DashboardGeneralTab extends ConsumerWidget {
       return SliverList(
         delegate: SliverChildBuilderDelegate((context, index) {
           final asset = displayAssets[index];
-          return TransactionListItem(asset: asset);
+          return TransactionListItem(
+            asset: asset,
+            onTap: () {
+              if (asset.currency != null) {
+                onNavigateToHistory(asset.currency!, asset.currency!.isGold);
+              }
+            },
+          );
         }, childCount: displayAssets.length),
       );
     }
