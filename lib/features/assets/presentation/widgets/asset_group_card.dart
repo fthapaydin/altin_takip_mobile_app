@@ -44,25 +44,17 @@ class AssetGroupCard extends ConsumerWidget {
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: isExpanded
-            ? AppTheme.surface
-            : AppTheme.surface.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(16),
+            ? Colors.white.withValues(alpha: 0.03)
+            : Colors.transparent,
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: isExpanded
-              ? AppTheme.gold.withValues(alpha: 0.1)
-              : Colors.white.withValues(alpha: 0.03),
+              ? Colors.white.withValues(alpha: 0.05)
+              : Colors.transparent,
         ),
-        boxShadow: [
-          if (isExpanded)
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-        ],
       ),
       child: Column(
         children: [
@@ -80,7 +72,7 @@ class AssetGroupCard extends ConsumerWidget {
                     child: Padding(
                       padding: const EdgeInsets.only(right: 12),
                       child: Icon(
-                        Iconsax.textalign_justifycenter,
+                        Iconsax.menu_1,
                         color: Colors.white.withValues(alpha: 0.2),
                         size: 20,
                       ),
@@ -246,10 +238,9 @@ class AssetGroupCard extends ConsumerWidget {
           if (buys.isNotEmpty) ...[
             _buildTransactionSectionHeader(
               'Varlıklar',
-              buys.length,
-              Colors.green,
+              Colors.white.withValues(alpha: 0.2),
             ),
-            const Gap(8),
+            const Gap(12),
             ...buys.map(
               (asset) => _buildTransactionItem(
                 context,
@@ -275,33 +266,17 @@ class AssetGroupCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildTransactionSectionHeader(String title, int count, Color color) {
+  Widget _buildTransactionSectionHeader(String title, Color color) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        children: [
-          Container(
-            width: 6,
-            height: 6,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(color: color.withValues(alpha: 0.5), blurRadius: 6),
-              ],
-            ),
-          ),
-          const Gap(12),
-          Text(
-            '$title ($count)',
-            style: TextStyle(
-              color: color,
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 0.5,
-            ),
-          ),
-        ],
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Text(
+        title.toUpperCase(),
+        style: TextStyle(
+          color: color,
+          fontSize: 11,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 1.5,
+        ),
       ),
     );
   }
@@ -330,152 +305,94 @@ class AssetGroupCard extends ConsumerWidget {
 
     return InkWell(
       onTap: () => AssetOptionsSheet.show(context, asset),
-      child: Stack(
-        children: [
-          // Connecting Line (Timeline)
-          if (!isLast)
-            Positioned(
-              left: 23, // 20 pad + 3 center of dot
-              top: 24,
-              bottom: 0,
-              width: 1,
-              child: Container(color: Colors.white.withValues(alpha: 0.05)),
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        child: Row(
+          children: [
+            // Icon
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: (isBuy ? Colors.green : Colors.red).withValues(
+                  alpha: 0.1,
+                ),
+                borderRadius: BorderRadius.circular(12), // Squircle
+                border: Border.all(
+                  color: (isBuy ? Colors.green : Colors.red).withValues(
+                    alpha: 0.2,
+                  ),
+                  width: 1,
+                ),
+              ),
+              child: Icon(
+                isBuy ? Iconsax.arrow_down_1 : Iconsax.arrow_up_1,
+                color: isBuy ? Colors.green : Colors.red,
+                size: 18,
+              ),
             ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            const Gap(16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    isBuy ? 'Alış' : 'Satış',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      color: Colors.white.withValues(alpha: 0.9),
+                    ),
+                  ),
+                  const Gap(2),
+                  Text(
+                    formattedDate,
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.4),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                // Dot
-                Container(
-                  margin: const EdgeInsets.only(top: 8),
-                  width: 6,
-                  height: 6,
-                  decoration: BoxDecoration(
-                    color: AppTheme.surface,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: isBuy ? Colors.green : Colors.red,
-                      width: 1.5,
-                    ),
+                Text(
+                  '${_formatAmount(asset.amount)} adet',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                    color: Colors.white,
                   ),
                 ),
-                const Gap(16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        isBuy ? 'Alış İşlemi' : 'Satış İşlemi',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                          color: Colors.white.withValues(alpha: 0.9),
-                        ),
-                      ),
-                      const Gap(2),
-                      Text(
-                        formattedDate,
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.4),
-                          fontSize: 11,
-                        ),
-                      ),
-                      // Profit Badge (Inline)
-                      if (profit != null) ...[
-                        const Gap(6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 5,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color:
-                                (isProfitPositive ? Colors.green : Colors.red)
-                                    .withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(
-                              color:
-                                  (isProfitPositive ? Colors.green : Colors.red)
-                                      .withValues(alpha: 0.2),
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                isProfitPositive
-                                    ? Iconsax.trend_up
-                                    : Iconsax.trend_down,
-                                size: 10,
-                                color: isProfitPositive
-                                    ? Colors.green
-                                    : Colors.red,
-                              ),
-                              const Gap(4),
-                              Text(
-                                '%${NumberFormat('0.00', 'tr_TR').format(((profit / (asset.amount * asset.price)) * 100).abs())}',
-                                style: TextStyle(
-                                  color: isProfitPositive
-                                      ? Colors.green
-                                      : Colors.red,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ],
+                const Gap(4),
+                Text(
+                  '₺${NumberFormat('#,##0.00', 'tr_TR').format(asset.price)}',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.5),
+                    fontSize: 11,
                   ),
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.05),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        '${_formatAmount(asset.amount)} adet',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                          color: Colors.white,
-                        ),
-                      ),
+                if (profit != null) ...[
+                  const Gap(2),
+                  Text(
+                    '${isProfitPositive ? '+' : ''}₺${NumberFormat('#,##0.00', 'tr_TR').format(profit)}',
+                    style: TextStyle(
+                      fontFeatures: [FontFeature.tabularFigures()],
+                      color: isProfitPositive
+                          ? const Color(0xFF4ADE80)
+                          : const Color(0xFFF87171),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
                     ),
-                    const Gap(4),
-                    Text(
-                      '₺${NumberFormat('#,##0.00', 'tr_TR').format(asset.price)}',
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.4),
-                        fontSize: 11,
-                      ),
-                    ),
-                    if (profit != null) ...[
-                      const Gap(2),
-                      Text(
-                        '${isProfitPositive ? '+' : ''}₺${NumberFormat('#,##0.00', 'tr_TR').format(profit)}',
-                        style: TextStyle(
-                          color: isProfitPositive ? Colors.green : Colors.red,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
+                  ),
+                ],
               ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

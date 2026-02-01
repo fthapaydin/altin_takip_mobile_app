@@ -164,31 +164,24 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
           SliverAppBar(
             backgroundColor: AppTheme.background,
-            expandedHeight: 120,
+            expandedHeight: 100,
             floating: false,
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
-              titlePadding: const EdgeInsets.only(left: 20, bottom: 16),
+              titlePadding: const EdgeInsets.symmetric(
+                horizontal: 24,
+                vertical: 16,
+              ),
               centerTitle: false,
               title: const Text(
-                'Portföyüm',
+                'Varlıklarım',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
+                  letterSpacing: -0.5,
                 ),
               ),
-              background: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      AppTheme.gold.withValues(alpha: 0.05),
-                      AppTheme.background,
-                    ],
-                  ),
-                ),
-              ),
+              background: Container(color: AppTheme.background),
             ),
             actions: [
               IconButton(
@@ -205,6 +198,9 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.05),
                     shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.05),
+                    ),
                   ),
                   child: const Icon(
                     Iconsax.timer_1,
@@ -219,17 +215,20 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
                 icon: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppTheme.gold.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Iconsax.add,
                     color: AppTheme.gold,
-                    size: 20,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.gold.withValues(alpha: 0.3),
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
+                  child: const Icon(Iconsax.add, color: Colors.black, size: 20),
                 ),
               ),
-              const Gap(12),
+              const Gap(16),
             ],
           ),
         ],
