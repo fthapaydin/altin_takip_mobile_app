@@ -168,10 +168,7 @@ class PortfolioChart extends StatelessWidget {
                 if (index < 0 || index >= chartData.length) return null;
 
                 final data = chartData[index];
-                final dateStr = DateFormat(
-                  'd MMM, HH:mm',
-                  'tr_TR',
-                ).format(data.date);
+                final dateStr = DateFormat('d MMMM', 'tr_TR').format(data.date);
                 final valueStr = NumberFormat(
                   '#,##0.00',
                   'tr_TR',
