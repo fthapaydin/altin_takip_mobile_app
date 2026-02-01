@@ -180,7 +180,7 @@ class PortfolioSummaryCard extends ConsumerWidget {
                     ],
                   ),
 
-                  const Gap(32),
+                  const Gap(24),
 
                   // Chart Area
                   SizedBox(

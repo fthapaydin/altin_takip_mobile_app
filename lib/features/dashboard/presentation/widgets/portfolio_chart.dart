@@ -17,7 +17,6 @@ class PortfolioChart extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    // Find min/max values for scaling and highlighting
     final values = chartData.map((e) => e.value).toList();
     final minValue = values.reduce((a, b) => a < b ? a : b);
     final maxValue = values.reduce((a, b) => a > b ? a : b);
@@ -53,17 +52,17 @@ class PortfolioChart extends StatelessWidget {
             if (totalCost != null && totalCost! > 0)
               HorizontalLine(
                 y: totalCost!,
-                color: Colors.white.withValues(alpha: 0.3),
+                color: Colors.white.withValues(alpha: 0.2),
                 strokeWidth: 1,
-                dashArray: [5, 5],
+                dashArray: [4, 4],
                 label: HorizontalLineLabel(
                   show: true,
                   alignment: Alignment.topRight,
                   padding: const EdgeInsets.only(right: 5, bottom: 2),
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.3),
+                    color: Colors.white.withValues(alpha: 0.2),
                     fontSize: 9,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w600,
                   ),
                   labelResolver: (line) => 'MALİYET',
                 ),
@@ -76,36 +75,29 @@ class PortfolioChart extends StatelessWidget {
               return FlSpot(entry.key.toDouble(), entry.value.value);
             }).toList(),
             isCurved: true,
-            curveSmoothness: 0.35,
-            // Use gradient for the line
-            gradient: const LinearGradient(
-              colors: [
-                Color(0xFFFDD835), // Brighter Gold
-                AppTheme.gold, // Standard Gold
-                Color(0xFFFFA000), // Darker Amber
-              ],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-            ),
-            barWidth: 3,
+            curveSmoothness: 0.4,
+            color: const Color(0xFFFFD700),
+            barWidth: 2,
             isStrokeCapRound: true,
+            shadow: Shadow(
+              color: const Color(0xFFFFD700).withValues(alpha: 0.5),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
             dotData: FlDotData(
               show: true,
               getDotPainter: (spot, percent, barData, index) {
-                // Highlight Min/Max with a "Ring" style
                 if (index == minIndex || index == maxIndex) {
                   final isMax = index == maxIndex;
-                  final color = isMax
-                      ? const Color(0xFF4CAF50)
-                      : const Color(0xFFEF5350); // Green/Red
                   return FlDotCirclePainter(
-                    radius: 6,
-                    color: AppTheme.background, // Hollow center (matches bg)
-                    strokeWidth: 3,
-                    strokeColor: color,
+                    radius: isMax ? 6 : 4, // Make max slightly larger
+                    color: isMax ? Colors.white : AppTheme.background,
+                    strokeWidth: 2,
+                    strokeColor: isMax
+                        ? AppTheme.gold
+                        : Colors.white.withValues(alpha: 0.5),
                   );
                 }
-                // Hide other dots for a cleaner look
                 return FlDotCirclePainter(
                   radius: 0,
                   color: Colors.transparent,
@@ -119,11 +111,10 @@ class PortfolioChart extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  AppTheme.gold.withValues(alpha: 0.25),
-                  AppTheme.gold.withValues(alpha: 0.1),
-                  AppTheme.gold.withValues(alpha: 0.0),
+                  const Color(0xFFFFD700).withValues(alpha: 0.15),
+                  const Color(0xFFFFD700).withValues(alpha: 0.0),
                 ],
-                stops: const [0.0, 0.5, 1.0],
+                stops: const [0, 0.8],
               ),
             ),
           ),
@@ -131,12 +122,17 @@ class PortfolioChart extends StatelessWidget {
         lineTouchData: LineTouchData(
           enabled: true,
           handleBuiltInTouches: true,
+          touchSpotThreshold: 50, // Increase touch area
+          distanceCalculator: (Offset touchPoint, Offset spotPixelPoint) {
+            // Only consider horizontal distance for stickiness
+            return (touchPoint.dx - spotPixelPoint.dx).abs();
+          },
           getTouchedSpotIndicator:
               (LineChartBarData barData, List<int> spotIndexes) {
                 return spotIndexes.map((spotIndex) {
                   return TouchedSpotIndicatorData(
                     FlLine(
-                      color: AppTheme.gold.withValues(alpha: 0.5),
+                      color: const Color(0xFFFFD700).withValues(alpha: 0.3),
                       strokeWidth: 1,
                       dashArray: [4, 4],
                     ),
@@ -144,9 +140,9 @@ class PortfolioChart extends StatelessWidget {
                       getDotPainter: (spot, percent, barData, index) {
                         return FlDotCirclePainter(
                           radius: 6,
-                          color: AppTheme.gold,
+                          color: const Color(0xFF1E1E1E),
                           strokeWidth: 3,
-                          strokeColor: Colors.white,
+                          strokeColor: const Color(0xFFFFD700),
                         );
                       },
                     ),
@@ -161,10 +157,9 @@ class PortfolioChart extends StatelessWidget {
               vertical: 8,
             ),
             getTooltipColor: (_) =>
-                const Color(0xFF2A2A2A).withValues(alpha: 0.9),
-
+                const Color(0xFF252525).withValues(alpha: 0.95),
             tooltipBorder: BorderSide(
-              color: AppTheme.gold.withValues(alpha: 0.3),
+              color: const Color(0xFFFFD700).withValues(alpha: 0.2),
               width: 1,
             ),
             getTooltipItems: (touchedSpots) {
@@ -173,7 +168,10 @@ class PortfolioChart extends StatelessWidget {
                 if (index < 0 || index >= chartData.length) return null;
 
                 final data = chartData[index];
-                final dateStr = DateFormat('d MMM', 'tr_TR').format(data.date);
+                final dateStr = DateFormat(
+                  'd MMM, HH:mm',
+                  'tr_TR',
+                ).format(data.date);
                 final valueStr = NumberFormat(
                   '#,##0.00',
                   'tr_TR',
@@ -182,8 +180,8 @@ class PortfolioChart extends StatelessWidget {
                 return LineTooltipItem(
                   '$dateStr\n',
                   TextStyle(
-                    color: Colors.white.withValues(alpha: 0.7),
-                    fontSize: 11,
+                    color: Colors.white.withValues(alpha: 0.6),
+                    fontSize: 10,
                     fontWeight: FontWeight.w500,
                     fontFamily: 'Inter',
                   ),
@@ -191,10 +189,11 @@ class PortfolioChart extends StatelessWidget {
                     TextSpan(
                       text: '₺$valueStr',
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: Color(0xFFFFD700),
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                         fontFamily: 'Inter',
+                        letterSpacing: -0.5,
                       ),
                     ),
                   ],
@@ -204,7 +203,7 @@ class PortfolioChart extends StatelessWidget {
           ),
         ),
       ),
-      duration: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 300),
       curve: Curves.easeOutCubic,
     );
   }
