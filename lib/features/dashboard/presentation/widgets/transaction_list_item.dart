@@ -102,7 +102,7 @@ class TransactionListItem extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      '${NumberFormat('#,##0.###', 'tr_TR').format(asset.amount)} ${asset.currency?.code ?? ''}',
+                      '${NumberFormat('#,##0.###', 'tr_TR').format(asset.amount)} adet',
                       style: const TextStyle(
                         fontFeatures: [FontFeature.tabularFigures()],
                         color: Colors.white,

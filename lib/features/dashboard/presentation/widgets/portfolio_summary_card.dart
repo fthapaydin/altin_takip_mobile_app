@@ -102,133 +102,148 @@ class PortfolioSummaryCard extends ConsumerWidget {
             // Main Content
             Padding(
               padding: const EdgeInsets.all(24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header: Title & Profit Pill
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: _buildPrivacyBlur(
+                enabled: isPrivacyMode,
+                child: AbsorbPointer(
+                  absorbing: isPrivacyMode,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      // Header: Title & Profit Pill
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            'TOPLAM VARLIK',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.5),
-                              fontSize: 10,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 1.5,
-                            ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'TOPLAM VARLIK',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.5),
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 1.5,
+                                ),
+                              ),
+                              const Gap(8),
+                              Text(
+                                '₺${NumberFormat('#,##0.00', 'tr_TR').format(totalWorth)}',
+                                style: const TextStyle(
+                                  fontFeatures: [FontFeature.tabularFigures()],
+                                  color: Colors.white,
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: -1,
+                                ),
+                              ),
+                            ],
                           ),
-                          const Gap(8),
-                          Text(
-                            isPrivacyMode
-                                ? '₺ ••••••'
-                                : '₺${NumberFormat('#,##0.00', 'tr_TR').format(totalWorth)}',
-                            style: const TextStyle(
-                              fontFeatures: [FontFeature.tabularFigures()],
-                              color: Colors.white,
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: -1,
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color:
+                                  (profitLoss >= 0 ? Colors.green : Colors.red)
+                                      .withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color:
+                                    (profitLoss >= 0
+                                            ? Colors.green
+                                            : Colors.red)
+                                        .withValues(alpha: 0.2),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  profitLoss >= 0
+                                      ? Iconsax.arrow_up
+                                      : Iconsax.arrow_down,
+                                  color: profitLoss >= 0
+                                      ? Colors.green
+                                      : Colors.red,
+                                  size: 14,
+                                ),
+                                const Gap(4),
+                                Text(
+                                  '%${NumberFormat('#,##0.1', 'tr_TR').format(profitPercentage.abs())}',
+                                  style: TextStyle(
+                                    color: profitLoss >= 0
+                                        ? Colors.green
+                                        : Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: (profitLoss >= 0 ? Colors.green : Colors.red)
-                              .withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: (profitLoss >= 0 ? Colors.green : Colors.red)
-                                .withValues(alpha: 0.2),
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              profitLoss >= 0
-                                  ? Iconsax.arrow_up
-                                  : Iconsax.arrow_down,
-                              color: profitLoss >= 0
-                                  ? Colors.green
-                                  : Colors.red,
-                              size: 14,
-                            ),
-                            const Gap(4),
-                            Text(
-                              isPrivacyMode
-                                  ? '% ••'
-                                  : '%${NumberFormat('#,##0.1', 'tr_TR').format(profitPercentage.abs())}',
-                              style: TextStyle(
-                                color: profitLoss >= 0
-                                    ? Colors.green
-                                    : Colors.red,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
+
+                      const Gap(24),
+
+                      // Chart Area
+                      SizedBox(
+                        height: 120,
+                        width: double.infinity,
+                        child: chartData != null && chartData.isNotEmpty
+                            ? PortfolioChart(
+                                chartData: chartData,
+                                totalCost: totalWorth - profitLoss,
+                              )
+                            : Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Grafik verisi alınamadı',
+                                      style: TextStyle(
+                                        color: Colors.white.withOpacity(0.3),
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                    if (state is AssetLoaded &&
+                                        !(state as AssetLoaded)
+                                            .isRefreshing) ...[
+                                      const Gap(8),
+                                      TextButton.icon(
+                                        onPressed: () {
+                                          ref
+                                              .read(assetProvider.notifier)
+                                              .loadDashboard(refresh: true);
+                                        },
+                                        icon: const Icon(
+                                          Iconsax.refresh,
+                                          size: 16,
+                                        ),
+                                        label: const Text('Tekrar Dene'),
+                                        style: TextButton.styleFrom(
+                                          foregroundColor: AppTheme.gold,
+                                          textStyle: const TextStyle(
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
+                      ),
+
+                      const Gap(32),
+
+                      // Detailed Asset Allocation
+                      _buildAssetAllocation(
+                        state,
+                        isPrivacyMode: isPrivacyMode,
                       ),
                     ],
                   ),
-
-                  const Gap(24),
-
-                  // Chart Area
-                  SizedBox(
-                    height: 120,
-                    width: double.infinity,
-                    child: chartData != null && chartData.isNotEmpty
-                        ? PortfolioChart(
-                            chartData: chartData,
-                            totalCost: totalWorth - profitLoss,
-                          )
-                        : Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'Grafik verisi alınamadı',
-                                  style: TextStyle(
-                                    color: Colors.white.withOpacity(0.3),
-                                    fontSize: 12,
-                                  ),
-                                ),
-                                if (state is AssetLoaded &&
-                                    !(state as AssetLoaded).isRefreshing) ...[
-                                  const Gap(8),
-                                  TextButton.icon(
-                                    onPressed: () {
-                                      ref
-                                          .read(assetProvider.notifier)
-                                          .loadDashboard(refresh: true);
-                                    },
-                                    icon: const Icon(Iconsax.refresh, size: 16),
-                                    label: const Text('Tekrar Dene'),
-                                    style: TextButton.styleFrom(
-                                      foregroundColor: AppTheme.gold,
-                                      textStyle: const TextStyle(fontSize: 12),
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                  ),
-
-                  const Gap(32),
-
-                  // Detailed Asset Allocation
-                  _buildAssetAllocation(state, isPrivacyMode: isPrivacyMode),
-                ],
+                ),
               ),
             ),
           ],
@@ -318,6 +333,7 @@ class PortfolioSummaryCard extends ConsumerWidget {
                 amount: goldValue,
                 percentage: goldPercent,
                 color: AppTheme.gold,
+                isPrivacyMode: isPrivacyMode,
               ),
             ),
             Container(
@@ -332,6 +348,7 @@ class PortfolioSummaryCard extends ConsumerWidget {
                 percentage: forexPercent,
                 color: const Color(0xFF4C82F7),
                 isRight: true,
+                isPrivacyMode: isPrivacyMode,
               ),
             ),
           ],
@@ -387,9 +404,7 @@ class PortfolioSummaryCard extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                isPrivacyMode
-                    ? '₺ ••••'
-                    : '₺${NumberFormat('#,##0.00', 'tr_TR').format(amount)}',
+                '₺${NumberFormat('#,##0.00', 'tr_TR').format(amount)}',
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
@@ -397,7 +412,7 @@ class PortfolioSummaryCard extends ConsumerWidget {
                 ),
               ),
               Text(
-                isPrivacyMode ? '% ••' : '%${percentage.toStringAsFixed(0)}',
+                '%${percentage.toStringAsFixed(0)}',
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.4),
                   fontWeight: FontWeight.w500,
@@ -482,5 +497,17 @@ class PortfolioSummaryCard extends ConsumerWidget {
     }
 
     return currentVal - totalCost;
+  }
+
+  Widget _buildPrivacyBlur({
+    required Widget child,
+    required bool enabled,
+    double sigma = 6.6,
+  }) {
+    if (!enabled) return child;
+    return ImageFiltered(
+      imageFilter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
+      child: child,
+    );
   }
 }
