@@ -10,6 +10,7 @@ import 'package:altin_takip/features/assets/domain/asset.dart';
 import 'package:altin_takip/features/currencies/presentation/history/currency_history_screen.dart';
 import 'package:altin_takip/features/settings/presentation/preference_notifier.dart';
 import 'package:altin_takip/features/assets/presentation/widgets/asset_options_sheet.dart';
+import 'package:altin_takip/core/widgets/dashed_line_painter.dart';
 
 class AssetGroupCard extends ConsumerWidget {
   final String currencyCode;
@@ -545,30 +546,4 @@ class AssetGroupCard extends ConsumerWidget {
     }
     return NumberFormat('#,##0.##', 'tr_TR').format(value);
   }
-}
-
-class DashedLinePainter extends CustomPainter {
-  final Color color;
-
-  DashedLinePainter({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = 1.5
-      ..style = PaintingStyle.stroke;
-
-    const dashHeight = 4.0;
-    const dashSpace = 4.0;
-    double startY = 0;
-
-    while (startY < size.height) {
-      canvas.drawLine(Offset(0, startY), Offset(0, startY + dashHeight), paint);
-      startY += dashHeight + dashSpace;
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

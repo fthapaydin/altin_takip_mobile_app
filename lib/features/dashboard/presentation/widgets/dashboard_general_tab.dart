@@ -12,7 +12,8 @@ import 'package:altin_takip/features/currencies/domain/currency.dart';
 import 'package:altin_takip/features/settings/presentation/preference_notifier.dart';
 import 'package:altin_takip/features/dashboard/presentation/transactions_screen.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:altin_takip/features/dashboard/presentation/widgets/transaction_list_item.dart';
+
+import 'package:altin_takip/core/widgets/dashed_line_painter.dart';
 
 class DashboardGeneralTab extends ConsumerWidget {
   final AssetState state;
@@ -60,7 +61,7 @@ class DashboardGeneralTab extends ConsumerWidget {
           ),
         ),
         const SliverGap(16),
-        _buildTransactionList(context, state),
+        _buildTransactionList(context, ref, state),
         const SliverGap(100),
       ],
     );
@@ -309,7 +310,11 @@ class DashboardGeneralTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildTransactionList(BuildContext context, AssetState state) {
+  Widget _buildTransactionList(
+    BuildContext context,
+    WidgetRef ref,
+    AssetState state,
+  ) {
     if (state is AssetLoading) {
       return SliverList(
         delegate: SliverChildBuilderDelegate(
@@ -415,17 +420,233 @@ class DashboardGeneralTab extends ConsumerWidget {
       return SliverList(
         delegate: SliverChildBuilderDelegate((context, index) {
           final asset = displayAssets[index];
-          return TransactionListItem(
-            asset: asset,
-            onTap: () {
-              if (asset.currency != null) {
-                onNavigateToHistory(asset.currency!, asset.currency!.isGold);
-              }
-            },
+          return _buildTimelineTransactionItem(
+            context,
+            ref,
+            asset,
+            isFirst: index == 0,
+            isLast: index == displayAssets.length - 1,
           );
         }, childCount: displayAssets.length),
       );
     }
     return const SliverToBoxAdapter(child: SizedBox());
+  }
+
+  Widget _buildTimelineTransactionItem(
+    BuildContext context,
+    WidgetRef ref,
+    Asset asset, {
+    bool isLast = false,
+    bool isFirst = false,
+  }) {
+    final isBuy = asset.type == 'buy';
+    final color = isBuy ? const Color(0xFF4ADE80) : const Color(0xFFF87171);
+    final useDynamicDate = ref.watch(preferenceProvider).useDynamicDate;
+
+    String mainDateStr;
+    if (useDynamicDate) {
+      mainDateStr = DateFormatter.format(asset.date, useDynamic: true);
+    } else {
+      mainDateStr = DateFormat('d MMM yyyy', 'tr_TR').format(asset.date);
+    }
+    final timeStr = DateFormat('HH:mm').format(asset.date);
+
+    double? profit;
+    if (isBuy && asset.currency != null) {
+      final currentPrice = asset.currency!.buying;
+      final costPrice = asset.price;
+      profit = (currentPrice - costPrice) * asset.amount;
+    }
+    final isProfitPositive = profit != null && profit >= 0;
+
+    return Stack(
+      children: [
+        // Lines
+        Positioned(
+          left: 0,
+          width: 80,
+          top: 0,
+          bottom: 0,
+          child: Center(
+            child: SizedBox(
+              width: 80,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  if (!isFirst)
+                    Positioned(
+                      top: 0,
+                      height: 6,
+                      child: CustomPaint(
+                        size: const Size(2, 6),
+                        painter: DashedLinePainter(
+                          color: Colors.white.withValues(alpha: 0.1),
+                        ),
+                      ),
+                    ),
+                  if (!isLast)
+                    Positioned(
+                      top: 38,
+                      bottom: 0,
+                      child: CustomPaint(
+                        size: const Size(2, double.infinity),
+                        painter: DashedLinePainter(
+                          color: Colors.white.withValues(alpha: 0.1),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+
+        // Content
+        Padding(
+          padding: const EdgeInsets.only(left: 80, right: 24, bottom: 24),
+          child: InkWell(
+            onTap: () {
+              if (asset.currency != null) {
+                onNavigateToHistory(asset.currency!, asset.currency!.isGold);
+              }
+            },
+            borderRadius: BorderRadius.circular(16),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        asset.currency?.name ?? 'Bilinmeyen Varlık',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          letterSpacing: 0.3,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const Gap(6),
+                      Row(
+                        children: [
+                          Icon(
+                            Iconsax.calendar_1,
+                            size: 12,
+                            color: Colors.white.withValues(alpha: 0.4),
+                          ),
+                          const Gap(4),
+                          Text(
+                            '$mainDateStr, $timeStr',
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.5),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      '${_formatAmount(asset.amount)} adet',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        color: isBuy ? const Color(0xFF4ADE80) : Colors.white,
+                      ),
+                    ),
+                    const Gap(4),
+                    Text(
+                      '₺${NumberFormat('#,##0.00', 'tr_TR').format(asset.price)}',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.5),
+                        fontSize: 12,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
+                    if (profit != null) ...[
+                      const Gap(4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color:
+                              (isProfitPositive
+                                      ? const Color(0xFF4ADE80)
+                                      : const Color(0xFFF87171))
+                                  .withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          '${isProfitPositive ? '+' : ''}₺${NumberFormat('#,##0.00', 'tr_TR').format(profit)}',
+                          style: TextStyle(
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                            color: isProfitPositive
+                                ? const Color(0xFF4ADE80)
+                                : const Color(0xFFF87171),
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // Icon Bubble
+        Positioned(
+          left: 0,
+          width: 80,
+          top: 0,
+          child: Center(
+            child: Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    color.withValues(alpha: 0.2),
+                    color.withValues(alpha: 0.05),
+                  ],
+                ),
+                border: Border.all(
+                  color: color.withValues(alpha: 0.3),
+                  width: 1,
+                ),
+              ),
+              child: Icon(
+                isBuy ? Iconsax.arrow_down_1 : Iconsax.arrow_up_1,
+                color: color,
+                size: 16,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _formatAmount(double value) {
+    if (value == value.truncateToDouble()) {
+      return value.toInt().toString();
+    }
+    return NumberFormat('#,##0.##', 'tr_TR').format(value);
   }
 }
