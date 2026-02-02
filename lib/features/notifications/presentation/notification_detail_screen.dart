@@ -134,6 +134,83 @@ class NotificationDetailScreen extends StatelessWidget {
                         ),
                       ),
                       const Gap(16),
+
+                      // Total Summary Card
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: AppTheme.surface,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: AppTheme.gold.withOpacity(0.1),
+                          ),
+                          gradient: LinearGradient(
+                            colors: [
+                              AppTheme.surface,
+                              AppTheme.gold.withOpacity(0.05),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'TOPLAM VARLIK',
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.5),
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const Gap(4),
+                                Text(
+                                  '₺${NumberFormat('#,##0.00', 'tr_TR').format(data!.currentValue ?? 0)}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Container(
+                              height: 32,
+                              width: 1,
+                              color: Colors.white.withOpacity(0.1),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  'TOPLAM K/Z',
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.5),
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const Gap(4),
+                                Text(
+                                  '${data.changeAmount != null && data.changeAmount! >= 0 ? '+' : ''}₺${NumberFormat('#,##0.00', 'tr_TR').format(data.changeAmount ?? 0)}',
+                                  style: TextStyle(
+                                    color: (data.changeAmount ?? 0) >= 0
+                                        ? Colors.green
+                                        : Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Gap(16),
                       ListView.separated(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
@@ -210,7 +287,7 @@ class NotificationDetailScreen extends StatelessWidget {
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Text(
-                                          '${isAssetPositive ? '+' : ''}${NumberFormat('#,##0.00', 'tr_TR').format(asset.changeAmount)}',
+                                          '${isAssetPositive ? '+' : ''}${NumberFormat('#,##0.00', 'tr_TR').format(asset.changeAmount)} ₺',
                                           style: TextStyle(
                                             color: isAssetPositive
                                                 ? Colors.green
