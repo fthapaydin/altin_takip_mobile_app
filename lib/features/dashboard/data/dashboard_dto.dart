@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:altin_takip/features/dashboard/domain/dashboard_models.dart';
 import 'package:altin_takip/features/assets/data/asset_dto.dart';
 import 'package:altin_takip/features/dashboard/domain/dashboard_data.dart';
@@ -23,12 +24,20 @@ class PortfolioSummaryDto extends PortfolioSummary {
 
 /// DTO for chart data point
 class ChartDataPointDto extends ChartDataPoint {
-  const ChartDataPointDto({required super.date, required super.value});
+  const ChartDataPointDto({
+    required super.date,
+    required super.value,
+    super.label,
+  });
 
   factory ChartDataPointDto.fromJson(Map<String, dynamic> json) {
+    final date = DateTime.parse(json['date'] as String);
     return ChartDataPointDto(
-      date: DateTime.parse(json['date'] as String),
+      date: date,
       value: (json['value'] as num).toDouble(),
+      // Format label as "d MMM" (e.g. 02 Feb)
+      // We can also check if we need time if the range is short, but "d MMM" is safe for dashboard
+      label: DateFormat('d MMM', 'tr_TR').format(date),
     );
   }
 }

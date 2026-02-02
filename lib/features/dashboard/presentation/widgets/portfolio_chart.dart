@@ -38,6 +38,12 @@ class PortfolioChart extends StatelessWidget {
       if (totalCost! > effectiveMaxY) effectiveMaxY = totalCost!;
     }
 
+    final totalVerticalRange =
+        (effectiveMaxY + padding) - (effectiveMinY - padding);
+    final verticalInterval = totalVerticalRange == 0
+        ? 1.0
+        : totalVerticalRange / 2.5;
+
     return LineChart(
       LineChartData(
         gridData: const FlGridData(show: false),
@@ -49,8 +55,30 @@ class PortfolioChart extends StatelessWidget {
           topTitles: const AxisTitles(
             sideTitles: SideTitles(showTitles: false),
           ),
-          leftTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 40,
+              interval: verticalInterval,
+              getTitlesWidget: (value, meta) {
+                if (value <= (effectiveMinY - padding) ||
+                    value >= (effectiveMaxY + padding)) {
+                  return const SizedBox.shrink(); // Don't show labels at absolute edges if strict
+                }
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: Text(
+                    NumberFormat.compact(locale: 'tr_TR').format(value),
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.5),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    textAlign: TextAlign.right,
+                  ),
+                );
+              },
+            ),
           ),
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
