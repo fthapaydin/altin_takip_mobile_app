@@ -363,15 +363,16 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       itemCount: 8,
       itemBuilder: (_, __) => Padding(
         padding: const EdgeInsets.only(bottom: 16),
-        child: Shimmer.fromColors(
-          baseColor: AppTheme.surface,
-          highlightColor: AppTheme.surface.withOpacity(0.5),
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.black,
-              borderRadius: BorderRadius.circular(20),
-            ),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: AppTheme.surface,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white.withOpacity(0.05)),
+          ),
+          child: Shimmer.fromColors(
+            baseColor: Colors.white.withOpacity(0.05),
+            highlightColor: Colors.white.withOpacity(0.1),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

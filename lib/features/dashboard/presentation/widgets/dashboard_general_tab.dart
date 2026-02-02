@@ -159,23 +159,23 @@ class DashboardGeneralTab extends ConsumerWidget {
 
   Widget _buildCarouselShimmer() {
     return SizedBox(
-      height: 100,
+      height: 90,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: 4,
         padding: const EdgeInsets.symmetric(horizontal: 24),
         separatorBuilder: (_, __) => const Gap(12),
-        itemBuilder: (_, __) => Shimmer.fromColors(
-          baseColor: AppTheme.surface,
-          highlightColor: Colors.white10,
-          child: Container(
-            width: 150,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.black,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.white.withOpacity(0.05)),
-            ),
+        itemBuilder: (_, __) => Container(
+          width: 140,
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: AppTheme.glassColor,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppTheme.glassBorder),
+          ),
+          child: Shimmer.fromColors(
+            baseColor: Colors.white.withOpacity(0.05),
+            highlightColor: Colors.white.withOpacity(0.1),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -184,10 +184,10 @@ class DashboardGeneralTab extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
-                      width: 40,
+                      width: 50,
                       height: 10,
                       decoration: BoxDecoration(
-                        color: Colors.white10,
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
@@ -195,17 +195,18 @@ class DashboardGeneralTab extends ConsumerWidget {
                       width: 30,
                       height: 8,
                       decoration: BoxDecoration(
-                        color: Colors.white10,
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
                   ],
                 ),
+                const Gap(8),
                 Container(
                   width: 80,
-                  height: 20,
+                  height: 18,
                   decoration: BoxDecoration(
-                    color: Colors.white10,
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -357,41 +358,36 @@ class DashboardGeneralTab extends ConsumerWidget {
         delegate: SliverChildBuilderDelegate(
           (_, __) => Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-            child: Shimmer.fromColors(
-              baseColor: AppTheme.surface,
-              highlightColor: Colors.white10,
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: 80,
-                    child: Center(
-                      child: Container(
-                        width: 32,
-                        height: 32,
-                        decoration: const BoxDecoration(
-                          color: Colors.black,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Container(
-                          decoration: const BoxDecoration(
-                            color: Colors.white10,
-                            shape: BoxShape.circle,
-                          ),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 80,
+                  child: Center(
+                    child: Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.05),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.1),
                         ),
                       ),
                     ),
                   ),
-                  Expanded(
-                    child: Container(
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color: Colors.black,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.05),
-                        ),
-                      ),
-                      padding: const EdgeInsets.all(16),
+                ),
+                Expanded(
+                  child: Container(
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.white.withOpacity(0.05)),
+                    ),
+                    padding: const EdgeInsets.all(16),
+                    child: Shimmer.fromColors(
+                      baseColor: Colors.white.withOpacity(0.05),
+                      highlightColor: Colors.white.withOpacity(0.1),
                       child: Row(
                         children: [
                           Expanded(
@@ -403,7 +399,7 @@ class DashboardGeneralTab extends ConsumerWidget {
                                   width: 100,
                                   height: 14,
                                   decoration: BoxDecoration(
-                                    color: Colors.white10,
+                                    color: Colors.white,
                                     borderRadius: BorderRadius.circular(4),
                                   ),
                                 ),
@@ -412,7 +408,7 @@ class DashboardGeneralTab extends ConsumerWidget {
                                   width: 60,
                                   height: 10,
                                   decoration: BoxDecoration(
-                                    color: Colors.white10,
+                                    color: Colors.white,
                                     borderRadius: BorderRadius.circular(4),
                                   ),
                                 ),
@@ -427,7 +423,7 @@ class DashboardGeneralTab extends ConsumerWidget {
                                 width: 80,
                                 height: 16,
                                 decoration: BoxDecoration(
-                                  color: Colors.white10,
+                                  color: Colors.white,
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                               ),
@@ -436,7 +432,7 @@ class DashboardGeneralTab extends ConsumerWidget {
                                 width: 50,
                                 height: 10,
                                 decoration: BoxDecoration(
-                                  color: Colors.white10,
+                                  color: Colors.white,
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                               ),
@@ -446,8 +442,8 @@ class DashboardGeneralTab extends ConsumerWidget {
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
           childCount: 5,

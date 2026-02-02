@@ -72,7 +72,7 @@ class TransactionTypeSelector extends StatelessWidget {
                             ? const Color(0xFFF87171) // Red
                             : Colors.white.withValues(alpha: 0.4),
                       ),
-                      child: const Text('Satım'),
+                      child: const Text('Satımx'),
                     ),
                   ),
                 ),
