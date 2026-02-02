@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:iconsax/iconsax.dart';
 
 import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
@@ -32,6 +33,15 @@ class DashboardAssetsTab extends ConsumerStatefulWidget {
 }
 
 class _DashboardAssetsTabState extends ConsumerState<DashboardAssetsTab> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.state is AssetLoading) {
@@ -64,40 +74,129 @@ class _DashboardAssetsTabState extends ConsumerState<DashboardAssetsTab> {
         widget.currentOrder,
       );
 
-      return ReorderableListView.builder(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(24, 16, 24, 100),
-        itemCount: sortedCurrencies.length,
-        proxyDecorator: (child, index, animation) {
-          return Material(
-            color: Colors.transparent,
-            elevation: 4,
-            //shadowColor: AppTheme.gold.withOpacity(0.3),
-            borderRadius: BorderRadius.circular(16),
-            child: child,
-          );
-        },
-        onReorder: (oldIndex, newIndex) {
-          if (newIndex > oldIndex) newIndex--;
-          final item = sortedCurrencies.removeAt(oldIndex);
-          sortedCurrencies.insert(newIndex, item);
+      // Apply Search Filter
+      final displayCurrencies = _searchQuery.isEmpty
+          ? sortedCurrencies
+          : sortedCurrencies.where((c) {
+              final query = _searchQuery.toLowerCase();
+              final name = c.name.toLowerCase();
+              final code = c.code.toLowerCase();
+              return name.contains(query) || code.contains(query);
+            }).toList();
 
-          final newOrder = sortedCurrencies.map((c) => c.code).toList();
-          widget.onReorder(newOrder);
-        },
-        itemBuilder: (context, index) {
-          final currency = sortedCurrencies[index];
-          return Container(
-            key: ValueKey(currency.code),
-            margin: const EdgeInsets.only(bottom: 16),
-            child: _buildPremiumCurrencyCard(
-              context,
-              currency,
-              isGold: isGoldTab,
-              index: index,
+      return Column(
+        children: [
+          // Search Bar
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+            child: Container(
+              height: 48,
+              decoration: BoxDecoration(
+                color: AppTheme.surface,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.white.withOpacity(0.05)),
+              ),
+              child: TextField(
+                controller: _searchController,
+                onChanged: (value) {
+                  setState(() {
+                    _searchQuery = value;
+                  });
+                },
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  hintText: '${isGoldTab ? 'Altın' : 'Döviz'} Ara...',
+                  hintStyle: TextStyle(
+                    color: Colors.white.withOpacity(0.3),
+                    fontSize: 14,
+                  ),
+                  prefixIcon: Icon(
+                    Iconsax.search_normal_1,
+                    size: 20,
+                    color: Colors.white.withOpacity(0.3),
+                  ),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                  suffixIcon: _searchQuery.isNotEmpty
+                      ? IconButton(
+                          icon: Icon(
+                            Icons.close,
+                            size: 20,
+                            color: Colors.white.withOpacity(0.3),
+                          ),
+                          onPressed: () {
+                            _searchController.clear();
+                            setState(() {
+                              _searchQuery = '';
+                            });
+                          },
+                        )
+                      : null,
+                ),
+              ),
             ),
-          );
-        },
+          ),
+
+          // List
+          Expanded(
+            child: _searchQuery.isNotEmpty
+                ? ListView.builder(
+                    padding: const EdgeInsets.fromLTRB(24, 16, 24, 100),
+                    itemCount: displayCurrencies.length,
+                    itemBuilder: (context, index) {
+                      final currency = displayCurrencies[index];
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        child: _buildPremiumCurrencyCard(
+                          context,
+                          currency,
+                          isGold: isGoldTab,
+                          index: index,
+                        ),
+                      );
+                    },
+                  )
+                : ReorderableListView.builder(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.fromLTRB(24, 16, 24, 100),
+                    itemCount: displayCurrencies.length,
+                    proxyDecorator: (child, index, animation) {
+                      return Material(
+                        color: Colors.transparent,
+                        elevation: 4,
+                        borderRadius: BorderRadius.circular(16),
+                        child: child,
+                      );
+                    },
+                    onReorder: (oldIndex, newIndex) {
+                      if (newIndex > oldIndex) newIndex--;
+                      final item = displayCurrencies.removeAt(oldIndex);
+                      displayCurrencies.insert(newIndex, item);
+
+                      final newOrder = displayCurrencies
+                          .map((c) => c.code)
+                          .toList();
+                      widget.onReorder(newOrder);
+                    },
+                    itemBuilder: (context, index) {
+                      final currency = displayCurrencies[index];
+                      return Container(
+                        key: ValueKey(currency.code),
+                        margin: const EdgeInsets.only(bottom: 16),
+                        child: _buildPremiumCurrencyCard(
+                          context,
+                          currency,
+                          isGold: isGoldTab,
+                          index: index,
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
       );
     }
     return const SizedBox();
