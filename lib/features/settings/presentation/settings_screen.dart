@@ -18,6 +18,8 @@ import 'package:altin_takip/features/settings/presentation/widgets/change_passwo
 import 'package:altin_takip/features/settings/presentation/widgets/logout_sheet.dart';
 import 'package:altin_takip/features/settings/presentation/widgets/delete_account_sheet.dart';
 import 'package:altin_takip/features/settings/presentation/widgets/reset_order_sheet.dart';
+import 'package:altin_takip/features/subscription/presentation/paywall_screen.dart';
+import 'package:altin_takip/features/subscription/presentation/subscription_notifier.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -91,6 +93,36 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         children: [
           // User Profile Section
           const UserProfileCard(),
+          const Gap(32),
+
+          // Premium Section
+          const SectionHeader(title: 'Premium', icon: Iconsax.crown),
+          const Gap(16),
+          // Check subscription status
+          Consumer(
+            builder: (context, ref, child) {
+              final subState = ref.watch(subscriptionProvider);
+              final isPremium =
+                  subState is SubscriptionLoaded && subState.isPremium;
+
+              return SettingCard(
+                icon: Iconsax.star,
+                title: 'Biriktirerek Pro',
+                subtitle: isPremium
+                    ? 'Premium üyesiniz 🎉'
+                    : 'Limitsiz özellikler için yükseltin',
+                statusColor: isPremium ? Colors.green : AppTheme.gold,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PaywallScreen(),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
           const Gap(32),
 
           // Appearance Section

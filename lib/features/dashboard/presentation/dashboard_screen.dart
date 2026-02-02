@@ -8,10 +8,13 @@ import 'package:altin_takip/features/assets/presentation/asset_notifier.dart';
 import 'package:altin_takip/features/assets/presentation/asset_state.dart';
 import 'package:altin_takip/features/currencies/domain/currency.dart';
 import 'package:altin_takip/features/auth/presentation/auth_notifier.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:altin_takip/features/settings/presentation/preference_notifier.dart';
 import 'package:altin_takip/core/widgets/app_notification.dart';
 import 'package:altin_takip/features/currencies/presentation/history/currency_history_screen.dart';
 import 'package:altin_takip/features/assets/presentation/add_asset_screen.dart';
+import 'package:altin_takip/features/subscription/presentation/paywall_screen.dart';
+import 'package:altin_takip/features/subscription/presentation/subscription_notifier.dart';
 
 // Extracted Widgets
 import 'package:altin_takip/features/dashboard/presentation/widgets/dashboard_header.dart';
@@ -132,6 +135,105 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         DashboardHeader(authState: authState),
                         const Gap(32),
                         PortfolioSummaryCard(state: assetState),
+                        const Gap(24),
+
+                        // Premium Banner (Only if not premium)
+                        Consumer(
+                          builder: (context, ref, child) {
+                            final subState = ref.watch(subscriptionProvider);
+                            final isPremium =
+                                subState is SubscriptionLoaded &&
+                                subState.isPremium;
+
+                            if (isPremium) return const SizedBox.shrink();
+
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const PaywallScreen(),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(16),
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      AppTheme.gold.withValues(alpha: 0.2),
+                                      Colors.transparent,
+                                    ],
+                                    begin: Alignment.centerLeft,
+                                    end: Alignment.centerRight,
+                                  ),
+                                  border: Border.all(
+                                    color: AppTheme.gold.withValues(alpha: 0.3),
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: AppTheme.gold,
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: AppTheme.gold.withValues(
+                                              alpha: 0.4,
+                                            ),
+                                            blurRadius: 10,
+                                          ),
+                                        ],
+                                      ),
+                                      child: const Icon(
+                                        Iconsax.crown,
+                                        color: Colors.black,
+                                        size: 20,
+                                      ),
+                                    ),
+                                    const Gap(12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            'Premium\'a Geç',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          Text(
+                                            'Sınırsız özellikler ve reklamsız deneyim.',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.white.withValues(
+                                                alpha: 0.6,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const Icon(
+                                      Icons.arrow_forward_ios,
+                                      color: Colors.white,
+                                      size: 14,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                         const Gap(32),
                       ],
                     ),
