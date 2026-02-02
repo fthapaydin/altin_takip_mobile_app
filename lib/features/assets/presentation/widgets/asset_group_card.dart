@@ -222,7 +222,9 @@ class AssetGroupCard extends ConsumerWidget {
   }
 
   Widget _buildGroupedTransactions(BuildContext context, WidgetRef ref) {
-    final buys = assets.where((a) => a.type == 'buy').toList();
+    // Sort transactions by date descending (newest first)
+    final buys = assets.where((a) => a.type == 'buy').toList()
+      ..sort((a, b) => b.date.compareTo(a.date));
 
     return Container(
       padding: const EdgeInsets.only(bottom: 8),
@@ -237,18 +239,21 @@ class AssetGroupCard extends ConsumerWidget {
           const Gap(16),
           if (buys.isNotEmpty) ...[
             _buildTransactionSectionHeader(
-              'Varlıklar',
+              'Geçmiş İşlemler',
               Colors.white.withValues(alpha: 0.2),
             ),
             const Gap(12),
-            ...buys.map(
-              (asset) => _buildTransactionItem(
+            ...buys.asMap().entries.map((entry) {
+              final index = entry.key;
+              final asset = entry.value;
+              return _buildTimelineWrapper(
                 context,
                 ref,
                 asset,
-                isLast: asset == buys.last,
-              ),
-            ),
+                isFirst: index == 0,
+                isLast: index == buys.length - 1,
+              );
+            }),
           ],
           if (buys.isEmpty)
             Padding(
@@ -289,10 +294,23 @@ class AssetGroupCard extends ConsumerWidget {
   }) {
     final isBuy = asset.type == 'buy';
     final useDynamicDate = ref.watch(preferenceProvider).useDynamicDate;
-    final formattedDate = DateFormatter.format(
-      asset.date,
-      useDynamic: useDynamicDate,
-    );
+
+    // Logic to avoid duplicate time info
+    // If dynamic: "5 dk önce" -> we can still show time "15:30" below.
+    // If not dynamic: "30 Oca, 15:56" -> we can parse or just use DateFormat for date only part if we want split.
+    // Let's rely on DateFormatter for the "Main Text" (Relative or Full Date)
+    // And standard HH:mm for the "Sub Text"
+
+    String mainDateStr;
+    if (useDynamicDate) {
+      mainDateStr = DateFormatter.format(asset.date, useDynamic: true);
+    } else {
+      // If not dynamic, DateFormatter returns "d MMM, HH:mm"
+      // We might want just "d MMM" here if we show time separately
+      mainDateStr = DateFormat('d MMM yyyy', 'tr_TR').format(asset.date);
+    }
+
+    final timeStr = DateFormat('HH:mm').format(asset.date);
 
     double? profit;
     if (isBuy && asset.currency != null) {
@@ -303,97 +321,221 @@ class AssetGroupCard extends ConsumerWidget {
 
     final isProfitPositive = profit != null && profit >= 0;
 
-    return InkWell(
-      onTap: () => AssetOptionsSheet.show(context, asset),
-      borderRadius: BorderRadius.circular(12),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        child: Row(
-          children: [
-            // Icon
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: (isBuy ? Colors.green : Colors.red).withValues(
-                  alpha: 0.1,
-                ),
-                borderRadius: BorderRadius.circular(12), // Squircle
-                border: Border.all(
-                  color: (isBuy ? Colors.green : Colors.red).withValues(
-                    alpha: 0.2,
-                  ),
-                  width: 1,
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Spacer for timeline
+          const SizedBox(width: 80),
+
+          // Content
+          Expanded(
+            child: InkWell(
+              onTap: () => AssetOptionsSheet.show(context, asset),
+              borderRadius: BorderRadius.circular(12),
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  right: 24,
+                  bottom: 32,
+                ), // Increased bottom padding for spacing
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            isBuy ? 'Alış' : 'Satış',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: Colors.white.withValues(alpha: 0.95),
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                          const Gap(6),
+                          Row(
+                            children: [
+                              Icon(
+                                Iconsax.calendar_1,
+                                size: 12,
+                                color: Colors.white.withValues(alpha: 0.4),
+                              ),
+                              const Gap(4),
+                              Text(
+                                '$mainDateStr, $timeStr',
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.5),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          '${_formatAmount(asset.amount)} adet',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15, // Slightly bigger
+                            color: Colors.white,
+                          ),
+                        ),
+                        const Gap(4),
+                        Text(
+                          '₺${NumberFormat('#,##0.00', 'tr_TR').format(asset.price)}',
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.5),
+                            fontSize: 12,
+                            fontFeatures: [FontFeature.tabularFigures()],
+                          ),
+                        ),
+                        if (profit != null) ...[
+                          const Gap(4),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color:
+                                  (isProfitPositive
+                                          ? const Color(0xFF4ADE80)
+                                          : const Color(0xFFF87171))
+                                      .withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              '${isProfitPositive ? '+' : ''}₺${NumberFormat('#,##0.00', 'tr_TR').format(profit)}',
+                              style: TextStyle(
+                                fontFeatures: [FontFeature.tabularFigures()],
+                                color: isProfitPositive
+                                    ? const Color(0xFF4ADE80)
+                                    : const Color(0xFFF87171),
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              child: Icon(
-                isBuy ? Iconsax.arrow_down_1 : Iconsax.arrow_up_1,
-                color: isBuy ? Colors.green : Colors.red,
-                size: 18,
-              ),
             ),
-            const Gap(16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    isBuy ? 'Alış' : 'Satış',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                      color: Colors.white.withValues(alpha: 0.9),
-                    ),
-                  ),
-                  const Gap(2),
-                  Text(
-                    formattedDate,
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.4),
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  '${_formatAmount(asset.amount)} adet',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
-                    color: Colors.white,
-                  ),
-                ),
-                const Gap(4),
-                Text(
-                  '₺${NumberFormat('#,##0.00', 'tr_TR').format(asset.price)}',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.5),
-                    fontSize: 11,
-                  ),
-                ),
-                if (profit != null) ...[
-                  const Gap(2),
-                  Text(
-                    '${isProfitPositive ? '+' : ''}₺${NumberFormat('#,##0.00', 'tr_TR').format(profit)}',
-                    style: TextStyle(
-                      fontFeatures: [FontFeature.tabularFigures()],
-                      color: isProfitPositive
-                          ? const Color(0xFF4ADE80)
-                          : const Color(0xFFF87171),
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget _buildTimelineWrapper(
+    BuildContext context,
+    WidgetRef ref,
+    Asset asset, {
+    bool isLast = false,
+    bool isFirst = false,
+  }) {
+    final isBuy = asset.type == 'buy';
+    final color = isBuy
+        ? const Color(0xFF4ADE80)
+        : const Color(0xFFF87171); // Green : Red
+
+    return Stack(
+      children: [
+        // Lines
+        Positioned(
+          left: 0,
+          width: 80,
+          top: 0,
+          bottom: 0,
+          child: Center(
+            child: Container(
+              width: 80,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Top line (0 to 6) - Stops before the 32px icon starts
+                  if (!isFirst)
+                    Positioned(
+                      top: 0,
+                      height: 6,
+                      child: CustomPaint(
+                        size: const Size(2, 6),
+                        painter: DashedLinePainter(
+                          color: Colors.white.withValues(alpha: 0.1),
+                        ),
+                      ),
+                    ),
+                  // Bottom line (38 to end) - Starts after the 32px icon ends
+                  // Icon center is 22. Icon radius is 16. End is 22+16=38.
+                  if (!isLast)
+                    Positioned(
+                      top: 38,
+                      bottom: 0,
+                      child: CustomPaint(
+                        size: Size(2, double.infinity),
+                        painter: DashedLinePainter(
+                          color: Colors.white.withValues(alpha: 0.1),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+
+        _buildTransactionItem(context, ref, asset, isLast: isLast),
+
+        // Icon
+        Positioned(
+          left: 0,
+          width: 80,
+          top: 0,
+          child: Center(
+            child: Container(
+              width: 44,
+              height: 44,
+              alignment: Alignment.center,
+              decoration: const BoxDecoration(
+                color: Colors.transparent, // Removed background
+                shape: BoxShape.circle,
+              ),
+              child: Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      color.withValues(alpha: 0.2),
+                      color.withValues(alpha: 0.05),
+                    ],
+                  ),
+                  border: Border.all(
+                    color: color.withValues(alpha: 0.3),
+                    width: 1,
+                  ),
+                ),
+                child: Icon(
+                  isBuy ? Iconsax.arrow_down_1 : Iconsax.arrow_up_1,
+                  color: color,
+                  size: 16,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -403,4 +545,30 @@ class AssetGroupCard extends ConsumerWidget {
     }
     return NumberFormat('#,##0.##', 'tr_TR').format(value);
   }
+}
+
+class DashedLinePainter extends CustomPainter {
+  final Color color;
+
+  DashedLinePainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 1.5
+      ..style = PaintingStyle.stroke;
+
+    const dashHeight = 4.0;
+    const dashSpace = 4.0;
+    double startY = 0;
+
+    while (startY < size.height) {
+      canvas.drawLine(Offset(0, startY), Offset(0, startY + dashHeight), paint);
+      startY += dashHeight + dashSpace;
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
