@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:altin_takip/features/chat/presentation/chat_list_screen.dart';
+import 'package:altin_takip/features/notifications/presentation/notifications_screen.dart';
 import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
 import 'package:altin_takip/core/theme/app_theme.dart';
@@ -64,7 +64,9 @@ class DashboardHeader extends StatelessWidget {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const ChatListScreen()),
+                      MaterialPageRoute(
+                        builder: (_) => const NotificationsScreen(),
+                      ),
                     );
                   },
                   icon: Container(
@@ -85,7 +87,7 @@ class DashboardHeader extends StatelessWidget {
                       ],
                     ),
                     child: const Icon(
-                      Iconsax.magic_star,
+                      Iconsax.notification,
                       size: 20,
                       color: Colors.black,
                     ),

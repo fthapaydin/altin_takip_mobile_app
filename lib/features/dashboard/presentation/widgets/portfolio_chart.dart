@@ -41,7 +41,47 @@ class PortfolioChart extends StatelessWidget {
     return LineChart(
       LineChartData(
         gridData: const FlGridData(show: false),
-        titlesData: const FlTitlesData(show: false),
+        titlesData: FlTitlesData(
+          show: true,
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          leftTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 30,
+              interval: (chartData.length / 4).ceilToDouble(), // Show ~4 labels
+              getTitlesWidget: (value, meta) {
+                final index = value.toInt();
+                if (index < 0 || index >= chartData.length) {
+                  return const SizedBox.shrink();
+                }
+
+                final label = chartData[index].label;
+                if (label == null || label.isEmpty)
+                  return const SizedBox.shrink();
+
+                return Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.5),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
         borderData: FlBorderData(show: false),
         minX: 0,
         maxX: (chartData.length - 1).toDouble(),

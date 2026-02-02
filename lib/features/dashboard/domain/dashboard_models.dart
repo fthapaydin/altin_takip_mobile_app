@@ -25,11 +25,12 @@ class PortfolioSummary extends Equatable {
 
 /// Chart data point for portfolio value over time
 class ChartDataPoint extends Equatable {
-  final DateTime date;
+  final DateTime date; /* Used for sorting / logic if needed */
   final double value;
+  final String? label;
 
-  const ChartDataPoint({required this.date, required this.value});
+  const ChartDataPoint({required this.date, required this.value, this.label});
 
   @override
-  List<Object?> get props => [date, value];
+  List<Object?> get props => [date, value, label];
 }

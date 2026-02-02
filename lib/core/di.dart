@@ -11,6 +11,8 @@ import 'package:altin_takip/features/dashboard/domain/dashboard_repository.dart'
 import 'package:altin_takip/features/dashboard/data/dashboard_repository_impl.dart';
 import 'package:altin_takip/features/chat/domain/chat_repository.dart';
 import 'package:altin_takip/features/chat/data/chat_repository_impl.dart';
+import 'package:altin_takip/features/notifications/domain/notifications_repository.dart';
+import 'package:altin_takip/features/notifications/data/notifications_repository_impl.dart';
 
 final sl = GetIt.instance;
 
@@ -31,4 +33,7 @@ Future<void> initDependencies() async {
     () => DashboardRepositoryImpl(sl()),
   );
   sl.registerLazySingleton<ChatRepository>(() => ChatRepositoryImpl(sl()));
+  sl.registerLazySingleton<NotificationsRepository>(
+    () => NotificationsRepositoryImpl(sl<DioClient>().dio),
+  );
 }
