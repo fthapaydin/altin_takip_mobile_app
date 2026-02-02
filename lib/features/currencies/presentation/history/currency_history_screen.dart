@@ -619,7 +619,7 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
             shape: BoxShape.circle,
           ),
           child: Icon(
-            Iconsax.timer_1,
+            Iconsax.receipt_1,
             size: 32,
             color: Colors.white.withValues(alpha: 0.3),
           ),

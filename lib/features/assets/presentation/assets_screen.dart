@@ -203,7 +203,7 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
                     ),
                   ),
                   child: const Icon(
-                    Iconsax.timer_1,
+                    Iconsax.receipt_1,
                     color: Colors.white,
                     size: 20,
                   ),

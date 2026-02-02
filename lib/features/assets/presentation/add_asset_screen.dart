@@ -182,7 +182,11 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
                 color: Colors.white.withValues(alpha: 0.05),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Iconsax.timer_1, size: 20, color: Colors.white),
+              child: const Icon(
+                Iconsax.receipt_1,
+                size: 20,
+                color: Colors.white,
+              ),
             ),
           ),
           const Gap(16),
