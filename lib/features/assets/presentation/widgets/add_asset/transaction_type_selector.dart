@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
+import 'package:iconsax/iconsax.dart';
 
 class TransactionTypeSelector extends StatelessWidget {
   final bool isBuy;
@@ -12,75 +14,98 @@ class TransactionTypeSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 48,
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Stack(
-        children: [
-          // Minimal Sliding Indicator
-          AnimatedAlign(
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeOutQuad,
-            alignment: isBuy ? Alignment.centerLeft : Alignment.centerRight,
-            child: FractionallySizedBox(
-              widthFactor: 0.5,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+    return Row(
+      children: [
+        // Buy Option
+        Expanded(
+          child: GestureDetector(
+            onTap: () => onTypeChanged(true),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              decoration: BoxDecoration(
+                color: isBuy
+                    ? Colors.white.withOpacity(0.08)
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isBuy
+                      ? Colors.white.withOpacity(0.2)
+                      : Colors.white.withOpacity(0.05),
+                  width: 1,
                 ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Iconsax.add_circle5,
+                    size: 16,
+                    color: isBuy ? Colors.white : Colors.white.withOpacity(0.4),
+                  ),
+                  const Gap(6),
+                  Text(
+                    'Alım',
+                    style: TextStyle(
+                      color: isBuy
+                          ? Colors.white
+                          : Colors.white.withOpacity(0.4),
+                      fontWeight: FontWeight.w400,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-          // Text Buttons
-          Row(
-            children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => onTypeChanged(true),
-                  behavior: HitTestBehavior.opaque,
-                  child: Center(
-                    child: AnimatedDefaultTextStyle(
-                      duration: const Duration(milliseconds: 200),
-                      style: TextStyle(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 14,
-                        color: isBuy
-                            ? const Color(0xFF4ADE80) // Green
-                            : Colors.white.withValues(alpha: 0.4),
-                      ),
-                      child: const Text('Alım'),
-                    ),
-                  ),
+        ),
+        const Gap(10),
+        // Sell Option
+        Expanded(
+          child: GestureDetector(
+            onTap: () => onTypeChanged(false),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              decoration: BoxDecoration(
+                color: !isBuy
+                    ? Colors.white.withOpacity(0.08)
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: !isBuy
+                      ? Colors.white.withOpacity(0.2)
+                      : Colors.white.withOpacity(0.05),
+                  width: 1,
                 ),
               ),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => onTypeChanged(false),
-                  behavior: HitTestBehavior.opaque,
-                  child: Center(
-                    child: AnimatedDefaultTextStyle(
-                      duration: const Duration(milliseconds: 200),
-                      style: TextStyle(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 14,
-                        color: !isBuy
-                            ? const Color(0xFFF87171) // Red
-                            : Colors.white.withValues(alpha: 0.4),
-                      ),
-                      child: const Text('Satımx'),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Iconsax.minus_cirlce5,
+                    size: 16,
+                    color: !isBuy
+                        ? Colors.white
+                        : Colors.white.withOpacity(0.4),
+                  ),
+                  const Gap(6),
+                  Text(
+                    'Satım',
+                    style: TextStyle(
+                      color: !isBuy
+                          ? Colors.white
+                          : Colors.white.withOpacity(0.4),
+                      fontWeight: FontWeight.w400,
+                      fontSize: 14,
                     ),
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
