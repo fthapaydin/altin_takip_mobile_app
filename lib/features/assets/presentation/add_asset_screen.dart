@@ -34,24 +34,37 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
   final _priceForDisplayController = TextEditingController();
   final _placeController = TextEditingController();
   final _noteController = TextEditingController();
-  DateTime _selectedDate = DateTime.now();
-
-  List<Currency> _goldCurrencies = [];
-  List<Currency> _forexCurrencies = [];
-
-  // Number formatters
-  final _currencyFormat = NumberFormat.currency(locale: 'tr_TR', symbol: '');
+  double _totalAmount = 0.0;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_onTabChange);
+    
+    // Add listeners for real-time calculation
+    _amountForDisplayController.addListener(_calculateTotal);
+    _priceForDisplayController.addListener(_calculateTotal);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadCurrencies();
     });
   }
+  
+  void _calculateTotal() {
+    final amount = _parseCurrency(_amountForDisplayController.text);
+    final price = _parseCurrency(_priceForDisplayController.text);
+    setState(() {
+      _totalAmount = amount * price;
+    });
+  }
+
+  // Number formatters
+  final _currencyFormat = NumberFormat.currency(locale: 'tr_TR', symbol: '');
+  
+  DateTime _selectedDate = DateTime.now();
+  List<Currency> _goldCurrencies = [];
+  List<Currency> _forexCurrencies = [];
 
   void _loadCurrencies() {
     final state = ref.read(assetProvider);
@@ -132,8 +145,6 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
     _noteController.dispose();
     super.dispose();
   }
-
-  @override
   Widget build(BuildContext context) {
     ref.listen<AssetState>(assetProvider, (previous, next) {
       if (next is AssetError) {
@@ -332,7 +343,59 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
                   ),
                 ],
               ),
-              const Gap(20),
+              const Gap(24),
+
+              // Total Amount Display
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppTheme.surface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.05),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                     Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Toplam Tutar',
+                          style: TextStyle(
+                            color: Colors.white54,
+                            fontSize: 13,
+                          ),
+                        ),
+                        const Gap(4),
+                        Text(
+                          _selectedCurrency != null 
+                              ? _isBuy ? 'Ödenecek Tutar' : 'Alınacak Tutar'
+                              : 'İşlem Tutarı',
+                          style: TextStyle(
+                            color: Colors.white30,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      NumberFormat.currency(
+                        locale: 'tr_TR',
+                        symbol: '₺',
+                        decimalDigits: 2,
+                      ).format(_totalAmount),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.gold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Gap(24),
 
               // Date Selection
               const Text(

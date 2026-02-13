@@ -211,7 +211,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             child: Column(
               children: [
                 Text(
-                  'biriktirerek.com',
+                  'altincuzdan.app',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.3),
                     fontSize: 12,

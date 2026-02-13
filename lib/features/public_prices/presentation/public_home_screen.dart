@@ -121,7 +121,7 @@ class _PublicHomeScreenState extends ConsumerState<PublicHomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Biriktirerek',
+          'Altın Cüzdan',
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: AppTheme.gold,

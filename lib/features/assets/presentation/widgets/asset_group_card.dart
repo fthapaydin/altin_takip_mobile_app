@@ -33,15 +33,37 @@ class AssetGroupCard extends ConsumerWidget {
     // Determine currency info from the first asset
     final currency = assets.first.currency;
     final isGold = currency?.isGold ?? false;
-    final totalAmount = assets.fold<double>(
-      0,
-      (sum, a) => sum + (a.type == 'buy' ? a.amount : -a.amount),
-    );
-    final totalValue = assets.fold<double>(
-      0,
-      (sum, a) =>
-          sum + (a.type == 'buy' ? a.amount * a.price : -a.amount * a.price),
-    );
+    
+    // 1. Net Quantity
+    final double netAmount = assets.fold(0, (sum, item) {
+       return sum + (item.type == 'buy' ? item.amount : -item.amount);
+    });
+
+    // 2. Average Cost Calculation (Weighted Average of Buys)
+    final buys = assets.where((a) => a.type == 'buy');
+    double totalBuyAmount = 0;
+    double totalBuyCost = 0;
+    
+    for (final buy in buys) {
+      totalBuyAmount += buy.amount;
+      totalBuyCost += (buy.amount * buy.price);
+    }
+    
+    final double avgCost = totalBuyAmount > 0 ? totalBuyCost / totalBuyAmount : 0;
+
+    // 3. Current Value (Market Value of Holdings)
+    // For gold: Amount * Buying Price (BoZDURMA fiyatı)
+    // For regular currency: Amount * Buying Price
+    // Note: Usually 'buying' is what bank buys from you (your sell price)
+    final double currentPrice = currency?.buying ?? 0;
+    final double currentValue = netAmount * currentPrice;
+
+    // 4. Total Cost of Current Holdings
+    final double totalCost = netAmount * avgCost;
+
+    // 5. Profit / Loss
+    final double profit = currentValue - totalCost;
+    final double profitPercent = totalCost > 0 ? (profit / totalCost) * 100 : 0;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -169,7 +191,7 @@ class AssetGroupCard extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        '${_formatAmount(totalAmount)} adet',
+                        '${_formatAmount(netAmount)} adet',
                         style: TextStyle(
                           color: isGold ? AppTheme.gold : Colors.white,
                           fontWeight: FontWeight.bold,
@@ -178,7 +200,7 @@ class AssetGroupCard extends ConsumerWidget {
                       ),
                       const Gap(4),
                       Text(
-                        '₺${NumberFormat('#,##0.00', 'tr_TR').format(totalValue.abs())}',
+                        '₺${NumberFormat('#,##0.00', 'tr_TR').format(currentValue)}',
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.5),
                           fontSize: 12,
@@ -208,6 +230,45 @@ class AssetGroupCard extends ConsumerWidget {
               ),
             ),
           ),
+          
+          // Helper method for Summary Stats
+          if (isExpanded)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                   color: AppTheme.background.withValues(alpha: 0.3),
+                   borderRadius: BorderRadius.circular(16),
+                   border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Average Cost
+                    _buildSummaryItem(
+                      'Ortalama',
+                      '₺${NumberFormat('#,##0.00', 'tr_TR').format(avgCost)}',
+                      Colors.white,
+                    ),
+                    // Total Cost (Maliyet)
+                    _buildSummaryItem(
+                      'Maliyet',
+                      '₺${NumberFormat('#,##0.00', 'tr_TR').format(totalCost)}',
+                      Colors.white,
+                    ),
+                    // Profit / Loss
+                    _buildSummaryItem(
+                      'Kar/Zarar',
+                      '${profit >= 0 ? '+' : ''}₺${NumberFormat('#,##0.##', 'tr_TR').format(profit)}',
+                      profit >= 0 ? const Color(0xFF4ADE80) : const Color(0xFFF87171),
+                      subtitle: '%${profitPercent.toStringAsFixed(1)}',
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
           // Expandable transactions
           AnimatedCrossFade(
             firstChild: const SizedBox.shrink(),
@@ -219,6 +280,41 @@ class AssetGroupCard extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+  
+  Widget _buildSummaryItem(String label, String value, Color valueColor, {String? subtitle}) {
+    return Column(
+      children: [
+        Text(
+          label.toUpperCase(),
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.5),
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.5,
+          ),
+        ),
+        const Gap(4),
+        Text(
+          value,
+          style: TextStyle(
+            color: valueColor,
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        if (subtitle != null) ...[
+          const Gap(2),
+          Text(
+            subtitle,
+            style: TextStyle(
+              color: valueColor.withValues(alpha: 0.8),
+              fontSize: 11,
+            ),
+          ),
+        ],
+      ],
     );
   }
 

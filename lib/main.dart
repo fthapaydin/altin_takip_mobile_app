@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Biriktirerek',
+      title: 'Altın Cüzdan',
       theme: AppTheme.dark,
       debugShowCheckedModeBanner: false,
       localizationsDelegates: const [
