@@ -33,23 +33,25 @@ class AssetGroupCard extends ConsumerWidget {
     // Determine currency info from the first asset
     final currency = assets.first.currency;
     final isGold = currency?.isGold ?? false;
-    
+
     // 1. Net Quantity
     final double netAmount = assets.fold(0, (sum, item) {
-       return sum + (item.type == 'buy' ? item.amount : -item.amount);
+      return sum + (item.type == 'buy' ? item.amount : -item.amount);
     });
 
     // 2. Average Cost Calculation (Weighted Average of Buys)
     final buys = assets.where((a) => a.type == 'buy');
     double totalBuyAmount = 0;
     double totalBuyCost = 0;
-    
+
     for (final buy in buys) {
       totalBuyAmount += buy.amount;
       totalBuyCost += (buy.amount * buy.price);
     }
-    
-    final double avgCost = totalBuyAmount > 0 ? totalBuyCost / totalBuyAmount : 0;
+
+    final double avgCost = totalBuyAmount > 0
+        ? totalBuyCost / totalBuyAmount
+        : 0;
 
     // 3. Current Value (Market Value of Holdings)
     // For gold: Amount * Buying Price (BoZDURMA fiyatı)
@@ -230,7 +232,7 @@ class AssetGroupCard extends ConsumerWidget {
               ),
             ),
           ),
-          
+
           // Helper method for Summary Stats
           if (isExpanded)
             Padding(
@@ -238,9 +240,11 @@ class AssetGroupCard extends ConsumerWidget {
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                   color: AppTheme.background.withValues(alpha: 0.3),
-                   borderRadius: BorderRadius.circular(16),
-                   border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+                  color: AppTheme.background.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.05),
+                  ),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -261,7 +265,9 @@ class AssetGroupCard extends ConsumerWidget {
                     _buildSummaryItem(
                       'Kar/Zarar',
                       '${profit >= 0 ? '+' : ''}₺${NumberFormat('#,##0.##', 'tr_TR').format(profit)}',
-                      profit >= 0 ? const Color(0xFF4ADE80) : const Color(0xFFF87171),
+                      profit >= 0
+                          ? const Color(0xFF4ADE80)
+                          : const Color(0xFFF87171),
                       subtitle: '%${profitPercent.toStringAsFixed(1)}',
                     ),
                   ],
@@ -282,8 +288,13 @@ class AssetGroupCard extends ConsumerWidget {
       ),
     );
   }
-  
-  Widget _buildSummaryItem(String label, String value, Color valueColor, {String? subtitle}) {
+
+  Widget _buildSummaryItem(
+    String label,
+    String value,
+    Color valueColor, {
+    String? subtitle,
+  }) {
     return Column(
       children: [
         Text(
@@ -392,25 +403,24 @@ class AssetGroupCard extends ConsumerWidget {
     final isBuy = asset.type == 'buy';
     final useDynamicDate = ref.watch(preferenceProvider).useDynamicDate;
 
-    // Logic to avoid duplicate time info
-    String mainDateStr;
+    // Format date string
+    String dateStr;
     if (useDynamicDate) {
-      mainDateStr = DateFormatter.format(asset.date, useDynamic: true);
+      dateStr = DateFormatter.format(asset.date, useDynamic: true);
     } else {
-      mainDateStr = DateFormat('d MMM yyyy', 'tr_TR').format(asset.date);
+      dateStr = DateFormat('d MMM yyyy, HH:mm', 'tr_TR').format(asset.date);
     }
 
-    final timeStr = DateFormat('HH:mm').format(asset.date);
-
+    // Calculate financials
     double? profit;
     double? profitPercent;
     double currentPrice = 0;
-    
+
     if (isBuy && asset.currency != null) {
-      currentPrice = asset.currency!.buying; // Current Sell Price (Bank's Buying)
+      currentPrice = asset.currency!.buying;
       final costPrice = asset.price;
       profit = (currentPrice - costPrice) * asset.amount;
-      
+
       final totalCost = costPrice * asset.amount;
       if (totalCost > 0) {
         profitPercent = (profit / totalCost) * 100;
@@ -423,12 +433,11 @@ class AssetGroupCard extends ConsumerWidget {
 
     return IntrinsicHeight(
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.start, // Align to top
         children: [
-          // Spacer for timeline
+          // Timeline Spacer (left side of screen)
           const SizedBox(width: 80),
 
-          // Content
           Expanded(
             child: InkWell(
               onTap: () => AssetOptionsSheet.show(context, asset),
@@ -436,123 +445,140 @@ class AssetGroupCard extends ConsumerWidget {
               child: Padding(
                 padding: const EdgeInsets.only(
                   right: 24,
-                  bottom: 32,
+                  bottom: 24, // Consistent spacing
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // 1. Transaction Icon
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color:
+                            (isBuy
+                                    ? const Color(0xFF4ADE80)
+                                    : const Color(0xFFF87171))
+                                .withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        isBuy ? Iconsax.arrow_bottom : Iconsax.arrow_up,
+                        color: isBuy
+                            ? const Color(0xFF4ADE80)
+                            : const Color(0xFFF87171),
+                        size: 20,
+                      ),
+                    ),
+                    const Gap(12),
+
+                    // 2. Type and Date
                     Expanded(
-                      flex: 4,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             isBuy ? 'Alış' : 'Satış',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
-                              color: Colors.white.withValues(alpha: 0.95),
+                              color: Colors.white,
                               letterSpacing: 0.3,
                             ),
                           ),
-                          const Gap(6),
-                          Row(
-                            children: [
-                              Icon(
-                                Iconsax.calendar_1,
-                                size: 12,
-                                color: Colors.white.withValues(alpha: 0.4),
-                              ),
-                              const Gap(4),
-                              Text(
-                                '$mainDateStr, $timeStr',
-                                style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.5),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
+                          const Gap(4),
+                          Text(
+                            dateStr,
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.5),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),
                     ),
                     const Gap(8),
-                    Expanded(
-                      flex: 6,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            '${_formatAmount(asset.amount)} adet',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
-                              color: Colors.white,
-                            ),
+
+                    // 3. Financial Details (Right aligned)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        // Amount
+                        Text(
+                          '${_formatAmount(asset.amount)} adet',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                            color: Colors.white,
                           ),
-                          const Gap(4),
-                          // Unit Price with Label
-                          Text(
-                            'Birim: ₺${NumberFormat('#,##0.00', 'tr_TR').format(asset.price)}',
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.5),
-                              fontSize: 11,
-                              fontFeatures: [FontFeature.tabularFigures()],
-                            ),
+                        ),
+                        const Gap(4),
+
+                        // Unit Price
+                        Text(
+                          'Birim: ₺${NumberFormat('#,##0.00', 'tr_TR').format(asset.price)}',
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.5),
+                            fontSize: 11,
+                            fontFeatures: [FontFeature.tabularFigures()],
                           ),
+                        ),
+
+                        // Total Cost (Alış Tutarı)
+                        const Gap(2),
+                        Text(
+                          'Maliyet: ₺${NumberFormat('#,##0.00', 'tr_TR').format(totalCost)}',
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.5),
+                            fontSize: 11,
+                            fontFeatures: [FontFeature.tabularFigures()],
+                          ),
+                        ),
+
+                        if (isBuy && asset.currency != null) ...[
                           const Gap(2),
-                          // Total Cost
+                          // Current Value (Güncel Değer)
                           Text(
-                            'Alış: ₺${NumberFormat('#,##0.00', 'tr_TR').format(totalCost)}',
+                            'Değer: ₺${NumberFormat('#,##0.00', 'tr_TR').format(currentValue)}',
                             style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.5),
                               fontSize: 11,
                               fontFeatures: [FontFeature.tabularFigures()],
                             ),
                           ),
-                           if (isBuy && asset.currency != null) ...[
-                            const Gap(2),
-                            // Current Value
-                            Text(
-                              'Güncel: ₺${NumberFormat('#,##0.00', 'tr_TR').format(currentValue)}',
-                              style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.5),
-                                fontSize: 11,
-                                fontFeatures: [FontFeature.tabularFigures()],
-                              ),
-                            ),
-                          ],
-                          if (profit != null) ...[
-                            const Gap(6),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color:
-                                    (isProfitPositive
-                                            ? const Color(0xFF4ADE80)
-                                            : const Color(0xFFF87171))
-                                        .withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Text(
-                                '${isProfitPositive ? '+' : ''}₺${NumberFormat('#,##0.00', 'tr_TR').format(profit)} ${profitPercent != null ? '(%${profitPercent.toStringAsFixed(1)})' : ''}',
-                                style: TextStyle(
-                                  fontFeatures: [FontFeature.tabularFigures()],
-                                  color: isProfitPositive
-                                      ? const Color(0xFF4ADE80)
-                                      : const Color(0xFFF87171),
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
                         ],
-                      ),
+
+                        if (profit != null) ...[
+                          const Gap(6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              color:
+                                  (isProfitPositive
+                                          ? const Color(0xFF4ADE80)
+                                          : const Color(0xFFF87171))
+                                      .withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              '${isProfitPositive ? '+' : ''}₺${NumberFormat('#,##0.00', 'tr_TR').format(profit)} ${profitPercent != null ? '(%${profitPercent.toStringAsFixed(1)})' : ''}',
+                              style: TextStyle(
+                                fontFeatures: [FontFeature.tabularFigures()],
+                                color: isProfitPositive
+                                    ? const Color(0xFF4ADE80)
+                                    : const Color(0xFFF87171),
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ],
                 ),
