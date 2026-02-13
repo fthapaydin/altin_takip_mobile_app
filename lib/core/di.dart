@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:altin_takip/core/network/dio_client.dart';
+import 'package:altin_takip/core/network/public_dio_client.dart';
 import 'package:altin_takip/core/storage/storage_service.dart';
 import 'package:altin_takip/features/auth/domain/auth_repository.dart';
 import 'package:altin_takip/features/auth/data/auth_repository_impl.dart';
@@ -13,6 +14,8 @@ import 'package:altin_takip/features/chat/domain/chat_repository.dart';
 import 'package:altin_takip/features/chat/data/chat_repository_impl.dart';
 import 'package:altin_takip/features/notifications/domain/notifications_repository.dart';
 import 'package:altin_takip/features/notifications/data/notifications_repository_impl.dart';
+import 'package:altin_takip/features/public_prices/domain/public_prices_repository.dart';
+import 'package:altin_takip/features/public_prices/data/public_prices_repository_impl.dart';
 
 final sl = GetIt.instance;
 
@@ -22,6 +25,7 @@ Future<void> initDependencies() async {
 
   // Network
   sl.registerLazySingleton<DioClient>(() => DioClient(sl()));
+  sl.registerLazySingleton<PublicDioClient>(() => PublicDioClient());
 
   // Repositories
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(sl()));
@@ -35,5 +39,8 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton<ChatRepository>(() => ChatRepositoryImpl(sl()));
   sl.registerLazySingleton<NotificationsRepository>(
     () => NotificationsRepositoryImpl(sl<DioClient>().dio),
+  );
+  sl.registerLazySingleton<PublicPricesRepository>(
+    () => PublicPricesRepositoryImpl(sl()),
   );
 }
