@@ -52,6 +52,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Gap(40),
+                  Center(
+                    child: Image.asset(
+                      'assets/logo.png',
+                      height: 100,
+                      width: 100,
+                    ).animate().scale(duration: 500.ms, curve: Curves.easeOutBack),
+                  ),
+                  const Gap(24),
                   Text(
                     'Hoş Geldiniz',
                     style: context.textTheme.headlineLarge?.copyWith(

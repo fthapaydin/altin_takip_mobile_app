@@ -44,11 +44,6 @@ class AssetOptionsSheet extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage('assets/images/noise.png'),
-          opacity: 0.05,
-          fit: BoxFit.cover,
-        ),
         color: AppTheme.background,
         borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
         boxShadow: [

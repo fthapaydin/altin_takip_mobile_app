@@ -193,17 +193,20 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
             // Transactions List
             Expanded(
               flex: 2,
-              child: Column(
-                children: List.generate(3, (index) {
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    height: 60,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  );
-                }),
+              child: SingleChildScrollView(
+                physics: const NeverScrollableScrollPhysics(),
+                child: Column(
+                  children: List.generate(3, (index) {
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      height: 60,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    );
+                  }),
+                ),
               ),
             ),
           ],

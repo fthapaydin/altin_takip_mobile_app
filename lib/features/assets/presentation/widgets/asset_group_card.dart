@@ -393,30 +393,33 @@ class AssetGroupCard extends ConsumerWidget {
     final useDynamicDate = ref.watch(preferenceProvider).useDynamicDate;
 
     // Logic to avoid duplicate time info
-    // If dynamic: "5 dk önce" -> we can still show time "15:30" below.
-    // If not dynamic: "30 Oca, 15:56" -> we can parse or just use DateFormat for date only part if we want split.
-    // Let's rely on DateFormatter for the "Main Text" (Relative or Full Date)
-    // And standard HH:mm for the "Sub Text"
-
     String mainDateStr;
     if (useDynamicDate) {
       mainDateStr = DateFormatter.format(asset.date, useDynamic: true);
     } else {
-      // If not dynamic, DateFormatter returns "d MMM, HH:mm"
-      // We might want just "d MMM" here if we show time separately
       mainDateStr = DateFormat('d MMM yyyy', 'tr_TR').format(asset.date);
     }
 
     final timeStr = DateFormat('HH:mm').format(asset.date);
 
     double? profit;
+    double? profitPercent;
+    double currentPrice = 0;
+    
     if (isBuy && asset.currency != null) {
-      final currentPrice = asset.currency!.buying;
+      currentPrice = asset.currency!.buying; // Current Sell Price (Bank's Buying)
       final costPrice = asset.price;
       profit = (currentPrice - costPrice) * asset.amount;
+      
+      final totalCost = costPrice * asset.amount;
+      if (totalCost > 0) {
+        profitPercent = (profit / totalCost) * 100;
+      }
     }
 
     final isProfitPositive = profit != null && profit >= 0;
+    final totalCost = asset.amount * asset.price;
+    final currentValue = asset.amount * currentPrice;
 
     return IntrinsicHeight(
       child: Row(
@@ -434,10 +437,12 @@ class AssetGroupCard extends ConsumerWidget {
                 padding: const EdgeInsets.only(
                   right: 24,
                   bottom: 32,
-                ), // Increased bottom padding for spacing
+                ),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
+                      flex: 4,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -472,55 +477,82 @@ class AssetGroupCard extends ConsumerWidget {
                         ],
                       ),
                     ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          '${_formatAmount(asset.amount)} adet',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15, // Slightly bigger
-                            color: Colors.white,
+                    const Gap(8),
+                    Expanded(
+                      flex: 6,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            '${_formatAmount(asset.amount)} adet',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
-                        const Gap(4),
-                        Text(
-                          '₺${NumberFormat('#,##0.00', 'tr_TR').format(asset.price)}',
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.5),
-                            fontSize: 12,
-                            fontFeatures: [FontFeature.tabularFigures()],
-                          ),
-                        ),
-                        if (profit != null) ...[
                           const Gap(4),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
+                          // Unit Price with Label
+                          Text(
+                            'Birim: ₺${NumberFormat('#,##0.00', 'tr_TR').format(asset.price)}',
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.5),
+                              fontSize: 11,
+                              fontFeatures: [FontFeature.tabularFigures()],
                             ),
-                            decoration: BoxDecoration(
-                              color:
-                                  (isProfitPositive
-                                          ? const Color(0xFF4ADE80)
-                                          : const Color(0xFFF87171))
-                                      .withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(4),
+                          ),
+                          const Gap(2),
+                          // Total Cost
+                          Text(
+                            'Alış: ₺${NumberFormat('#,##0.00', 'tr_TR').format(totalCost)}',
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.5),
+                              fontSize: 11,
+                              fontFeatures: [FontFeature.tabularFigures()],
                             ),
-                            child: Text(
-                              '${isProfitPositive ? '+' : ''}₺${NumberFormat('#,##0.00', 'tr_TR').format(profit)}',
+                          ),
+                           if (isBuy && asset.currency != null) ...[
+                            const Gap(2),
+                            // Current Value
+                            Text(
+                              'Güncel: ₺${NumberFormat('#,##0.00', 'tr_TR').format(currentValue)}',
                               style: TextStyle(
-                                fontFeatures: [FontFeature.tabularFigures()],
-                                color: isProfitPositive
-                                    ? const Color(0xFF4ADE80)
-                                    : const Color(0xFFF87171),
+                                color: Colors.white.withValues(alpha: 0.5),
                                 fontSize: 11,
-                                fontWeight: FontWeight.bold,
+                                fontFeatures: [FontFeature.tabularFigures()],
                               ),
                             ),
-                          ),
+                          ],
+                          if (profit != null) ...[
+                            const Gap(6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color:
+                                    (isProfitPositive
+                                            ? const Color(0xFF4ADE80)
+                                            : const Color(0xFFF87171))
+                                        .withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                '${isProfitPositive ? '+' : ''}₺${NumberFormat('#,##0.00', 'tr_TR').format(profit)} ${profitPercent != null ? '(%${profitPercent.toStringAsFixed(1)})' : ''}',
+                                style: TextStyle(
+                                  fontFeatures: [FontFeature.tabularFigures()],
+                                  color: isProfitPositive
+                                      ? const Color(0xFF4ADE80)
+                                      : const Color(0xFFF87171),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
                   ],
                 ),

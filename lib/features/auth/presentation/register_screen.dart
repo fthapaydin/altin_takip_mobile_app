@@ -54,6 +54,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Gap(24),
+                      Center(
+                        child: Image.asset(
+                          'assets/logo.png',
+                          height: 80,
+                          width: 80,
+                        ).animate().scale(duration: 500.ms, curve: Curves.easeOutBack),
+                      ),
+                      const Gap(24),
                       Text(
                         'Yeni Hesap Oluştur',
                         style: context.textTheme.headlineLarge?.copyWith(
