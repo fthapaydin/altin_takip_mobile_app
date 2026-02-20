@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:altin_takip/core/di.dart';
 import 'package:altin_takip/core/storage/storage_service.dart';
+import 'package:altin_takip/core/services/onesignal_service.dart';
 import 'package:altin_takip/features/auth/domain/auth_repository.dart';
 import 'package:altin_takip/features/auth/presentation/auth_state.dart';
 import 'package:altin_takip/features/auth/data/google_sign_in_service.dart';
@@ -14,12 +15,14 @@ class AuthNotifier extends Notifier<AuthState> {
   late final AuthRepository _repository;
   late final StorageService _storage;
   late final GoogleSignInService _googleSignIn;
+  late final OneSignalService _oneSignal;
 
   @override
   AuthState build() {
     _repository = sl<AuthRepository>();
     _storage = sl<StorageService>();
     _googleSignIn = sl<GoogleSignInService>();
+    _oneSignal = sl<OneSignalService>();
 
     // Check auth status on startup
     Future.microtask(() => checkAuthStatus());
@@ -33,6 +36,9 @@ class AuthNotifier extends Notifier<AuthState> {
     final encryptionKey = await _storage.getEncryptionKey();
 
     if (token != null && user != null) {
+      // Set external user ID for OneSignal targeting
+      _oneSignal.setExternalUserId(user.id.toString());
+
       if (user.isEncrypted && encryptionKey == null) {
         state = AuthEncryptionRequired(user);
       } else {
@@ -45,7 +51,13 @@ class AuthNotifier extends Notifier<AuthState> {
 
   Future<void> login(String email, String password) async {
     state = const AuthLoading();
-    final result = await _repository.login(email: email, password: password);
+    final subscriptionId = _oneSignal.getSubscriptionId();
+
+    final result = await _repository.login(
+      email: email,
+      password: password,
+      oneSignalId: subscriptionId,
+    );
 
     switch (result) {
       case Left(value: final failure):
@@ -54,6 +66,7 @@ class AuthNotifier extends Notifier<AuthState> {
         final (user, token) = data;
         await _storage.saveToken(token);
         await _storage.saveUser(user);
+        _oneSignal.setExternalUserId(user.id.toString());
         if (user.isEncrypted) {
           state = AuthEncryptionRequired(user);
         } else {
@@ -91,7 +104,13 @@ class AuthNotifier extends Notifier<AuthState> {
 
   Future<void> register(String email, String password) async {
     state = const AuthLoading();
-    final result = await _repository.register(email: email, password: password);
+    final subscriptionId = _oneSignal.getSubscriptionId();
+
+    final result = await _repository.register(
+      email: email,
+      password: password,
+      oneSignalId: subscriptionId,
+    );
 
     switch (result) {
       case Left(value: final failure):
@@ -100,6 +119,7 @@ class AuthNotifier extends Notifier<AuthState> {
         final (user, token) = data;
         await _storage.saveToken(token);
         await _storage.saveUser(user);
+        _oneSignal.setExternalUserId(user.id.toString());
         if (user.isEncrypted) {
           state = AuthEncryptionRequired(user);
         } else {
@@ -146,9 +166,12 @@ class AuthNotifier extends Notifier<AuthState> {
       case Left(value: final failure):
         state = AuthUnauthenticated(error: failure.message);
       case Right(value: final account):
+        final subscriptionId = _oneSignal.getSubscriptionId();
+
         final result = await _repository.googleLogin(
           email: account.email,
           googleId: account.id,
+          oneSignalId: subscriptionId,
         );
 
         switch (result) {
@@ -158,6 +181,7 @@ class AuthNotifier extends Notifier<AuthState> {
             final (user, token) = data;
             await _storage.saveToken(token);
             await _storage.saveUser(user);
+            _oneSignal.setExternalUserId(user.id.toString());
             if (user.isEncrypted) {
               state = AuthEncryptionRequired(user);
             } else {
@@ -168,6 +192,7 @@ class AuthNotifier extends Notifier<AuthState> {
   }
 
   Future<void> logout() async {
+    _oneSignal.removeExternalUserId();
     await _storage.clearAll();
     state = const AuthUnauthenticated();
   }

@@ -17,6 +17,7 @@ import 'package:altin_takip/features/notifications/data/notifications_repository
 import 'package:altin_takip/features/public_prices/domain/public_prices_repository.dart';
 import 'package:altin_takip/features/public_prices/data/public_prices_repository_impl.dart';
 import 'package:altin_takip/features/auth/data/google_sign_in_service.dart';
+import 'package:altin_takip/core/services/onesignal_service.dart';
 
 final sl = GetIt.instance;
 
@@ -24,6 +25,7 @@ Future<void> initDependencies() async {
   // Services
   sl.registerLazySingleton<StorageService>(() => StorageService());
   sl.registerLazySingleton<GoogleSignInService>(() => GoogleSignInService());
+  sl.registerLazySingleton<OneSignalService>(() => OneSignalService());
 
   // Network
   sl.registerLazySingleton<DioClient>(() => DioClient(sl()));

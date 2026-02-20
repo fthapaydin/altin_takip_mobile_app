@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:altin_takip/core/di.dart';
 import 'package:altin_takip/core/theme/app_theme.dart';
+import 'package:altin_takip/core/services/onesignal_service.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:altin_takip/features/auth/presentation/auth_wrapper.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -10,6 +11,11 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('tr_TR', null);
   await initDependencies();
+
+  // Initialize OneSignal
+  final oneSignal = sl<OneSignalService>();
+  await oneSignal.initialize();
+  await oneSignal.requestPermission();
 
   runApp(const ProviderScope(child: MyApp()));
 }
