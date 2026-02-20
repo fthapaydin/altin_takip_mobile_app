@@ -198,4 +198,17 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(ServerFailure(NetworkExceptionHandler.getErrorMessage(e)));
     }
   }
+
+  @override
+  Future<Either<Failure, Unit>> updateOneSignalId(String oneSignalId) async {
+    try {
+      await _dioClient.dio.put(
+        'profile/onesignal',
+        data: {'onesignal_id': oneSignalId},
+      );
+      return const Right(unit);
+    } catch (e) {
+      return Left(ServerFailure(NetworkExceptionHandler.getErrorMessage(e)));
+    }
+  }
 }

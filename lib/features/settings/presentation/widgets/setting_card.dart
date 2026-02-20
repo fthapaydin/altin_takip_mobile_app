@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:altin_takip/core/theme/app_theme.dart';
 
 class SettingCard extends StatelessWidget {
   final IconData icon;
@@ -25,37 +24,28 @@ class SettingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final iconColor = isDestructive
+        ? Colors.red.withOpacity(0.7)
+        : Colors.white.withOpacity(0.4);
+
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(14),
       child: Container(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: AppTheme.surface,
-          borderRadius: BorderRadius.circular(16),
+          color: Colors.white.withOpacity(0.04),
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isDestructive
-                ? Colors.red.withOpacity(0.2)
-                : Colors.white.withOpacity(0.04),
+                ? Colors.red.withOpacity(0.1)
+                : Colors.white.withOpacity(0.03),
           ),
         ),
         child: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: (isDestructive ? Colors.red : AppTheme.gold).withOpacity(
-                  0.1,
-                ),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(
-                icon,
-                color: isDestructive ? Colors.red : AppTheme.gold,
-                size: 22,
-              ),
-            ),
-            const Gap(16),
+            Icon(icon, color: iconColor, size: 20),
+            const Gap(14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,16 +55,19 @@ class SettingCard extends StatelessWidget {
                       Text(
                         title,
                         style: TextStyle(
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w400,
                           fontSize: 15,
-                          color: isDestructive ? Colors.red : Colors.white,
+                          color: isDestructive
+                              ? Colors.red.withOpacity(0.8)
+                              : Colors.white.withOpacity(0.85),
+                          letterSpacing: -0.2,
                         ),
                       ),
                       if (statusColor != null) ...[
                         const Gap(8),
                         Container(
-                          width: 8,
-                          height: 8,
+                          width: 6,
+                          height: 6,
                           decoration: BoxDecoration(
                             color: statusColor,
                             shape: BoxShape.circle,
@@ -83,12 +76,13 @@ class SettingCard extends StatelessWidget {
                       ],
                     ],
                   ),
-                  const Gap(4),
+                  const Gap(2),
                   Text(
                     subtitle,
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.4),
+                      color: Colors.white.withOpacity(0.25),
                       fontSize: 12,
+                      letterSpacing: -0.1,
                     ),
                   ),
                 ],
@@ -99,8 +93,8 @@ class SettingCard extends StatelessWidget {
             else if (onTap != null)
               Icon(
                 Iconsax.arrow_right_3,
-                color: Colors.white.withOpacity(0.25),
-                size: 22,
+                color: Colors.white.withOpacity(0.15),
+                size: 18,
               ),
           ],
         ),

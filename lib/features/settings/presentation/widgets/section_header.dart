@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:gap/gap.dart';
-import 'package:altin_takip/core/theme/app_theme.dart';
 
 class SectionHeader extends StatelessWidget {
   final String title;
@@ -10,20 +8,17 @@ class SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, color: AppTheme.gold, size: 18),
-        const Gap(8),
-        Text(
-          title.toUpperCase(),
-          style: TextStyle(
-            color: AppTheme.gold,
-            fontSize: 11,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 1.5,
-          ),
+    return Padding(
+      padding: const EdgeInsets.only(left: 4),
+      child: Text(
+        title,
+        style: TextStyle(
+          color: Colors.white.withOpacity(0.35),
+          fontSize: 13,
+          fontWeight: FontWeight.w500,
+          letterSpacing: -0.1,
         ),
-      ],
+      ),
     );
   }
 }

@@ -31,6 +31,9 @@ class AuthNotifier extends Notifier<AuthState> {
   }
 
   Future<void> checkAuthStatus() async {
+    // Record start time to ensure splash screen shows for at least 2.5 seconds
+    final stopwatch = Stopwatch()..start();
+
     final token = await _storage.getToken();
     final user = await _storage.getUser();
     final encryptionKey = await _storage.getEncryptionKey();
@@ -39,19 +42,37 @@ class AuthNotifier extends Notifier<AuthState> {
       // Set external user ID for OneSignal targeting
       _oneSignal.setExternalUserId(user.id.toString());
 
+      // Sync latest OneSignal ID with backend
+      final oneSignalId = await _oneSignal.getOneSignalId();
+      if (oneSignalId != null) {
+        await _repository.updateOneSignalId(oneSignalId);
+      }
+
+      // Ensure minimum splash screen display time for animation & prefetch
+      final elapsed = stopwatch.elapsedMilliseconds;
+      if (elapsed < 2500) {
+        await Future.delayed(Duration(milliseconds: 2500 - elapsed));
+      }
+
       if (user.isEncrypted && encryptionKey == null) {
         state = AuthEncryptionRequired(user);
       } else {
         state = AuthAuthenticated(user);
       }
     } else {
+      // Ensure minimum splash screen display time for unauthenticated as well
+      final elapsed = stopwatch.elapsedMilliseconds;
+      if (elapsed < 2500) {
+        await Future.delayed(Duration(milliseconds: 2500 - elapsed));
+      }
+
       state = const AuthUnauthenticated();
     }
   }
 
   Future<void> login(String email, String password) async {
     state = const AuthLoading();
-    final subscriptionId = _oneSignal.getSubscriptionId();
+    final subscriptionId = await _oneSignal.getOneSignalId();
 
     final result = await _repository.login(
       email: email,
@@ -104,7 +125,7 @@ class AuthNotifier extends Notifier<AuthState> {
 
   Future<void> register(String email, String password) async {
     state = const AuthLoading();
-    final subscriptionId = _oneSignal.getSubscriptionId();
+    final subscriptionId = await _oneSignal.getOneSignalId();
 
     final result = await _repository.register(
       email: email,
@@ -166,7 +187,7 @@ class AuthNotifier extends Notifier<AuthState> {
       case Left(value: final failure):
         state = AuthUnauthenticated(error: failure.message);
       case Right(value: final account):
-        final subscriptionId = _oneSignal.getSubscriptionId();
+        final subscriptionId = await _oneSignal.getOneSignalId();
 
         final result = await _repository.googleLogin(
           email: account.email,

@@ -41,4 +41,6 @@ abstract class AuthRepository {
     required String googleId,
     String? oneSignalId,
   });
+
+  Future<Either<Failure, Unit>> updateOneSignalId(String oneSignalId);
 }
