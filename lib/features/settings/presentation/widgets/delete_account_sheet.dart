@@ -38,64 +38,89 @@ class DeleteAccountSheet extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.1),
+                color: Colors.red.withOpacity(0.05),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Iconsax.trash, color: Colors.red, size: 32),
+              child: const Icon(
+                Iconsax.trash,
+                color: Colors.redAccent,
+                size: 28,
+              ),
             ),
-            const Gap(20),
+            const Gap(16),
             const Text(
               'Hesabı Kalıcı Olarak Sil',
               style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-                color: Colors.red,
+                fontWeight: FontWeight.w400, // No bold
+                fontSize: 16, // Smaller, elegant size
+                color: Colors.white, // Standard color instead of aggressive red
+                letterSpacing: -0.5,
               ),
             ),
-            const Gap(12),
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.red.withOpacity(0.2)),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Iconsax.warning_2, color: Colors.red, size: 20),
-                  const Gap(12),
-                  Expanded(
-                    child: Text(
-                      'Bu işlem geri alınamaz! Tüm verileriniz ve işlem geçmişiniz kalıcı olarak silinecek.',
-                      style: TextStyle(
-                        color: Colors.red.withOpacity(0.8),
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Gap(20),
-            TextField(
-              controller: passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(
-                hintText: 'Onaylamak için şifrenizi girin',
-                prefixIcon: Icon(Iconsax.lock, size: 20),
+            const Gap(8),
+            Text(
+              'Bu işlem geri alınamaz. Tüm verileriniz kalıcı olarak silinecektir.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.5),
+                fontSize: 13,
+                fontWeight: FontWeight.w400,
               ),
             ),
             const Gap(24),
+            TextField(
+              controller: passwordController,
+              obscureText: true,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+              decoration: InputDecoration(
+                hintText: 'Onaylamak için şifrenizi girin',
+                hintStyle: TextStyle(
+                  color: Colors.white.withOpacity(0.3),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                ),
+                prefixIcon: Icon(
+                  Iconsax.lock,
+                  size: 18,
+                  color: Colors.white.withOpacity(0.5),
+                ),
+                filled: true,
+                fillColor: Colors.white.withOpacity(0.03),
+                contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.white.withOpacity(0.05)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.white.withOpacity(0.05)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: AppTheme.gold.withOpacity(0.3)),
+                ),
+              ),
+            ),
+            const Gap(32),
             Row(
               children: [
                 Expanded(
-                  child: OutlinedButton(
+                  child: TextButton(
                     onPressed: () => Navigator.pop(context),
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: Colors.white.withOpacity(0.2)),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.white.withOpacity(0.7),
                       padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
-                    child: const Text('Vazgeç'),
+                    child: const Text(
+                      'Vazgeç',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
                   ),
                 ),
                 const Gap(12),
@@ -116,10 +141,19 @@ class DeleteAccountSheet extends ConsumerWidget {
                           .deleteAccount(password: passwordController.text);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
+                      backgroundColor: Colors.red.withOpacity(0.1),
+                      foregroundColor: Colors.redAccent,
+                      elevation: 0,
                       padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(color: Colors.red.withOpacity(0.2)),
+                      ),
                     ),
-                    child: const Text('Hesabı Sil'),
+                    child: const Text(
+                      'Hesabı Sil',
+                      style: TextStyle(fontSize: 14),
+                    ),
                   ),
                 ),
               ],

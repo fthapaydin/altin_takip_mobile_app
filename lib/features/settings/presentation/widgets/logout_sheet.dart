@@ -38,7 +38,11 @@ class LogoutSheet extends ConsumerWidget {
           const Gap(20),
           const Text(
             'Çıkış Yap',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            style: TextStyle(
+              fontSize: 16, // Elegant size
+              color: Colors.white,
+              letterSpacing: -0.5,
+            ),
           ),
           const Gap(8),
           Text(
@@ -47,19 +51,26 @@ class LogoutSheet extends ConsumerWidget {
             style: TextStyle(
               color: Colors.white.withOpacity(0.5),
               fontSize: 13,
+              fontWeight: FontWeight.w400,
             ),
           ),
           const Gap(24),
           Row(
             children: [
               Expanded(
-                child: OutlinedButton(
+                child: TextButton(
                   onPressed: () => Navigator.pop(context),
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: Colors.white.withOpacity(0.2)),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.white.withOpacity(0.7),
                     padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                  child: const Text('Vazgeç'),
+                  child: const Text(
+                    'Vazgeç',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                  ),
                 ),
               ),
               const Gap(12),
@@ -69,7 +80,20 @@ class LogoutSheet extends ConsumerWidget {
                     Navigator.pop(context);
                     ref.read(settingsProvider.notifier).logout();
                   },
-                  child: const Text('Çıkış Yap'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.gold.withOpacity(0.1),
+                    foregroundColor: AppTheme.gold,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(color: AppTheme.gold.withOpacity(0.2)),
+                    ),
+                  ),
+                  child: const Text(
+                    'Çıkış Yap',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                  ),
                 ),
               ),
             ],

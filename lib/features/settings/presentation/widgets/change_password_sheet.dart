@@ -55,7 +55,12 @@ class ChangePasswordSheet extends ConsumerWidget {
                 const Expanded(
                   child: Text(
                     'Şifre Değiştir',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w400, // No bold
+                      fontSize: 16, // Elegant size
+                      color: Colors.white,
+                      letterSpacing: -0.5,
+                    ),
                   ),
                 ),
                 IconButton(
@@ -68,18 +73,68 @@ class ChangePasswordSheet extends ConsumerWidget {
             TextField(
               controller: currentController,
               obscureText: true,
-              decoration: const InputDecoration(
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+              decoration: InputDecoration(
                 hintText: 'Mevcut Şifre',
-                prefixIcon: Icon(Iconsax.lock_1, size: 20),
+                hintStyle: TextStyle(
+                  color: Colors.white.withOpacity(0.3),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                ),
+                prefixIcon: Icon(
+                  Iconsax.lock_1,
+                  size: 18,
+                  color: Colors.white.withOpacity(0.5),
+                ),
+                filled: true,
+                fillColor: Colors.white.withOpacity(0.03),
+                contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.white.withOpacity(0.05)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.white.withOpacity(0.05)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: AppTheme.gold.withOpacity(0.3)),
+                ),
               ),
             ),
             const Gap(12),
             TextField(
               controller: newController,
               obscureText: true,
-              decoration: const InputDecoration(
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+              decoration: InputDecoration(
                 hintText: 'Yeni Şifre',
-                prefixIcon: Icon(Iconsax.lock, size: 20),
+                hintStyle: TextStyle(
+                  color: Colors.white.withOpacity(0.3),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                ),
+                prefixIcon: Icon(
+                  Iconsax.lock,
+                  size: 18,
+                  color: Colors.white.withOpacity(0.5),
+                ),
+                filled: true,
+                fillColor: Colors.white.withOpacity(0.03),
+                contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.white.withOpacity(0.05)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.white.withOpacity(0.05)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: AppTheme.gold.withOpacity(0.3)),
+                ),
               ),
             ),
             const Gap(24),
@@ -111,7 +166,20 @@ class ChangePasswordSheet extends ConsumerWidget {
                         newPassword: newController.text,
                       );
                 },
-                child: const Text('Şifreyi Güncelle'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.gold.withOpacity(0.1),
+                  foregroundColor: AppTheme.gold,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(color: AppTheme.gold.withOpacity(0.2)),
+                  ),
+                ),
+                child: const Text(
+                  'Şifreyi Güncelle',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                ),
               ),
             ),
           ],

@@ -236,7 +236,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                           style: TextStyle(
                             color: Colors.white.withOpacity(0.85),
                             fontSize: 14,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w400,
                             letterSpacing: 0.1,
                           ),
                           maxLines: 1,
@@ -292,18 +292,23 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.red.withValues(alpha: 0.1),
+                color: Colors.red.withOpacity(0.05),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Iconsax.trash, color: Colors.red, size: 32),
+              child: const Icon(
+                Iconsax.trash,
+                color: Colors.redAccent,
+                size: 36,
+              ), // Adjusted icon styling
             ),
-            const Gap(24),
+            const Gap(20),
             const Text(
               'Sohbeti Sil',
               style: TextStyle(
                 color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
+                fontWeight: FontWeight.w400, // No bold
+                fontSize: 16,
+                letterSpacing: -0.5,
               ),
             ),
             const Gap(12),
@@ -311,8 +316,9 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
               'Bu sohbeti ve tüm mesajları kalıcı olarak silmek istediğinize emin misiniz?',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.5),
-                fontSize: 14,
+                color: Colors.white.withOpacity(0.5),
+                fontSize: 13,
+                fontWeight: FontWeight.w400,
                 height: 1.5,
               ),
             ),
@@ -324,12 +330,16 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                     onPressed: () => Navigator.pop(ctx),
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
+                      foregroundColor: Colors.white.withOpacity(0.7),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                     ),
-                    child: Text(
+                    child: const Text(
                       'Vazgeç',
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.5),
-                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
                       ),
                     ),
                   ),
@@ -363,17 +373,21 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.red.withOpacity(0.1),
+                      foregroundColor: Colors.redAccent,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
+                        side: BorderSide(color: Colors.red.withOpacity(0.2)),
                       ),
                       elevation: 0,
                     ),
                     child: const Text(
                       'Sil',
-                      style: TextStyle(fontWeight: FontWeight.w400),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 14,
+                      ),
                     ),
                   ),
                 ),
@@ -585,14 +599,13 @@ class _NewChatSheetState extends ConsumerState<_NewChatSheet> {
             ),
           ).animate().scale(duration: 600.ms, curve: Curves.elasticOut),
           const Gap(20),
-          // Title
           const Text(
             'Yeni Sohbet Başlat',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 0.5,
+              fontSize: 18,
+              fontWeight: FontWeight.w400,
+              letterSpacing: -0.5,
             ),
           ),
           const Gap(8),
@@ -600,7 +613,8 @@ class _NewChatSheetState extends ConsumerState<_NewChatSheet> {
             'Portföyünüz hakkında istediğiniz soruyu sorun',
             style: TextStyle(
               color: Colors.white.withOpacity(0.5),
-              fontSize: 14,
+              fontSize: 13,
+              fontWeight: FontWeight.w400,
             ),
             textAlign: TextAlign.center,
           ),

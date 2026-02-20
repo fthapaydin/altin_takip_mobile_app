@@ -82,7 +82,12 @@ class _AssetSellSheetState extends ConsumerState<AssetSellSheet> {
             children: [
               const Text(
                 'Varlık Sat',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                style: TextStyle(
+                  fontWeight: FontWeight.w400, // No bold
+                  fontSize: 16, // Elegant size
+                  color: Colors.white,
+                  letterSpacing: -0.5,
+                ),
               ),
               IconButton(
                 onPressed: () => Navigator.pop(context),
@@ -95,13 +100,17 @@ class _AssetSellSheetState extends ConsumerState<AssetSellSheet> {
             widget.asset.currency?.isGold == true
                 ? (widget.asset.currency?.name ?? '')
                 : (widget.asset.currency?.code ?? ''),
-            style: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.5),
+              fontSize: 13,
+              fontWeight: FontWeight.w400,
+            ),
           ),
           const Gap(24),
           TextField(
             controller: _amountController,
             keyboardType: TextInputType.number,
-            style: const TextStyle(fontWeight: FontWeight.bold),
+            style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 16),
             decoration: InputDecoration(
               labelText: 'Miktar',
               hintText: 'Maks: ${_formatAmount(availableBalance)}',
@@ -115,7 +124,7 @@ class _AssetSellSheetState extends ConsumerState<AssetSellSheet> {
           TextField(
             controller: _priceController,
             keyboardType: TextInputType.number,
-            style: const TextStyle(fontWeight: FontWeight.bold),
+            style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 16),
             decoration: InputDecoration(
               labelText: 'Satış Fiyatı',
               prefixIcon: const Icon(Iconsax.money),
@@ -130,9 +139,13 @@ class _AssetSellSheetState extends ConsumerState<AssetSellSheet> {
             child: ElevatedButton(
               onPressed: () => _handleSell(context, ref, availableBalance),
               style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.gold.withOpacity(0.1),
+                foregroundColor: AppTheme.gold,
+                elevation: 0,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(color: AppTheme.gold.withOpacity(0.2)),
                 ),
               ),
               child: const Text(

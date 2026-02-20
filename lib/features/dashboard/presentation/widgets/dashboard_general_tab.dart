@@ -515,7 +515,7 @@ class DashboardGeneralTab extends ConsumerWidget {
                   ),
                   child: const Text(
                     'Varlık Ekle',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(fontWeight: FontWeight.w400),
                   ),
                 ),
               ],
@@ -658,7 +658,7 @@ class DashboardGeneralTab extends ConsumerWidget {
                             style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.5),
                               fontSize: 12,
-                              fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.w400,
                             ),
                           ),
                         ],

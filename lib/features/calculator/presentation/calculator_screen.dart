@@ -152,7 +152,7 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
                   fontSize: 13,
                 ),
                 unselectedLabelStyle: const TextStyle(
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w400,
                   fontSize: 13,
                 ),
                 tabs: const [
@@ -338,7 +338,7 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.4),
                         fontSize: 13,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w400,
                       ),
                     ),
                     if (_fromCurrency != null) ...[
@@ -774,9 +774,10 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
                 const Text(
                   'Varlık Seçimi',
                   style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
                     color: Colors.white,
+                    letterSpacing: -0.5,
                   ),
                 ),
                 const Gap(20),
@@ -923,7 +924,7 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.4),
                         fontSize: 13,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w400,
                       ),
                     ),
                   ],

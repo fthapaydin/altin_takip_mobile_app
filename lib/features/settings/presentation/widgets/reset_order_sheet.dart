@@ -43,28 +43,40 @@ class ResetOrderSheet extends ConsumerWidget {
           const Gap(20),
           const Text(
             'Sıralamayı Sıfırla',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            style: TextStyle(
+              fontWeight: FontWeight.w400, // No bold
+              fontSize: 16, // Elegant size
+              color: Colors.white,
+              letterSpacing: -0.5,
+            ),
           ),
           const Gap(8),
           Text(
             'Varlık ve gösterge sıralamalarınız varsayılana döndürülecektir. Emin misiniz?',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.5),
+              color: Colors.white.withOpacity(0.5),
               fontSize: 13,
+              fontWeight: FontWeight.w400,
             ),
           ),
           const Gap(24),
           Row(
             children: [
               Expanded(
-                child: OutlinedButton(
+                child: TextButton(
                   onPressed: () => Navigator.pop(context),
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: Colors.white.withOpacity(0.2)),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.white.withOpacity(0.7),
                     padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                  child: const Text('Vazgeç'),
+                  child: const Text(
+                    'Vazgeç',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                  ),
                 ),
               ),
               const Gap(12),
@@ -79,7 +91,20 @@ class ResetOrderSheet extends ConsumerWidget {
                       type: NotificationType.success,
                     );
                   },
-                  child: const Text('Sıfırla'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.gold.withOpacity(0.1),
+                    foregroundColor: AppTheme.gold,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(color: AppTheme.gold.withOpacity(0.2)),
+                    ),
+                  ),
+                  child: const Text(
+                    'Sıfırla',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                  ),
                 ),
               ),
             ],

@@ -103,8 +103,10 @@ class _EncryptionSheetState extends State<EncryptionSheet> {
                               ? 'Şifrelemeyi Etkinleştir'
                               : 'Şifrelemeyi Kapat',
                           style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
+                            fontWeight: FontWeight.w400, // No bold
+                            fontSize: 16, // Elegant size
+                            color: Colors.white,
+                            letterSpacing: -0.5,
                           ),
                         ),
                       ),
@@ -127,7 +129,7 @@ class _EncryptionSheetState extends State<EncryptionSheet> {
                         Icon(
                           Iconsax.info_circle,
                           size: 18,
-                          color: Colors.white.withValues(alpha: 0.5),
+                          color: Colors.white.withOpacity(0.5),
                         ),
                         const Gap(12),
                         Expanded(
@@ -136,8 +138,9 @@ class _EncryptionSheetState extends State<EncryptionSheet> {
                                 ? 'Verilerinizi korumak için bir şifre belirleyin. Bu şifre olmadan verilerinize erişilemez.'
                                 : 'Şifrelemeyi kapatmak için mevcut şifrenizi girin.',
                             style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.6),
+                              color: Colors.white.withOpacity(0.6),
                               fontSize: 12,
+                              fontWeight: FontWeight.w400,
                             ),
                           ),
                         ),
@@ -149,28 +152,69 @@ class _EncryptionSheetState extends State<EncryptionSheet> {
                     controller: _passwordController,
                     obscureText: true,
                     enabled: !isLoading,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                    ),
                     decoration: InputDecoration(
                       hintText: widget.enable
                           ? 'Şifre belirleyin'
                           : 'Mevcut şifrenizi girin',
-                      prefixIcon: const Icon(Iconsax.lock_1, size: 20),
+                      hintStyle: TextStyle(
+                        color: Colors.white.withOpacity(0.3),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                      ),
+                      prefixIcon: Icon(
+                        Iconsax.lock_1,
+                        size: 18,
+                        color: Colors.white.withOpacity(0.5),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white.withOpacity(0.03),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: Colors.white.withOpacity(0.05),
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: Colors.white.withOpacity(0.05),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: AppTheme.gold.withOpacity(0.3),
+                        ),
+                      ),
                     ),
                   ),
                   const Gap(24),
                   Row(
                     children: [
                       Expanded(
-                        child: OutlinedButton(
+                        child: TextButton(
                           onPressed: isLoading
                               ? null
                               : () => Navigator.pop(context),
-                          style: OutlinedButton.styleFrom(
-                            side: BorderSide(
-                              color: Colors.white.withValues(alpha: 0.2),
-                            ),
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.white.withOpacity(0.7),
                             padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
-                          child: const Text('İptal'),
+                          child: const Text(
+                            'İptal',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
                         ),
                       ),
                       const Gap(12),
@@ -194,16 +238,34 @@ class _EncryptionSheetState extends State<EncryptionSheet> {
                                         password: _passwordController.text,
                                       );
                                 },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.gold.withOpacity(0.1),
+                            foregroundColor: AppTheme.gold,
+                            elevation: 0,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: BorderSide(
+                                color: AppTheme.gold.withOpacity(0.2),
+                              ),
+                            ),
+                          ),
                           child: isLoading
                               ? const SizedBox(
                                   height: 20,
                                   width: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    color: Colors.black,
+                                    color: AppTheme.gold,
                                   ),
                                 )
-                              : Text(widget.enable ? 'Etkinleştir' : 'Kapat'),
+                              : Text(
+                                  widget.enable ? 'Etkinleştir' : 'Kapat',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
                         ),
                       ),
                     ],

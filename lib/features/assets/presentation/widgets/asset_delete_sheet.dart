@@ -52,23 +52,29 @@ class _AssetDeleteSheetState extends ConsumerState<AssetDeleteSheet> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.red.withValues(alpha: 0.1),
+              color: Colors.red.withOpacity(0.05),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Iconsax.trash, color: Colors.red, size: 40),
+            child: const Icon(Iconsax.trash, color: Colors.redAccent, size: 36),
           ),
-          const Gap(24),
+          const Gap(20),
           const Text(
             'İşlemi Onayla',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            style: TextStyle(
+              fontWeight: FontWeight.w400, // No bold
+              fontSize: 16, // Elegant size
+              color: Colors.white,
+              letterSpacing: -0.5,
+            ),
           ),
           const Gap(12),
           Text(
             'Bu işlem geri alınamaz. "${widget.asset.currency!.isGold ? widget.asset.currency?.name : widget.asset.currency?.code}" kaydını silmek istediğinize emin misiniz?',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.5),
-              fontSize: 14,
+              color: Colors.white.withOpacity(0.5),
+              fontSize: 13,
+              fontWeight: FontWeight.w400,
               height: 1.5,
             ),
           ),
@@ -76,18 +82,19 @@ class _AssetDeleteSheetState extends ConsumerState<AssetDeleteSheet> {
           Row(
             children: [
               Expanded(
-                child: OutlinedButton(
+                child: TextButton(
                   onPressed: () => Navigator.pop(context),
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(
-                      color: Colors.white.withValues(alpha: 0.2),
-                    ),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.white.withOpacity(0.7),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  child: const Text('Vazgeç'),
+                  child: const Text(
+                    'Vazgeç',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                  ),
                 ),
               ),
               const Gap(16),
@@ -112,10 +119,13 @@ class _AssetDeleteSheetState extends ConsumerState<AssetDeleteSheet> {
                           }
                         },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
+                    backgroundColor: Colors.red.withOpacity(0.1),
+                    foregroundColor: Colors.redAccent,
+                    elevation: 0,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
+                      side: BorderSide(color: Colors.red.withOpacity(0.2)),
                     ),
                   ),
                   child: isLoading
@@ -123,7 +133,7 @@ class _AssetDeleteSheetState extends ConsumerState<AssetDeleteSheet> {
                           height: 20,
                           width: 20,
                           child: CircularProgressIndicator(
-                            color: Colors.white,
+                            color: Colors.redAccent,
                             strokeWidth: 2,
                           ),
                         )

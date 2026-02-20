@@ -166,7 +166,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                         fontSize: 32,
                         fontWeight:
                             FontWeight.w400, // Minimalist regular weight
-                        letterSpacing: -1.0, // Tighter premium tracking
+                        letterSpacing: -1.0, // Luxe wide tracking
                       ),
                     )
                     .animate()
@@ -182,12 +182,12 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
                 // Subtitle
                 Text(
-                  'Varlık Yönetimi',
+                  'Akıllı varlık yönetimi',
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.4),
                     fontSize: 14,
                     letterSpacing: 2.0, // Widened tracking for subtitle
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w400,
                   ),
                 ).animate().fadeIn(duration: 800.ms, delay: 400.ms),
 
@@ -198,10 +198,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                   baseColor: Colors.white.withOpacity(0.2),
                   highlightColor: AppTheme.gold.withOpacity(0.8),
                   child: const Text(
-                    'Veriler Yükleniyor...',
+                    'Piyasa verileri senkronize ediliyor...',
                     style: TextStyle(
                       fontSize: 12,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w400,
                       letterSpacing: 0.5,
                     ),
                   ),

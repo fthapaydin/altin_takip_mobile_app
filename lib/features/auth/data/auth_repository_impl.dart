@@ -119,7 +119,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     try {
       await _dioClient.dio.delete(
-        'auth/delete-account',
+        'delete-account',
         data: {'password': password},
       );
       return const Right(unit);

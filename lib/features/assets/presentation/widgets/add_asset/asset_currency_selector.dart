@@ -175,7 +175,12 @@ class _AssetSelectionSheetState extends State<_AssetSelectionSheet> {
           const Gap(24),
           const Text(
             'Varlık Seçin',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400),
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w400,
+              color: Colors.white,
+              letterSpacing: -0.5,
+            ),
           ),
           const Gap(24),
           // Search Bar

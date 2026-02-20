@@ -97,15 +97,19 @@ class AssetOptionsSheet extends ConsumerWidget {
                     Text(
                       _getCurrencyDisplayName(asset),
                       style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
+                        fontWeight: FontWeight.w400, // No bold
+                        fontSize: 16, // Elegant size
+                        color: Colors.white,
+                        letterSpacing: -0.5,
                       ),
                     ),
+                    const Gap(2),
                     Text(
                       '${_formatAmount(asset.amount)} adet • ₺${NumberFormat('#,##0.00', 'tr_TR').format(asset.price)}',
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.5),
+                        color: Colors.white.withOpacity(0.5),
                         fontSize: 13,
+                        fontWeight: FontWeight.w400,
                       ),
                     ),
                   ],
@@ -164,15 +168,14 @@ class AssetOptionsSheet extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: (isDestructive ? Colors.red : AppTheme.gold).withValues(
-                  alpha: 0.1,
-                ),
+                color: (isDestructive ? Colors.redAccent : AppTheme.gold)
+                    .withOpacity(0.1),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Icon(
                 icon,
-                color: isDestructive ? Colors.red : AppTheme.gold,
-                size: 22,
+                color: isDestructive ? Colors.redAccent : AppTheme.gold,
+                size: 20, // slightly smaller
               ),
             ),
             const Gap(16),
@@ -183,17 +186,18 @@ class AssetOptionsSheet extends ConsumerWidget {
                   Text(
                     label,
                     style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 15,
-                      color: isDestructive ? Colors.red : Colors.white,
+                      fontWeight: FontWeight.w400, // No bold/w600
+                      fontSize: 14, // Elegant size
+                      color: isDestructive ? Colors.redAccent : Colors.white,
                     ),
                   ),
                   const Gap(4),
                   Text(
                     subtitle,
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.35),
+                      color: Colors.white.withOpacity(0.35),
                       fontSize: 12,
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
                 ],
@@ -201,8 +205,8 @@ class AssetOptionsSheet extends ConsumerWidget {
             ),
             Icon(
               Iconsax.arrow_right_3,
-              color: Colors.white.withValues(alpha: 0.2),
-              size: 24,
+              color: Colors.white.withOpacity(0.2),
+              size: 20,
             ),
           ],
         ),
