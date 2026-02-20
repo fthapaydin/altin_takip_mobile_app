@@ -60,5 +60,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Size daha güvenli ve kişiselleştirilmiş bir deneyim sunabilmek için konum izninize ihtiyaç duyulmaktadır.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Size daha güvenli ve kişiselleştirilmiş bir deneyim sunabilmek için konum izninize ihtiyaç duyulmaktadır.</string>
 </dict>
 </plist>
