@@ -128,7 +128,7 @@ class DashboardGeneralTab extends ConsumerWidget {
           Text(
             title,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w400,
               color: Colors.white,
               letterSpacing: 0.5,
             ),
@@ -145,7 +145,7 @@ class DashboardGeneralTab extends ConsumerWidget {
                 children: [
                   Text(
                     'Tümünü Gör',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
                   ),
                   Gap(4),
                   Icon(Iconsax.arrow_right_1, size: 14),
@@ -259,7 +259,7 @@ class DashboardGeneralTab extends ConsumerWidget {
                   'Piyasalar Takipte',
                   style: TextStyle(
                     color: Colors.white,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w400,
                     fontSize: 14,
                   ),
                 ),
@@ -334,7 +334,7 @@ class DashboardGeneralTab extends ConsumerWidget {
                     style: const TextStyle(
                       fontFeatures: [FontFeature.tabularFigures()],
                       color: AppTheme.gold,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w400,
                       fontSize: 17,
                       letterSpacing: -0.5,
                     ),
@@ -485,7 +485,7 @@ class DashboardGeneralTab extends ConsumerWidget {
                   'Yatırım Yolculuğuna Başla',
                   style: TextStyle(
                     color: Colors.white,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w400,
                     fontSize: 16,
                   ),
                 ),
@@ -637,7 +637,7 @@ class DashboardGeneralTab extends ConsumerWidget {
                         asset.currency?.name ?? 'Bilinmeyen Varlık',
                         style: const TextStyle(
                           color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w400,
                           fontSize: 16,
                           letterSpacing: 0.3,
                         ),
@@ -672,7 +672,7 @@ class DashboardGeneralTab extends ConsumerWidget {
                     Text(
                       '${_formatAmount(asset.amount)} adet',
                       style: TextStyle(
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w400,
                         fontSize: 15,
                         color: isBuy ? const Color(0xFF4ADE80) : Colors.white,
                       ),
@@ -709,7 +709,7 @@ class DashboardGeneralTab extends ConsumerWidget {
                                 ? const Color(0xFF4ADE80)
                                 : const Color(0xFFF87171),
                             fontSize: 11,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w400,
                           ),
                         ),
                       ),

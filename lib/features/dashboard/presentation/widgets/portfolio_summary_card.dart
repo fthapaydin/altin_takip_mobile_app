@@ -132,7 +132,7 @@ class PortfolioSummaryCard extends ConsumerWidget {
                                   fontFeatures: [FontFeature.tabularFigures()],
                                   color: Colors.white,
                                   fontSize: 32,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.w400,
                                   letterSpacing: -1,
                                 ),
                               ),
@@ -174,7 +174,7 @@ class PortfolioSummaryCard extends ConsumerWidget {
                                     color: profitLoss >= 0
                                         ? Colors.green
                                         : Colors.red,
-                                    fontWeight: FontWeight.bold,
+                                    fontWeight: FontWeight.w400,
                                     fontSize: 13,
                                   ),
                                 ),

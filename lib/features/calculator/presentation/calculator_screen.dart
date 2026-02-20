@@ -148,7 +148,7 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
                   borderRadius: BorderRadius.circular(30),
                 ),
                 labelStyle: const TextStyle(
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w400,
                   fontSize: 13,
                 ),
                 unselectedLabelStyle: const TextStyle(
@@ -383,7 +383,7 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 13,
-                                    fontWeight: FontWeight.bold,
+                                    fontWeight: FontWeight.w400,
                                   ),
                                 ),
                               ],
@@ -556,7 +556,7 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
                   style: TextStyle(
                     color: isPositive ? Colors.white : Colors.red,
                     fontSize: 32,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
                 const Gap(12),
@@ -575,7 +575,7 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
                     '${isPositive ? '+' : ''}%${NumberFormat('#,##0.00', 'tr_TR').format(percentage)}',
                     style: TextStyle(
                       color: isPositive ? Colors.green : Colors.red,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w400,
                       fontSize: 14,
                     ),
                   ),
@@ -624,7 +624,7 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
           style: const TextStyle(
             color: Colors.white,
             fontSize: 14,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w400,
           ),
         ),
       ],
@@ -702,7 +702,7 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
                         : selectedCurrency?.name ?? 'Varlık Seçin',
                     style: const TextStyle(
                       color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w400,
                       fontSize: 15,
                     ),
                     maxLines: 1,
@@ -799,7 +799,7 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
                       labelColor: Colors.black,
                       unselectedLabelColor: Colors.white38,
                       labelStyle: const TextStyle(
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w400,
                         fontSize: 12,
                       ),
                       tabs: const [
@@ -914,7 +914,7 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
                       title,
                       style: const TextStyle(
                         color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w400,
                         fontSize: 16,
                       ),
                     ),
@@ -980,7 +980,7 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
             style: const TextStyle(
               color: Colors.white,
               fontSize: 16,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w400,
             ),
             decoration: InputDecoration(
               hintText: hint,
@@ -991,12 +991,12 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
               prefixText: prefix != null ? '$prefix ' : null,
               prefixStyle: const TextStyle(
                 color: AppTheme.gold,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w400,
               ),
               suffixText: suffix,
               suffixStyle: const TextStyle(
                 color: AppTheme.gold,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w400,
                 fontSize: 13,
               ),
               border: InputBorder.none,

@@ -46,7 +46,7 @@ class AssetDatePicker extends StatelessWidget {
                   ),
                   headerHeadlineStyle: const TextStyle(
                     fontSize: 24,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w400,
                     color: AppTheme.gold,
                   ),
                 ),

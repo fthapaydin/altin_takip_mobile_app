@@ -176,7 +176,7 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
               title: const Text(
                 'Varlıklarım',
                 style: TextStyle(
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w400,
                   color: Colors.white,
                   letterSpacing: -0.5,
                 ),

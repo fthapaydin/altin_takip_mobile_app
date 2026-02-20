@@ -121,7 +121,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                         : 'SOHBET',
                     style: const TextStyle(
                       fontSize: 14,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w400,
                       color: Colors.white,
                     ),
                     maxLines: 1,
@@ -261,7 +261,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
             style: TextStyle(
               color: AppTheme.gold,
               fontSize: 13,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w400,
               letterSpacing: 0.5,
             ),
           ),

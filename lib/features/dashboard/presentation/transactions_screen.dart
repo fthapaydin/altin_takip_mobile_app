@@ -62,7 +62,7 @@ class TransactionsScreen extends ConsumerWidget {
               title: const Text(
                 'Geçmiş İşlemler',
                 style: TextStyle(
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w400,
                   color: Colors.white,
                   fontSize: 20,
                 ),
@@ -193,7 +193,7 @@ class TransactionsScreen extends ConsumerWidget {
               style: TextStyle(
                 color: AppTheme.gold,
                 fontSize: 13,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w400,
                 letterSpacing: 0.5,
               ),
             ),
@@ -336,7 +336,7 @@ class TransactionsScreen extends ConsumerWidget {
                     Text(
                       '${isBuy ? '+' : '-'}${NumberFormat('#,##0.##', 'tr_TR').format(asset.amount)}',
                       style: TextStyle(
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w400,
                         fontSize: 15,
                         color: isBuy ? Colors.green : Colors.red,
                       ),
@@ -381,7 +381,7 @@ class TransactionsScreen extends ConsumerWidget {
                                     ? Colors.green
                                     : Colors.red,
                                 fontSize: 10,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w400,
                               ),
                             ),
                           ],

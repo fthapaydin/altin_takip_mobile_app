@@ -83,7 +83,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                     'Bildirimler',
                     style: TextStyle(
                       color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w400,
                       fontSize: 24,
                     ),
                   ),

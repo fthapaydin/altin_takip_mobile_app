@@ -63,7 +63,7 @@ class _EncryptionScreenState extends ConsumerState<EncryptionScreen> {
                     Text(
                       'Şifreleme Anahtarı',
                       style: context.textTheme.headlineLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w400,
                         color: AppTheme.gold,
                       ),
                     ).animate().fadeIn().slideX(),

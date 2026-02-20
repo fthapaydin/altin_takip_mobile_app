@@ -373,7 +373,7 @@ class _DashboardAssetsTabState extends ConsumerState<DashboardAssetsTab> {
                     style: const TextStyle(
                       fontFeatures: [FontFeature.tabularFigures()],
                       color: AppTheme.gold,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w400,
                       fontSize: 16,
                       letterSpacing: 0.5,
                     ),
@@ -410,7 +410,7 @@ class _DashboardAssetsTabState extends ConsumerState<DashboardAssetsTab> {
                             color: isPositive
                                 ? Color(0xFF4ADE80)
                                 : Color(0xFFF87171),
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w400,
                           ),
                         ),
                       ),

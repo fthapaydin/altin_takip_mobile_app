@@ -55,7 +55,7 @@ class UserProfileCard extends ConsumerWidget {
               style: const TextStyle(
                 color: Colors.black,
                 fontSize: 24,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w400,
               ),
             ),
           ),
@@ -69,7 +69,7 @@ class UserProfileCard extends ConsumerWidget {
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
                 const Gap(4),

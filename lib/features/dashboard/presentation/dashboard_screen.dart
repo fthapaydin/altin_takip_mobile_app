@@ -145,7 +145,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       labelColor: Colors.black, // Text on Gold
                       unselectedLabelColor: Colors.white, // Text on Glass
                       labelStyle: const TextStyle(
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w400,
                         fontSize: 13,
                       ),
                       unselectedLabelStyle: const TextStyle(

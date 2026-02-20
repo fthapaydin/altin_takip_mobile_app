@@ -55,7 +55,7 @@ class PremiumErrorView extends StatelessWidget {
             const Gap(32),
             const Text(
               'Bağlantı Hatası',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              style: TextStyle(fontWeight: FontWeight.w400, fontSize: 20),
             ),
             const Gap(12),
             Text(

@@ -256,7 +256,7 @@ class PortfolioChart extends StatelessWidget {
                       style: const TextStyle(
                         color: Color(0xFFFFD700),
                         fontSize: 14,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w400,
                         fontFamily: 'Inter',
                         letterSpacing: -0.5,
                       ),

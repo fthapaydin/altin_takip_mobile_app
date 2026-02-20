@@ -99,7 +99,7 @@ class _MainShellState extends ConsumerState<MainShell> {
                     ? AppTheme.gold
                     : Colors.white.withOpacity(0.4),
                 fontSize: 10,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                fontWeight: isSelected ? FontWeight.w400 : FontWeight.normal,
               ),
             ),
           ],

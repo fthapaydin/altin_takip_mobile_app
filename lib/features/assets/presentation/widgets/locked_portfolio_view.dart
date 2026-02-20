@@ -28,7 +28,7 @@ class LockedPortfolioView extends StatelessWidget {
             style: TextStyle(
               color: Colors.white,
               fontSize: 20,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w400,
             ),
           ).animate().fadeIn(delay: 100.ms).slideY(begin: 0.2),
           const Gap(8),
@@ -57,7 +57,7 @@ class LockedPortfolioView extends StatelessWidget {
             ),
             child: const Text(
               'Kilidi Aç',
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(fontWeight: FontWeight.w400),
             ),
           ).animate().fadeIn(delay: 300.ms).scale(),
         ],

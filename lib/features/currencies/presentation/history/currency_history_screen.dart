@@ -214,7 +214,7 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
               style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.9),
                 fontSize: 16,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w400,
                 letterSpacing: 0.5,
               ),
             ),
@@ -291,7 +291,7 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
                               '%${percentage.abs().toStringAsFixed(2)}',
                               style: TextStyle(
                                 color: isPositive ? Colors.green : Colors.red,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w400,
                                 fontSize: 12,
                               ),
                             ),
@@ -328,7 +328,7 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
             ),
@@ -384,7 +384,7 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
                     isBuy ? 'Alış' : 'Satış',
                     style: const TextStyle(
                       color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w400,
                       fontSize: 16,
                     ),
                   ),
@@ -405,7 +405,7 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
                     '${NumberFormat('#,##0.###', 'tr_TR').format(asset.amount)} adet',
                     style: const TextStyle(
                       color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w400,
                       fontSize: 14,
                     ),
                   ),
@@ -505,7 +505,7 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
                   '₺${NumberFormat('#,##0.00', 'tr_TR').format(spot.y)}\n',
                   const TextStyle(
                     color: Colors.white,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w400,
                   ),
                   children: [
                     TextSpan(
@@ -571,7 +571,7 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
                     style: TextStyle(
                       color: isSelected ? Colors.black : Colors.white54,
                       fontWeight: isSelected
-                          ? FontWeight.bold
+                          ? FontWeight.w400
                           : FontWeight.normal,
                       fontSize: 12,
                     ),
@@ -607,7 +607,7 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
           style: TextStyle(
             color: Colors.white.withValues(alpha: 0.7),
             fontSize: 14,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w400,
           ),
         ),
         const Gap(4),
@@ -670,7 +670,7 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
           style: TextStyle(
             color: widget.isGold ? AppTheme.gold : Colors.white,
             fontSize: 24,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w400,
           ),
         ),
       ],

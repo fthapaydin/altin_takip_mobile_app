@@ -123,7 +123,7 @@ class AssetGroupCard extends ConsumerWidget {
                               ? (currency?.name ?? currencyCode)
                               : currencyCode,
                           style: const TextStyle(
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w400,
                             fontSize: 16,
                             letterSpacing: 0.5,
                           ),
@@ -196,7 +196,7 @@ class AssetGroupCard extends ConsumerWidget {
                         '${_formatAmount(netAmount)} adet',
                         style: TextStyle(
                           color: isGold ? AppTheme.gold : Colors.white,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w400,
                           fontSize: 14,
                         ),
                       ),
@@ -312,7 +312,7 @@ class AssetGroupCard extends ConsumerWidget {
           style: TextStyle(
             color: valueColor,
             fontSize: 13,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w400,
           ),
         ),
         if (subtitle != null) ...[
@@ -479,7 +479,7 @@ class AssetGroupCard extends ConsumerWidget {
                           Text(
                             isBuy ? 'Alış' : 'Satış',
                             style: const TextStyle(
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w400,
                               fontSize: 16,
                               color: Colors.white,
                               letterSpacing: 0.3,
@@ -509,7 +509,7 @@ class AssetGroupCard extends ConsumerWidget {
                         Text(
                           '${_formatAmount(asset.amount)} adet',
                           style: const TextStyle(
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w400,
                             fontSize: 15,
                             color: Colors.white,
                           ),
@@ -573,7 +573,7 @@ class AssetGroupCard extends ConsumerWidget {
                                     ? const Color(0xFF4ADE80)
                                     : const Color(0xFFF87171),
                                 fontSize: 11,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w400,
                               ),
                             ),
                           ),

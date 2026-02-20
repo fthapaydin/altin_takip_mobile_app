@@ -380,7 +380,7 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
                       ).format(_totalAmount),
                       style: const TextStyle(
                         fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w400,
                         color: AppTheme.gold,
                       ),
                     ),

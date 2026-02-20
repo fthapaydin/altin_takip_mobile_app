@@ -44,7 +44,7 @@ class NotificationDetailScreen extends StatelessWidget {
                               style: TextStyle(
                                 color: AppTheme.gold,
                                 fontSize: 12,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w400,
                                 letterSpacing: 1.2,
                               ),
                             ),
@@ -77,7 +77,7 @@ class NotificationDetailScreen extends StatelessWidget {
                                                 0.5,
                                               ),
                                               fontSize: 10,
-                                              fontWeight: FontWeight.bold,
+                                              fontWeight: FontWeight.w400,
                                             ),
                                           ),
                                           const Gap(4),
@@ -86,7 +86,7 @@ class NotificationDetailScreen extends StatelessWidget {
                                             style: const TextStyle(
                                               color: Colors.white,
                                               fontSize: 24,
-                                              fontWeight: FontWeight.bold,
+                                              fontWeight: FontWeight.w400,
                                             ),
                                           ),
                                         ],
@@ -115,7 +115,7 @@ class NotificationDetailScreen extends StatelessWidget {
                                                 color: isPositive
                                                     ? Colors.green
                                                     : Colors.red,
-                                                fontWeight: FontWeight.bold,
+                                                fontWeight: FontWeight.w400,
                                                 fontSize: 14,
                                               ),
                                             ),
@@ -126,7 +126,7 @@ class NotificationDetailScreen extends StatelessWidget {
                                                 color: isPositive
                                                     ? Colors.green
                                                     : Colors.red,
-                                                fontWeight: FontWeight.bold,
+                                                fontWeight: FontWeight.w400,
                                                 fontSize: 14,
                                               ),
                                             ),
@@ -158,7 +158,7 @@ class NotificationDetailScreen extends StatelessWidget {
                               style: TextStyle(
                                 color: AppTheme.gold,
                                 fontSize: 12,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w400,
                                 letterSpacing: 1.2,
                               ),
                             ),
@@ -211,7 +211,7 @@ class NotificationDetailScreen extends StatelessWidget {
                                               asset.currencyName,
                                               style: const TextStyle(
                                                 color: Colors.white,
-                                                fontWeight: FontWeight.bold,
+                                                fontWeight: FontWeight.w400,
                                                 fontSize: 14,
                                               ),
                                             ),
@@ -235,7 +235,7 @@ class NotificationDetailScreen extends StatelessWidget {
                                             '₺${NumberFormat('#,##0.00', 'tr_TR').format(asset.currentValue)}',
                                             style: const TextStyle(
                                               color: Colors.white,
-                                              fontWeight: FontWeight.bold,
+                                              fontWeight: FontWeight.w400,
                                               fontSize: 14,
                                             ),
                                           ),
@@ -487,7 +487,7 @@ class NotificationDetailScreen extends StatelessWidget {
             'Bildirim Detayı',
             style: TextStyle(
               color: Colors.white,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w400,
               fontSize: 18,
             ),
           ),
