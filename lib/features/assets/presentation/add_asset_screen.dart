@@ -14,6 +14,7 @@ import 'package:altin_takip/features/assets/presentation/widgets/add_asset/trans
 import 'package:altin_takip/features/assets/presentation/widgets/add_asset/asset_currency_selector.dart';
 import 'package:altin_takip/features/assets/presentation/widgets/add_asset/custom_asset_text_field.dart';
 import 'package:altin_takip/features/assets/presentation/widgets/add_asset/asset_date_picker.dart';
+import 'package:altin_takip/core/widgets/app_bar_widget.dart';
 
 class AddAssetScreen extends ConsumerStatefulWidget {
   final String? initialCurrencyCode;
@@ -41,7 +42,7 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_onTabChange);
-    
+
     // Add listeners for real-time calculation
     _amountForDisplayController.addListener(_calculateTotal);
     _priceForDisplayController.addListener(_calculateTotal);
@@ -50,7 +51,7 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
       _loadCurrencies();
     });
   }
-  
+
   void _calculateTotal() {
     final amount = _parseCurrency(_amountForDisplayController.text);
     final price = _parseCurrency(_priceForDisplayController.text);
@@ -61,7 +62,7 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
 
   // Number formatters
   final _currencyFormat = NumberFormat.currency(locale: 'tr_TR', symbol: '');
-  
+
   DateTime _selectedDate = DateTime.now();
   List<Currency> _goldCurrencies = [];
   List<Currency> _forexCurrencies = [];
@@ -145,6 +146,7 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
     _noteController.dispose();
     super.dispose();
   }
+
   Widget build(BuildContext context) {
     ref.listen<AssetState>(assetProvider, (previous, next) {
       if (next is AssetError) {
@@ -158,9 +160,8 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
 
     return Scaffold(
       backgroundColor: AppTheme.background,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+      appBar: AppBarWidget(
+        title: 'Yeni İşlem',
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
           icon: Container(
@@ -172,11 +173,6 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
             child: const Icon(Icons.close, size: 20),
           ),
         ),
-        title: const Text(
-          'Yeni İşlem',
-          style: TextStyle(fontWeight: FontWeight.w400, fontSize: 18),
-        ),
-        centerTitle: true,
         actions: [
           IconButton(
             onPressed: () {
@@ -358,25 +354,21 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                     Column(
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           'Toplam Tutar',
-                          style: TextStyle(
-                            color: Colors.white54,
-                            fontSize: 13,
-                          ),
+                          style: TextStyle(color: Colors.white54, fontSize: 13),
                         ),
                         const Gap(4),
                         Text(
-                          _selectedCurrency != null 
-                              ? _isBuy ? 'Ödenecek Tutar' : 'Alınacak Tutar'
+                          _selectedCurrency != null
+                              ? _isBuy
+                                    ? 'Ödenecek Tutar'
+                                    : 'Alınacak Tutar'
                               : 'İşlem Tutarı',
-                          style: TextStyle(
-                            color: Colors.white30,
-                            fontSize: 11,
-                          ),
+                          style: TextStyle(color: Colors.white30, fontSize: 11),
                         ),
                       ],
                     ),

@@ -33,7 +33,7 @@ class DashboardHeader extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      'Merhaba, ${user?.formattedName ?? "Misafir"}',
+                      'Merhaba, ${user?.email.split('@').first ?? "Misafir"}',
                       style: Theme.of(context).textTheme.headlineSmall
                           ?.copyWith(
                             fontWeight: FontWeight.bold,

@@ -46,8 +46,6 @@ class SettingsNotifier extends Notifier<SettingsState> {
         // We use the base User class here, StorageService handles DTO conversion
         final updatedUser = User(
           id: currentUser.id,
-          name: currentUser.name,
-          surname: currentUser.surname,
           email: currentUser.email,
           isEncrypted: enable,
           oneSignalId: currentUser.oneSignalId,

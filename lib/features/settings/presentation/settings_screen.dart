@@ -18,6 +18,7 @@ import 'package:altin_takip/features/settings/presentation/widgets/change_passwo
 import 'package:altin_takip/features/settings/presentation/widgets/logout_sheet.dart';
 import 'package:altin_takip/features/settings/presentation/widgets/delete_account_sheet.dart';
 import 'package:altin_takip/features/settings/presentation/widgets/reset_order_sheet.dart';
+import 'package:altin_takip/core/widgets/app_bar_widget.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -77,12 +78,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.background,
-      appBar: AppBar(
-        backgroundColor: AppTheme.background,
-        title: const Text(
-          'Ayarlar',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+      appBar: const AppBarWidget(
+        title: 'Ayarlar',
+        showBack: false,
         centerTitle: false,
       ),
       body: ListView(

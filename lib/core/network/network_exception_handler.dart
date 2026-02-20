@@ -29,9 +29,7 @@ class NetworkExceptionHandler {
     final dynamic data = error.response?.data;
 
     try {
-      final apiMessage = data is Map<String, dynamic>
-          ? (data['error']?.toString() ?? data['message']?.toString())
-          : null;
+      final apiMessage = _extractMessage(data);
 
       if (statusCode == 401) {
         return apiMessage ?? 'Oturum süresi doldu. Lütfen tekrar giriş yapın.';
@@ -52,7 +50,7 @@ class NetworkExceptionHandler {
                 .join('\n');
             return messages.isNotEmpty
                 ? messages
-                : 'Girdiğiniz bilgeri kontrol edin.';
+                : 'Girdiğiniz bilgileri kontrol edin.';
           }
         }
         return apiMessage ?? 'Lütfen girdiğiniz bilgileri kontrol edin.';
@@ -68,5 +66,45 @@ class NetworkExceptionHandler {
     } catch (_) {
       return 'Beklenmedik bir sunucu hatası oluştu.';
     }
+  }
+
+  /// Extracts error message from various API response formats.
+  ///
+  /// Supports: { "message": "..." }, { "error": "..." },
+  /// { "msg": "..." }, { "detail": "..." },
+  /// { "data": { "message": "..." } }, plain string responses, etc.
+  static String? _extractMessage(dynamic data) {
+    if (data == null) return null;
+
+    // Plain string response
+    if (data is String && data.isNotEmpty) return data;
+
+    // Map response — try common keys
+    if (data is Map<String, dynamic>) {
+      // Direct keys (priority order)
+      final directKeys = ['message', 'error', 'msg', 'detail', 'reason'];
+      for (final key in directKeys) {
+        final value = data[key];
+        if (value is String && value.isNotEmpty) return value;
+      }
+
+      // Nested: { "data": { "message": "..." } }
+      if (data['data'] is Map<String, dynamic>) {
+        final nested = data['data'] as Map<String, dynamic>;
+        for (final key in directKeys) {
+          final value = nested[key];
+          if (value is String && value.isNotEmpty) return value;
+        }
+      }
+
+      // Try first string value in the map as last resort
+      for (final value in data.values) {
+        if (value is String && value.isNotEmpty && value.length < 200) {
+          return value;
+        }
+      }
+    }
+
+    return null;
   }
 }

@@ -4,8 +4,6 @@ import 'package:altin_takip/features/auth/domain/user.dart';
 
 abstract class AuthRepository {
   Future<Either<Failure, (User, String)>> register({
-    required String name,
-    required String surname,
     required String email,
     required String password,
     String? oneSignalId,
@@ -37,4 +35,10 @@ abstract class AuthRepository {
   });
   Future<Either<Failure, bool>> verifyEncryptionKey(String key);
   Future<Either<Failure, User>> getUser();
+
+  Future<Either<Failure, (User, String)>> googleLogin({
+    required String email,
+    required String googleId,
+    String? oneSignalId,
+  });
 }

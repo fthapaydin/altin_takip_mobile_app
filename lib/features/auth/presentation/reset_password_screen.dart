@@ -8,6 +8,7 @@ import 'package:altin_takip/features/auth/presentation/login_screen.dart';
 import 'package:altin_takip/core/widgets/app_notification.dart';
 import 'package:altin_takip/core/widgets/password_strength_indicator.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:iconsax/iconsax.dart';
 
 class ResetPasswordScreen extends ConsumerStatefulWidget {
   const ResetPasswordScreen({super.key});
@@ -50,172 +51,130 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
     });
 
     final state = ref.watch(authProvider);
+    final isLoading = state is AuthLoading;
 
     return Scaffold(
-      appBar: AppBar(
-        leading: const BackButton(),
-        title: const Text('Şifre Sıfırla'),
-      ),
       body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: IntrinsicHeight(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Gap(24),
-                      Center(
-                        child: Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFFffbf00), Color(0xFFb8860b)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFFb8860b).withOpacity(0.3),
-                                blurRadius: 20,
-                                offset: const Offset(0, 10),
-                              ),
-                            ],
-                          ),
-                          child: const Icon(
-                            Icons.vpn_key_outlined,
-                            size: 40,
-                            color: Colors.black,
-                          ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 28),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight:
+                  MediaQuery.of(context).size.height -
+                  MediaQuery.of(context).padding.top -
+                  MediaQuery.of(context).padding.bottom,
+            ),
+            child: IntrinsicHeight(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Gap(16),
+
+                  // ── Back Button ──
+                  _BackButton(),
+
+                  const Gap(48),
+
+                  // ── Header ──
+                  Text(
+                    'Yeni Şifre\nBelirleyin',
+                    style: context.textTheme.headlineLarge?.copyWith(
+                      color: Colors.white,
+                      fontSize: 40,
+                      height: 1.1,
+                      letterSpacing: -1,
+                    ),
+                  ).animate().fadeIn(duration: 500.ms),
+                  const Gap(16),
+                  Text(
+                    'E-posta ile gelen 5 haneli kodu ve\nyeni şifrenizi girin.',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.4),
+                      fontSize: 15,
+                      height: 1.5,
+                      letterSpacing: -0.2,
+                    ),
+                  ).animate().fadeIn(delay: 100.ms),
+
+                  const Gap(48),
+
+                  // ── Verification Code ──
+                  TextField(
+                    controller: _codeController,
+                    keyboardType: TextInputType.number,
+                    maxLength: 5,
+                    style: const TextStyle(fontSize: 18, letterSpacing: 8),
+                    textAlign: TextAlign.center,
+                    decoration: InputDecoration(
+                      hintText: '• • • • •',
+                      counterText: '',
+                      hintStyle: TextStyle(
+                        letterSpacing: 8,
+                        color: Colors.white.withOpacity(0.15),
+                      ),
+                    ),
+                  ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.04),
+
+                  const Gap(16),
+
+                  // ── New Password ──
+                  TextField(
+                    controller: _passwordController,
+                    obscureText: _isPasswordObscured,
+                    onChanged: (_) => setState(() {}),
+                    style: const TextStyle(fontSize: 15),
+                    decoration: InputDecoration(
+                      hintText: 'Yeni Şifre',
+                      prefixIcon: const Icon(Iconsax.lock, size: 18),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _isPasswordObscured ? Iconsax.eye : Iconsax.eye_slash,
+                          size: 18,
+                          color: Colors.white.withOpacity(0.3),
                         ),
-                      ).animate().scale().fadeIn(),
-                      const Gap(32),
-                      Text(
-                        'Yeni Şifre Belirleyin',
-                        style: context.textTheme.headlineLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.gold,
+                        onPressed: () => setState(
+                          () => _isPasswordObscured = !_isPasswordObscured,
                         ),
-                        textAlign: TextAlign.center,
-                      ).animate().fadeIn(delay: 100.ms).slideY(begin: 0.1),
-                      const Gap(16),
-                      Text(
-                        'E-posta ile gelen 5 haneli kodu ve yeni şifrenizi girin.',
-                        style: context.textTheme.bodyLarge?.copyWith(
-                          color: Colors.white70,
+                      ),
+                    ),
+                  ).animate().fadeIn(delay: 250.ms).slideY(begin: 0.04),
+
+                  PasswordStrengthIndicator(
+                    password: _passwordController.text,
+                  ).animate().fadeIn(delay: 280.ms),
+
+                  const Gap(16),
+
+                  // ── Confirm Password ──
+                  TextField(
+                    controller: _confirmPasswordController,
+                    obscureText: _isConfirmObscured,
+                    style: const TextStyle(fontSize: 15),
+                    decoration: InputDecoration(
+                      hintText: 'Yeni Şifre Tekrar',
+                      prefixIcon: const Icon(Iconsax.lock, size: 18),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _isConfirmObscured ? Iconsax.eye : Iconsax.eye_slash,
+                          size: 18,
+                          color: Colors.white.withOpacity(0.3),
                         ),
-                        textAlign: TextAlign.center,
-                      ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1),
-                      const Gap(48),
-                      TextField(
-                        controller: _codeController,
-                        keyboardType: TextInputType.number,
-                        maxLength: 5,
-                        decoration: const InputDecoration(
-                          hintText: 'Doğrulama Kodu',
-                          counterText: '',
-                          prefixIcon: Icon(Icons.numbers),
+                        onPressed: () => setState(
+                          () => _isConfirmObscured = !_isConfirmObscured,
                         ),
-                      ).animate().fadeIn(delay: 300.ms).slideX(),
-                      const Gap(16),
-                      TextField(
-                        controller: _passwordController,
-                        obscureText: _isPasswordObscured,
-                        onChanged: (value) => setState(() {}),
-                        decoration: InputDecoration(
-                          hintText: 'Yeni Şifre',
-                          prefixIcon: const Icon(Icons.lock_outline),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _isPasswordObscured
-                                  ? Icons.visibility_outlined
-                                  : Icons.visibility_off_outlined,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _isPasswordObscured = !_isPasswordObscured;
-                              });
-                            },
-                          ),
-                        ),
-                      ).animate().fadeIn(delay: 350.ms).slideX(),
-                      PasswordStrengthIndicator(
-                        password: _passwordController.text,
-                      ).animate().fadeIn(delay: 400.ms),
-                      const Gap(16),
-                      TextField(
-                        controller: _confirmPasswordController,
-                        obscureText: _isConfirmObscured,
-                        decoration: InputDecoration(
-                          hintText: 'Yeni Şifre Tekrar',
-                          prefixIcon: const Icon(Icons.lock_outline),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _isConfirmObscured
-                                  ? Icons.visibility_outlined
-                                  : Icons.visibility_off_outlined,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _isConfirmObscured = !_isConfirmObscured;
-                              });
-                            },
-                          ),
-                        ),
-                      ).animate().fadeIn(delay: 450.ms).slideX(),
-                      const Gap(32),
-                      SizedBox(
+                      ),
+                    ),
+                  ).animate().fadeIn(delay: 320.ms).slideY(begin: 0.04),
+
+                  const Gap(32),
+
+                  // ── Reset Button ──
+                  SizedBox(
                         width: double.infinity,
+                        height: 56,
                         child: ElevatedButton(
-                          onPressed: state is AuthLoading
-                              ? null
-                              : () {
-                                  final code = _codeController.text.trim();
-                                  final password = _passwordController.text
-                                      .trim();
-                                  final confirm = _confirmPasswordController
-                                      .text
-                                      .trim();
-
-                                  if (code.length != 5) {
-                                    AppNotification.show(
-                                      context,
-                                      message:
-                                          'Doğrulama kodu 5 haneli olmalıdır',
-                                      type: NotificationType.error,
-                                    );
-                                    return;
-                                  }
-
-                                  if (password.length < 6) {
-                                    AppNotification.show(
-                                      context,
-                                      message:
-                                          'Şifre en az 6 karakter olmalıdır',
-                                      type: NotificationType.error,
-                                    );
-                                    return;
-                                  }
-
-                                  if (password != confirm) {
-                                    AppNotification.show(
-                                      context,
-                                      message: 'Şifreler eşleşmiyor',
-                                      type: NotificationType.error,
-                                    );
-                                    return;
-                                  }
-
-                                  ref
-                                      .read(authProvider.notifier)
-                                      .resetPassword(code, password);
-                                },
-                          child: state is AuthLoading
+                          onPressed: isLoading ? null : _handleReset,
+                          child: isLoading
                               ? const SizedBox(
                                   height: 20,
                                   width: 20,
@@ -224,26 +183,93 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                                     color: Colors.black,
                                   ),
                                 )
-                              : Row(
+                              : const Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const [
-                                    Text('Şifreyi Güncelle'),
+                                  children: [
+                                    Text(
+                                      'Şifreyi Güncelle',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        letterSpacing: -0.2,
+                                      ),
+                                    ),
                                     Gap(8),
-                                    Icon(Icons.check_circle_outline, size: 18),
+                                    Icon(Iconsax.tick_circle, size: 18),
                                   ],
                                 ),
                         ),
-                      ).animate().fadeIn(delay: 500.ms).scale(),
-                      const Spacer(),
-                      const Gap(80), // Extra bottom padding
-                    ],
-                  ),
-                ),
+                      )
+                      .animate()
+                      .fadeIn(delay: 380.ms)
+                      .scale(begin: const Offset(0.98, 0.98)),
+
+                  const Spacer(),
+                  const Gap(80),
+                ],
               ),
-            );
-          },
+            ),
+          ),
         ),
       ),
     );
+  }
+
+  void _handleReset() {
+    final code = _codeController.text.trim();
+    final password = _passwordController.text.trim();
+    final confirm = _confirmPasswordController.text.trim();
+
+    if (code.length != 5) {
+      AppNotification.show(
+        context,
+        message: 'Doğrulama kodu 5 haneli olmalıdır',
+        type: NotificationType.error,
+      );
+      return;
+    }
+
+    if (password.length < 6) {
+      AppNotification.show(
+        context,
+        message: 'Şifre en az 6 karakter olmalıdır',
+        type: NotificationType.error,
+      );
+      return;
+    }
+
+    if (password != confirm) {
+      AppNotification.show(
+        context,
+        message: 'Şifreler eşleşmiyor',
+        type: NotificationType.error,
+      );
+      return;
+    }
+
+    ref.read(authProvider.notifier).resetPassword(code, password);
+  }
+}
+
+// ─────────────────────────────────────────────
+
+class _BackButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Navigator.pop(context),
+      child: Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Icon(
+          Iconsax.arrow_left,
+          color: Colors.white.withOpacity(0.6),
+          size: 20,
+        ),
+      ),
+    ).animate().fadeIn().scale(begin: const Offset(0.9, 0.9));
   }
 }

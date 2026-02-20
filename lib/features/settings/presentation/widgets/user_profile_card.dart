@@ -17,11 +17,7 @@ class UserProfileCard extends ConsumerWidget {
     }
 
     final user = authState.user;
-    final initials =
-        (user.name.isNotEmpty && user.surname.isNotEmpty
-                ? '${user.name[0]}${user.surname[0]}'
-                : '')
-            .toUpperCase();
+    final initials = user.email.isNotEmpty ? user.email[0].toUpperCase() : '';
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -69,7 +65,7 @@ class UserProfileCard extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  user.fullName,
+                  user.email,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 20,

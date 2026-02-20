@@ -12,6 +12,7 @@ import 'package:altin_takip/features/assets/domain/asset.dart'; // Added for Ass
 import 'package:intl/intl.dart';
 import 'package:altin_takip/core/widgets/premium_error_view.dart';
 import 'package:altin_takip/features/assets/presentation/add_asset_screen.dart';
+import 'package:altin_takip/core/widgets/app_bar_widget.dart';
 
 class CurrencyHistoryScreen extends ConsumerStatefulWidget {
   final String currencyCode;
@@ -40,34 +41,7 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.background,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        title: Column(
-          children: [
-            Text(
-              widget.currencyName,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-            ),
-          ],
-        ),
-        leading: IconButton(
-          icon: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.05),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
+      appBar: AppBarWidget(title: widget.currencyName),
       body: Column(
         children: [
           Expanded(

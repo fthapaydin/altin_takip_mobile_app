@@ -10,6 +10,7 @@ import 'package:altin_takip/core/widgets/currency_icon.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
 import 'package:altin_takip/core/utils/currency_input_formatter.dart';
+import 'package:altin_takip/core/widgets/app_bar_widget.dart';
 
 class CalculatorScreen extends ConsumerStatefulWidget {
   const CalculatorScreen({super.key});
@@ -122,13 +123,9 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
 
     return Scaffold(
       backgroundColor: AppTheme.background,
-      appBar: AppBar(
-        backgroundColor: AppTheme.background,
-        elevation: 0,
-        title: const Text(
-          'Hesaplama',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-        ),
+      appBar: AppBarWidget(
+        title: 'Hesaplama',
+        showBack: false,
         centerTitle: false,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48),

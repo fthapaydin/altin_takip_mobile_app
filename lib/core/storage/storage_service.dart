@@ -39,8 +39,6 @@ class StorageService {
         ? user
         : UserDto(
             id: user.id,
-            name: user.name,
-            surname: user.surname,
             email: user.email,
             isEncrypted: user.isEncrypted,
             oneSignalId: user.oneSignalId,

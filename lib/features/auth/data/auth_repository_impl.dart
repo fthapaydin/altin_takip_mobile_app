@@ -69,8 +69,6 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, (User, String)>> register({
-    required String name,
-    required String surname,
     required String email,
     required String password,
     String? oneSignalId,
@@ -79,8 +77,6 @@ class AuthRepositoryImpl implements AuthRepository {
       final response = await _dioClient.dio.post(
         'auth/register',
         data: {
-          'name': name,
-          'surname': surname,
           'email': email,
           'password': password,
           'password_confirmation': password,
@@ -174,6 +170,31 @@ class AuthRepositoryImpl implements AuthRepository {
       if (e is DioException) {
         return Left(AuthFailure(NetworkExceptionHandler.getErrorMessage(e)));
       }
+      return Left(ServerFailure(NetworkExceptionHandler.getErrorMessage(e)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, (User, String)>> googleLogin({
+    required String email,
+    required String googleId,
+    String? oneSignalId,
+  }) async {
+    try {
+      final response = await _dioClient.dio.post(
+        'auth/google-login',
+        data: {
+          'email': email,
+          'google_id': googleId,
+          'onesignal_id': oneSignalId ?? '',
+        },
+      );
+
+      final user = UserDto.fromJson(response.data['user']);
+      final token = response.data['token'];
+
+      return Right((user, token));
+    } catch (e) {
       return Left(ServerFailure(NetworkExceptionHandler.getErrorMessage(e)));
     }
   }

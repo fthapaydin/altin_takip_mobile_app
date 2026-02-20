@@ -5,13 +5,12 @@ import 'package:gap/gap.dart';
 class PasswordStrengthIndicator extends StatelessWidget {
   final String password;
 
-  const PasswordStrengthIndicator({
-    super.key,
-    required this.password,
-  });
+  const PasswordStrengthIndicator({super.key, required this.password});
 
   @override
   Widget build(BuildContext context) {
+    if (password.isEmpty) return const SizedBox.shrink();
+
     final strength = _calculateStrength(password);
     final color = _getColor(strength);
     final text = _getText(strength);

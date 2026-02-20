@@ -1,25 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:gap/gap.dart';
-import 'package:intl/intl.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:altin_takip/core/di.dart';
 import 'package:altin_takip/core/theme/app_theme.dart';
 import 'package:altin_takip/features/public_prices/presentation/public_prices_state.dart';
 import 'package:altin_takip/features/public_prices/presentation/public_prices_notifier.dart';
-import 'package:altin_takip/features/public_prices/domain/public_price.dart';
 import 'package:altin_takip/features/public_prices/domain/public_prices_repository.dart';
-import 'package:altin_takip/features/public_prices/presentation/public_price_detail_screen.dart';
+import 'package:altin_takip/features/public_prices/presentation/widgets/public_price_list_view.dart';
+import 'package:altin_takip/features/public_prices/presentation/widgets/public_prices_loading_view.dart';
+import 'package:altin_takip/features/public_prices/presentation/widgets/public_prices_error_view.dart';
 import 'package:altin_takip/features/auth/presentation/login_screen.dart';
 import 'package:altin_takip/features/auth/presentation/register_screen.dart';
-import 'package:iconsax/iconsax.dart';
 
-final publicPricesRepositoryProvider = Provider<PublicPricesRepository>((ref) => sl());
+final publicPricesRepositoryProvider = Provider<PublicPricesRepository>(
+  (ref) => sl(),
+);
 
 final publicPricesProvider =
     NotifierProvider<PublicPricesNotifier, PublicPricesState>(
-  PublicPricesNotifier.new,
-);
+      PublicPricesNotifier.new,
+    );
 
 class PublicHomeScreen extends ConsumerStatefulWidget {
   const PublicHomeScreen({super.key});
@@ -41,26 +43,28 @@ class _PublicHomeScreenState extends ConsumerState<PublicHomeScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(publicPricesProvider);
 
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        body: SafeArea(
-          child: RefreshIndicator(
-            onRefresh: () =>
-                ref.read(publicPricesProvider.notifier).loadPrices(refresh: true),
-            color: AppTheme.gold,
+    return Scaffold(
+      backgroundColor: AppTheme.background,
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: () =>
+              ref.read(publicPricesProvider.notifier).loadPrices(refresh: true),
+          color: AppTheme.gold,
+          child: DefaultTabController(
+            length: 2,
             child: NestedScrollView(
               headerSliverBuilder: (context, innerBoxIsScrolled) => [
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _buildHeader(context),
+                        const Gap(40),
+                        _buildTitle(),
                         const Gap(24),
-                        _buildAuthButtons(context),
-                        const Gap(32),
+                        _buildPromoCard(context),
                       ],
                     ),
                   ),
@@ -73,11 +77,11 @@ class _PublicHomeScreenState extends ConsumerState<PublicHomeScreen> {
                       labelColor: Colors.black,
                       unselectedLabelColor: Colors.white,
                       labelStyle: const TextStyle(
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w500,
                         fontSize: 13,
                       ),
                       unselectedLabelStyle: const TextStyle(
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w400,
                         fontSize: 13,
                       ),
                       indicator: BoxDecoration(
@@ -97,18 +101,22 @@ class _PublicHomeScreenState extends ConsumerState<PublicHomeScreen> {
                   ),
                 ),
               ],
-              body: state is PublicPricesLoaded
-                  ? TabBarView(
-                      children: [
-                        _buildPriceList(state.data.currencies),
-                        _buildPriceList(state.data.goldPrices),
-                      ],
-                    )
-                  : state is PublicPricesLoading
-                      ? _buildLoadingView()
-                      : state is PublicPricesError
-                          ? _buildErrorView(state.message)
-                          : _buildLoadingView(),
+              body: switch (state) {
+                PublicPricesLoaded(:final data) => TabBarView(
+                  children: [
+                    PublicPriceListView(prices: data.currencies),
+                    PublicPriceListView(prices: data.goldPrices),
+                  ],
+                ),
+                PublicPricesLoading() => const PublicPricesLoadingView(),
+                PublicPricesError(:final message) => PublicPricesErrorView(
+                  message: message,
+                  onRetry: () => ref
+                      .read(publicPricesProvider.notifier)
+                      .loadPrices(refresh: true),
+                ),
+                _ => const PublicPricesLoadingView(),
+              },
             ),
           ),
         ),
@@ -117,378 +125,163 @@ class _PublicHomeScreenState extends ConsumerState<PublicHomeScreen> {
   }
 
   Widget _buildHeader(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Altın Cüzdan',
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: AppTheme.gold,
-                letterSpacing: 0.5,
-              ),
-        ),
-        const Gap(8),
-        Text(
-          'Anlık piyasa fiyatları',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.white.withOpacity(0.6),
-              ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAuthButtons(BuildContext context) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Expanded(
-          child: OutlinedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginScreen()),
-              );
-            },
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppTheme.gold,
-              side: const BorderSide(color: AppTheme.gold),
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: const Text(
-              'Giriş Yap',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-        ),
-        const Gap(12),
-        Expanded(
-          child: ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const RegisterScreen()),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.gold,
-              foregroundColor: Colors.black,
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: const Text(
-              'Kayıt Ol',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPriceList(List<PublicPrice> prices) {
-    if (prices.isEmpty) {
-      return Center(
-        child: Text(
-          'Veri bulunamadı',
-          style: TextStyle(
-            color: Colors.white.withOpacity(0.5),
-            fontSize: 14,
-          ),
-        ),
-      );
-    }
-
-    return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 100),
-      itemCount: prices.length,
-      separatorBuilder: (_, __) => Divider(
-        color: Colors.white.withOpacity(0.05),
-        height: 1,
-      ),
-      itemBuilder: (context, index) {
-        final price = prices[index];
-        return _buildPriceRow(price);
-      },
-    );
-  }
-
-  Widget _buildPriceRow(PublicPrice price) {
-    final changeValue = price.change.replaceAll('%', '').replaceAll(',', '.');
-    final changeNum = double.tryParse(changeValue) ?? 0;
-    final isPositive = changeNum >= 0;
-    final changeColor = isPositive ? const Color(0xFF4ADE80) : const Color(0xFFF87171);
-
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => PublicPriceDetailScreen(price: price),
-          ),
-        );
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        child: Row(
+        Row(
           children: [
-            Expanded(
-              flex: 3,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    price.name,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 15,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const Gap(4),
-                  Text(
-                    price.code.toUpperCase(),
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.4),
-                      fontSize: 11,
-                    ),
-                  ),
-                ],
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppTheme.gold.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Icon(
+                Iconsax.wallet_3,
+                color: AppTheme.gold,
+                size: 22,
               ),
             ),
-            Expanded(
-              flex: 2,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    _formatPrice(price.buyPrice),
-                    style: const TextStyle(
-                      color: AppTheme.gold,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                      fontFeatures: [FontFeature.tabularFigures()],
-                    ),
-                  ),
-                  const Gap(4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Icon(
-                        isPositive ? Iconsax.arrow_up_3 : Iconsax.arrow_down,
-                        color: changeColor,
-                        size: 12,
-                      ),
-                      const Gap(4),
-                      Text(
-                        price.change,
-                        style: TextStyle(
-                          color: changeColor,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+            const Gap(12),
+            const Text(
+              'Altın Cüzdan',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.w500,
+                letterSpacing: -0.5,
               ),
-            ),
-            const Gap(8),
-            Icon(
-              Icons.chevron_right,
-              color: Colors.white.withOpacity(0.3),
-              size: 20,
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  String _formatPrice(String price) {
-    // If price starts with $ or other currency symbol, return as is
-    if (price.startsWith('\$') || price.startsWith('€')) {
-      return price;
-    }
-    
-    // Otherwise add TL symbol
-    final cleanPrice = price.replaceAll(',', '.');
-    final numValue = double.tryParse(cleanPrice);
-    if (numValue != null) {
-      return '₺${NumberFormat('#,##0.00', 'tr_TR').format(numValue)}';
-    }
-    return price;
-  }
-
-  Widget _buildLoadingView() {
-    return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
-      itemCount: 10,
-      separatorBuilder: (_, __) => const Gap(12),
-      itemBuilder: (_, __) => Container(
-        height: 120,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppTheme.glassColor,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppTheme.glassBorder),
+        InkWell(
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const LoginScreen()),
+          ),
+          borderRadius: BorderRadius.circular(14),
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: Colors.white.withOpacity(0.1)),
+            ),
+            child: const Icon(Iconsax.user, color: Colors.white, size: 22),
+          ),
         ),
-        child: Shimmer.fromColors(
-          baseColor: Colors.white.withOpacity(0.05),
-          highlightColor: Colors.white.withOpacity(0.1),
+      ],
+    ).animate().fadeIn(duration: 400.ms).slideY(begin: -0.1, end: 0);
+  }
+
+  Widget _buildTitle() {
+    return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Piyasalar',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 36,
+                fontWeight: FontWeight.w400,
+                letterSpacing: -1,
+              ),
+            ),
+            const Gap(8),
+            Text(
+              'Canlı döviz ve altın kurları',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.5),
+                fontSize: 15,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ],
+        )
+        .animate()
+        .fadeIn(delay: 100.ms, duration: 400.ms)
+        .slideY(begin: 0.1, end: 0);
+  }
+
+  Widget _buildPromoCard(BuildContext context) {
+    return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppTheme.glassColor,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: AppTheme.glassBorder),
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    width: 120,
-                    height: 16,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: AppTheme.gold.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Text(
+                  'ÜCRETSİZ',
+                  style: TextStyle(
+                    color: AppTheme.gold,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 1,
                   ),
-                  Container(
-                    width: 60,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ],
+                ),
               ),
               const Gap(16),
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 40,
-                          height: 12,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                        const Gap(8),
-                        Container(
-                          width: 100,
-                          height: 20,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                      ],
+              const Text(
+                'Portföyünüzü Yönetin',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: -0.5,
+                ),
+              ),
+              const Gap(6),
+              Text(
+                'Varlıklarınızı ekleyerek kar zarar durumunuzu anlık takip edin.',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.6),
+                  fontSize: 13,
+                  height: 1.5,
+                ),
+              ),
+              const Gap(24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.gold,
+                    foregroundColor: Colors.black,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(100),
                     ),
                   ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 40,
-                          height: 12,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                        const Gap(8),
-                        Container(
-                          width: 100,
-                          height: 20,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                      ],
-                    ),
+                  child: const Text(
+                    'Kayıt Ol',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
                   ),
-                ],
+                ),
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildErrorView(String message) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF87171).withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Iconsax.info_circle,
-                color: Color(0xFFF87171),
-                size: 48,
-              ),
-            ),
-            const Gap(16),
-            Text(
-              'Bir Hata Oluştu',
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-            ),
-            const Gap(8),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.6),
-                fontSize: 14,
-              ),
-            ),
-            const Gap(24),
-            ElevatedButton(
-              onPressed: () {
-                ref.read(publicPricesProvider.notifier).loadPrices(refresh: true);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.gold,
-                foregroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 32,
-                  vertical: 12,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text(
-                'Tekrar Dene',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+        )
+        .animate()
+        .fadeIn(delay: 200.ms, duration: 400.ms)
+        .slideY(begin: 0.1, end: 0);
   }
 }
 
@@ -523,7 +316,5 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   }
 
   @override
-  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
-    return false;
-  }
+  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) => false;
 }

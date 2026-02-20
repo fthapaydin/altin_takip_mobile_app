@@ -1,8 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:altin_takip/core/di.dart';
 import 'package:altin_takip/core/storage/storage_service.dart';
 import 'package:altin_takip/features/auth/domain/auth_repository.dart';
 import 'package:altin_takip/features/auth/presentation/auth_state.dart';
+import 'package:altin_takip/features/auth/data/google_sign_in_service.dart';
 
 final authProvider = NotifierProvider<AuthNotifier, AuthState>(
   AuthNotifier.new,
@@ -11,11 +13,13 @@ final authProvider = NotifierProvider<AuthNotifier, AuthState>(
 class AuthNotifier extends Notifier<AuthState> {
   late final AuthRepository _repository;
   late final StorageService _storage;
+  late final GoogleSignInService _googleSignIn;
 
   @override
   AuthState build() {
     _repository = sl<AuthRepository>();
     _storage = sl<StorageService>();
+    _googleSignIn = sl<GoogleSignInService>();
 
     // Check auth status on startup
     Future.microtask(() => checkAuthStatus());
@@ -43,9 +47,10 @@ class AuthNotifier extends Notifier<AuthState> {
     state = const AuthLoading();
     final result = await _repository.login(email: email, password: password);
 
-    result.fold(
-      (failure) => state = AuthUnauthenticated(error: failure.message),
-      (data) async {
+    switch (result) {
+      case Left(value: final failure):
+        state = AuthUnauthenticated(error: failure.message);
+      case Right(value: final data):
         final (user, token) = data;
         await _storage.saveToken(token);
         await _storage.saveUser(user);
@@ -54,18 +59,19 @@ class AuthNotifier extends Notifier<AuthState> {
         } else {
           state = AuthAuthenticated(user);
         }
-      },
-    );
+    }
   }
 
   Future<void> forgotPassword(String email) async {
     state = const AuthLoading();
     final result = await _repository.forgotPassword(email: email);
 
-    result.fold(
-      (failure) => state = AuthUnauthenticated(error: failure.message),
-      (_) => state = const AuthUnauthenticated(), // Success, allow navigation
-    );
+    switch (result) {
+      case Left(value: final failure):
+        state = AuthUnauthenticated(error: failure.message);
+      case Right():
+        state = const AuthUnauthenticated(); // Success, allow navigation
+    }
   }
 
   Future<void> resetPassword(String verificationCode, String password) async {
@@ -75,29 +81,22 @@ class AuthNotifier extends Notifier<AuthState> {
       password: password,
     );
 
-    result.fold(
-      (failure) => state = AuthUnauthenticated(error: failure.message),
-      (_) => state = const AuthUnauthenticated(), // Success, allow navigation
-    );
+    switch (result) {
+      case Left(value: final failure):
+        state = AuthUnauthenticated(error: failure.message);
+      case Right():
+        state = const AuthUnauthenticated(); // Success, allow navigation
+    }
   }
 
-  Future<void> register(
-    String name,
-    String surname,
-    String email,
-    String password,
-  ) async {
+  Future<void> register(String email, String password) async {
     state = const AuthLoading();
-    final result = await _repository.register(
-      name: name,
-      surname: surname,
-      email: email,
-      password: password,
-    );
+    final result = await _repository.register(email: email, password: password);
 
-    result.fold(
-      (failure) => state = AuthUnauthenticated(error: failure.message),
-      (data) async {
+    switch (result) {
+      case Left(value: final failure):
+        state = AuthUnauthenticated(error: failure.message);
+      case Right(value: final data):
         final (user, token) = data;
         await _storage.saveToken(token);
         await _storage.saveUser(user);
@@ -106,8 +105,7 @@ class AuthNotifier extends Notifier<AuthState> {
         } else {
           state = AuthAuthenticated(user);
         }
-      },
-    );
+    }
   }
 
   Future<void> setEncryptionKey(String key) async {
@@ -118,30 +116,54 @@ class AuthNotifier extends Notifier<AuthState> {
 
       final result = await _repository.verifyEncryptionKey(key);
 
-      result.fold(
-        (failure) =>
-            state = AuthEncryptionRequired(user, error: failure.message),
-        (_) async {
+      switch (result) {
+        case Left(value: final failure):
+          state = AuthEncryptionRequired(user, error: failure.message);
+        case Right():
           await _storage.saveEncryptionKey(key);
           state = AuthAuthenticated(user);
-        },
-      );
-
+      }
     }
   }
 
   void forceEncryptionRequired() {
     final currentState = state;
     if (currentState is AuthAuthenticated) {
-      // Preserve the user but switch state
       state = AuthEncryptionRequired(currentState.user);
     } else if (currentState is AuthEncryptionRequired) {
-       // Already in state
+      // Already in state
     } else {
-       // If no user is loaded, we can't switch to EncryptionRequired(User), 
-       // but likely we are authenticated if we got this error.
-       // We'll rely on checkAuthStatus or re-login if totally lost.
-       checkAuthStatus();
+      checkAuthStatus();
+    }
+  }
+
+  Future<void> loginWithGoogle() async {
+    state = const AuthLoading();
+
+    final signInResult = await _googleSignIn.signIn();
+
+    switch (signInResult) {
+      case Left(value: final failure):
+        state = AuthUnauthenticated(error: failure.message);
+      case Right(value: final account):
+        final result = await _repository.googleLogin(
+          email: account.email,
+          googleId: account.id,
+        );
+
+        switch (result) {
+          case Left(value: final failure):
+            state = AuthUnauthenticated(error: failure.message);
+          case Right(value: final data):
+            final (user, token) = data;
+            await _storage.saveToken(token);
+            await _storage.saveUser(user);
+            if (user.isEncrypted) {
+              state = AuthEncryptionRequired(user);
+            } else {
+              state = AuthAuthenticated(user);
+            }
+        }
     }
   }
 

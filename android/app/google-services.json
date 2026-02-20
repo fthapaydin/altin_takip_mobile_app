@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "808192730816",
+    "project_id": "altintakip-49a45",
+    "storage_bucket": "altintakip-49a45.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:808192730816:android:1a089fbf2412b757c36f25",
+        "android_client_info": {
+          "package_name": "com.fatalsoft.altin_takip"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "808192730816-k1a5cuajjc08a3sq6ft3atm77pg5e2jr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fatalsoft.altin_takip",
+            "certificate_hash": "f4fcf67f52f7f4e9a33f7ff177a31107c0715dc9"
+          }
+        },
+        {
+          "client_id": "808192730816-4lhin7phefd77phmnel9assthoiufj1c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCBt6xY2AIYpMkNCSnvstf584iaXFVuv24"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "808192730816-4lhin7phefd77phmnel9assthoiufj1c.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
