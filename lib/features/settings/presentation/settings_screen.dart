@@ -10,6 +10,7 @@ import 'package:altin_takip/features/settings/presentation/settings_state.dart';
 import 'package:altin_takip/features/settings/presentation/preference_notifier.dart';
 import 'package:altin_takip/features/assets/presentation/asset_notifier.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:altin_takip/core/widgets/app_bar_widget.dart';
 import 'package:altin_takip/features/settings/presentation/widgets/setting_card.dart';
 import 'package:altin_takip/features/settings/presentation/widgets/section_header.dart';
 import 'package:altin_takip/features/settings/presentation/widgets/encryption_sheet.dart';
@@ -76,22 +77,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.background,
+      appBar: const AppBarWidget(
+        title: 'Ayarlar',
+        showBack: false,
+        centerTitle: false,
+        isLargeTitle: true,
+      ),
       body: SafeArea(
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
           children: [
-            // ── Header ──
-            Text(
-              'Ayarlar',
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                color: Colors.white,
-                fontSize: 28,
-                letterSpacing: -0.5,
-              ),
-            ),
-            const Gap(28),
-
             // ── Appearance ──
             const SectionHeader(title: 'Görünüm', icon: Iconsax.eye),
             const Gap(12),

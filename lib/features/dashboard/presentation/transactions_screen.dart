@@ -13,6 +13,7 @@ import 'package:sticky_headers/sticky_headers.dart';
 import 'package:altin_takip/features/assets/presentation/add_asset_screen.dart';
 import 'package:altin_takip/core/widgets/currency_icon.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:altin_takip/core/widgets/app_bar_widget.dart';
 
 class TransactionsScreen extends ConsumerWidget {
   const TransactionsScreen({super.key});
@@ -23,67 +24,31 @@ class TransactionsScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppTheme.background,
-      body: NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          SliverAppBar(
-            backgroundColor: AppTheme.background,
-            expandedHeight: 120,
-            floating: false,
-            pinned: true,
-            leading: IconButton(
-              icon: const Icon(
-                Iconsax.arrow_left_2,
-                color: Colors.white,
-                size: 20,
+      appBar: AppBarWidget(
+        title: 'Geçmiş İşlemler',
+        showBack: true,
+        centerTitle: false,
+        isLargeTitle: true,
+        leading: IconButton(
+          icon: const Icon(Iconsax.arrow_left_2, color: Colors.white, size: 20),
+          onPressed: () => Navigator.pop(context),
+        ),
+        actions: [
+          IconButton(
+            onPressed: () => _showAddAssetScreen(context),
+            icon: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppTheme.gold.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
               ),
-              onPressed: () => Navigator.pop(context),
-            ),
-            actions: [
-              IconButton(
-                onPressed: () => _showAddAssetScreen(context),
-                icon: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppTheme.gold.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Iconsax.add,
-                    color: AppTheme.gold,
-                    size: 20,
-                  ),
-                ),
-              ),
-              const Gap(16),
-            ],
-            flexibleSpace: FlexibleSpaceBar(
-              titlePadding: const EdgeInsets.only(left: 60, bottom: 16),
-              centerTitle: false,
-              title: const Text(
-                'Geçmiş İşlemler',
-                style: TextStyle(
-                  fontWeight: FontWeight.w400,
-                  color: Colors.white,
-                  fontSize: 20,
-                ),
-              ),
-              background: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      AppTheme.gold.withValues(alpha: 0.1),
-                      AppTheme.background,
-                    ],
-                  ),
-                ),
-              ),
+              child: const Icon(Iconsax.add, color: AppTheme.gold, size: 20),
             ),
           ),
+          const Gap(16),
         ],
-        body: _buildBody(context, ref, state),
       ),
+      body: _buildBody(context, ref, state),
     );
   }
 

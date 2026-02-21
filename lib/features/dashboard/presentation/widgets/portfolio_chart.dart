@@ -248,7 +248,6 @@ class PortfolioChart extends StatelessWidget {
                     color: Colors.white.withValues(alpha: 0.6),
                     fontSize: 10,
                     fontWeight: FontWeight.w500,
-                    fontFamily: 'Inter',
                   ),
                   children: [
                     TextSpan(
@@ -257,7 +256,6 @@ class PortfolioChart extends StatelessWidget {
                         color: Color(0xFFFFD700),
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
-                        fontFamily: 'Inter',
                         letterSpacing: -0.5,
                       ),
                     ),

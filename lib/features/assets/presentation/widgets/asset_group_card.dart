@@ -431,162 +431,150 @@ class AssetGroupCard extends ConsumerWidget {
     final totalCost = asset.amount * asset.price;
     final currentValue = asset.amount * currentPrice;
 
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start, // Align to top
-        children: [
-          // Timeline Spacer (left side of screen)
-          const SizedBox(width: 80),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start, // Align to top
+      children: [
+        // Timeline Spacer (left side of screen)
+        const SizedBox(width: 80),
 
-          Expanded(
-            child: InkWell(
-              onTap: () => AssetOptionsSheet.show(context, asset),
-              borderRadius: BorderRadius.circular(12),
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  right: 24,
-                  bottom: 24, // Consistent spacing
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 1. Transaction Icon
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color:
-                            (isBuy
-                                    ? const Color(0xFF4ADE80)
-                                    : const Color(0xFFF87171))
-                                .withValues(alpha: 0.1),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        isBuy ? Iconsax.arrow_bottom : Iconsax.arrow_up,
-                        color: isBuy
-                            ? const Color(0xFF4ADE80)
-                            : const Color(0xFFF87171),
-                        size: 20,
-                      ),
-                    ),
-                    const Gap(12),
-
-                    // 2. Type and Date
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            isBuy ? 'Alış' : 'Satış',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w400,
-                              fontSize: 16,
-                              color: Colors.white,
-                              letterSpacing: 0.3,
-                            ),
-                          ),
-                          const Gap(4),
-                          Text(
-                            dateStr,
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.5),
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Gap(8),
-
-                    // 3. Financial Details (Right aligned)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
+        Expanded(
+          child: InkWell(
+            onTap: () => AssetOptionsSheet.show(context, asset),
+            borderRadius: BorderRadius.circular(12),
+            child: Padding(
+              padding: const EdgeInsets.only(
+                right: 24,
+                bottom: 24, // Consistent spacing
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 1. Type and Date
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Amount
                         Text(
-                          '${_formatAmount(asset.amount)} adet',
+                          isBuy ? 'Alış' : 'Satış',
                           style: const TextStyle(
                             fontWeight: FontWeight.w400,
-                            fontSize: 15,
+                            fontSize: 16,
                             color: Colors.white,
+                            letterSpacing: 0.3,
                           ),
                         ),
                         const Gap(4),
-
-                        // Unit Price
                         Text(
-                          'Birim: ₺${NumberFormat('#,##0.00', 'tr_TR').format(asset.price)}',
+                          dateStr,
                           style: TextStyle(
                             color: Colors.white.withValues(alpha: 0.5),
-                            fontSize: 11,
-                            fontFeatures: [FontFeature.tabularFigures()],
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-
-                        // Total Cost (Alış Tutarı)
-                        const Gap(2),
-                        Text(
-                          'Maliyet: ₺${NumberFormat('#,##0.00', 'tr_TR').format(totalCost)}',
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.5),
-                            fontSize: 11,
-                            fontFeatures: [FontFeature.tabularFigures()],
-                          ),
-                        ),
-
-                        if (isBuy && asset.currency != null) ...[
-                          const Gap(2),
-                          // Current Value (Güncel Değer)
-                          Text(
-                            'Değer: ₺${NumberFormat('#,##0.00', 'tr_TR').format(currentValue)}',
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.5),
-                              fontSize: 11,
-                              fontFeatures: [FontFeature.tabularFigures()],
-                            ),
-                          ),
-                        ],
-
-                        if (profit != null) ...[
-                          const Gap(6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 3,
-                            ),
-                            decoration: BoxDecoration(
-                              color:
-                                  (isProfitPositive
-                                          ? const Color(0xFF4ADE80)
-                                          : const Color(0xFFF87171))
-                                      .withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              '${isProfitPositive ? '+' : ''}₺${NumberFormat('#,##0.00', 'tr_TR').format(profit)} ${profitPercent != null ? '(%${profitPercent.toStringAsFixed(1)})' : ''}',
-                              style: TextStyle(
-                                fontFeatures: [FontFeature.tabularFigures()],
-                                color: isProfitPositive
-                                    ? const Color(0xFF4ADE80)
-                                    : const Color(0xFFF87171),
-                                fontSize: 11,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                          ),
-                        ],
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                  const Gap(8),
+
+                  // 3. Financial Details (Right aligned)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      // Amount
+                      Text(
+                        '${_formatAmount(asset.amount)} adet',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w400,
+                          fontSize: 15,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const Gap(4),
+
+                      // Unit Price
+                      Text(
+                        'Birim: ₺${NumberFormat('#,##0.00', 'tr_TR').format(asset.price)}',
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.5),
+                          fontSize: 11,
+                          fontFeatures: [FontFeature.tabularFigures()],
+                        ),
+                      ),
+
+                      // Total Cost (Alış Tutarı)
+                      const Gap(2),
+                      Text(
+                        'Maliyet: ₺${NumberFormat('#,##0.00', 'tr_TR').format(totalCost)}',
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.5),
+                          fontSize: 11,
+                          fontFeatures: [FontFeature.tabularFigures()],
+                        ),
+                      ),
+
+                      if (isBuy && asset.currency != null) ...[
+                        const Gap(2),
+                        // Current Value (Güncel Değer)
+                        Text(
+                          'Değer: ₺${NumberFormat('#,##0.00', 'tr_TR').format(currentValue)}',
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.5),
+                            fontSize: 11,
+                            fontFeatures: [FontFeature.tabularFigures()],
+                          ),
+                        ),
+                      ],
+
+                      if (profit != null) ...[
+                        const Gap(6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color:
+                                (isProfitPositive
+                                        ? const Color(0xFF4ADE80)
+                                        : const Color(0xFFF87171))
+                                    .withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            '${isProfitPositive ? '+' : ''}₺${NumberFormat('#,##0.00', 'tr_TR').format(profit)} ${profitPercent != null ? '(%${profitPercent.toStringAsFixed(1)})' : ''}',
+                            style: TextStyle(
+                              fontFeatures: [FontFeature.tabularFigures()],
+                              color: isProfitPositive
+                                  ? const Color(0xFF4ADE80)
+                                  : const Color(0xFFF87171),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+
+                  // 4. Chevron Affordance
+                  const Gap(12),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Icon(
+                      Iconsax.arrow_right_3,
+                      color: Colors.white.withValues(alpha: 0.3),
+                      size: 16,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

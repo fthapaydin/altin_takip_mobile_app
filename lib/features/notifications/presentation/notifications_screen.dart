@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:altin_takip/core/theme/app_theme.dart';
 import 'package:altin_takip/features/notifications/presentation/notifications_notifier.dart';
 import 'package:altin_takip/features/notifications/presentation/notification_state.dart';
@@ -11,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:gap/gap.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:altin_takip/core/widgets/app_bar_widget.dart';
 
 class NotificationsScreen extends ConsumerStatefulWidget {
   const NotificationsScreen({super.key});
@@ -42,84 +42,64 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.background,
+      appBar: AppBarWidget(
+        title: 'Bildirimler',
+        isLargeTitle: true,
+        leading: Container(
+          margin: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: AppTheme.glassColor,
+            shape: BoxShape.circle,
+            border: Border.all(color: AppTheme.glassBorder),
+          ),
+          child: IconButton(
+            icon: const Icon(
+              Icons.arrow_back_ios_new,
+              color: Colors.white,
+              size: 16,
+            ),
+            padding: EdgeInsets.zero,
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
+        actions: [
+          IconButton(
+            onPressed: () => ref
+                .read(notificationsProvider.notifier)
+                .loadNotifications(refresh: true),
+            icon: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.05),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                isLoading ? Iconsax.timer_1 : Iconsax.refresh,
+                size: 20,
+                color: isLoading ? AppTheme.gold : Colors.white,
+              ),
+            ),
+          ),
+          const Gap(16),
+        ],
+      ),
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(context, isLoading),
+            AnimatedOpacity(
+              opacity: isLoading ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 300),
+              child: LinearProgressIndicator(
+                backgroundColor: Colors.transparent,
+                color: AppTheme.gold.withOpacity(0.3),
+                minHeight: 2,
+              ),
+            ),
             Expanded(child: _buildBody(state)),
           ],
         ),
       ),
     );
-  }
-
-  Widget _buildHeader(BuildContext context, bool isLoading) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      color: AppTheme.glassColor,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppTheme.glassBorder),
-                    ),
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.arrow_back_ios_new,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ),
-                  const Gap(16),
-                  const Text(
-                    'Bildirimler',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w400,
-                      fontSize: 24,
-                    ),
-                  ),
-                ],
-              ),
-              IconButton(
-                onPressed: () => ref
-                    .read(notificationsProvider.notifier)
-                    .loadNotifications(refresh: true),
-                icon: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.05),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    isLoading ? Iconsax.timer_1 : Iconsax.refresh,
-                    size: 20,
-                    color: isLoading ? AppTheme.gold : Colors.white,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        AnimatedOpacity(
-          opacity: isLoading ? 1.0 : 0.0,
-          duration: const Duration(milliseconds: 300),
-          child: LinearProgressIndicator(
-            backgroundColor: Colors.transparent,
-            color: AppTheme.gold.withOpacity(0.3),
-            minHeight: 2,
-          ),
-        ),
-      ],
-    ).animate().fadeIn().slideX();
   }
 
   Widget _buildBody(NotificationState state) {

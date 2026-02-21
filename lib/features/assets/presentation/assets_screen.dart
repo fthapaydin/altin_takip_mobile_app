@@ -20,6 +20,7 @@ import 'package:altin_takip/features/assets/presentation/widgets/locked_portfoli
 import 'package:altin_takip/features/assets/presentation/widgets/empty_assets_view.dart';
 import 'package:altin_takip/features/assets/presentation/widgets/shimmer_loading_list.dart';
 import 'package:altin_takip/features/assets/presentation/widgets/asset_group_card.dart';
+import 'package:altin_takip/core/widgets/app_bar_widget.dart';
 
 class AssetsScreen extends ConsumerStatefulWidget {
   const AssetsScreen({super.key});
@@ -160,79 +161,59 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.background,
-      body: NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          SliverAppBar(
-            backgroundColor: AppTheme.background,
-            expandedHeight: 100,
-            floating: false,
-            pinned: true,
-            flexibleSpace: FlexibleSpaceBar(
-              titlePadding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 16,
-              ),
-              centerTitle: false,
-              title: const Text(
-                'Varlıklarım',
-                style: TextStyle(
-                  fontWeight: FontWeight.w400,
-                  color: Colors.white,
-                  letterSpacing: -0.5,
+      appBar: AppBarWidget(
+        title: 'Varlıklarım',
+        showBack: false,
+        centerTitle: false,
+        isLargeTitle: true,
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const TransactionsScreen(),
                 ),
+              );
+            },
+            icon: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.05),
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
               ),
-              background: Container(color: AppTheme.background),
+              child: const Icon(
+                Iconsax.receipt_1,
+                color: Colors.white,
+                size: 20,
+              ),
             ),
-            actions: [
-              IconButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const TransactionsScreen(),
-                    ),
-                  );
-                },
-                icon: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.05),
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.05),
-                    ),
-                  ),
-                  child: const Icon(
-                    Iconsax.receipt_1,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
-              ),
-              const Gap(8),
-              IconButton(
-                onPressed: _showAddAssetScreen,
-                icon: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppTheme.gold,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppTheme.gold.withValues(alpha: 0.3),
-                        blurRadius: 10,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(Iconsax.add, color: Colors.black, size: 20),
-                ),
-              ),
-              const Gap(16),
-            ],
           ),
+          const Gap(8),
+          IconButton(
+            onPressed: _showAddAssetScreen,
+            icon: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppTheme.gold,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.gold.withValues(alpha: 0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: const Icon(Iconsax.add, color: Colors.black, size: 20),
+            ),
+          ),
+          const Gap(16),
         ],
-        body: Column(
+      ),
+      body: SafeArea(
+        child: Column(
           children: [
             if (state is AssetLoaded && state.isRefreshing)
               LinearProgressIndicator(

@@ -41,7 +41,7 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.background,
-      appBar: AppBarWidget(title: widget.currencyName),
+      appBar: AppBarWidget(title: widget.currencyName, isLargeTitle: true),
       body: Column(
         children: [
           Expanded(

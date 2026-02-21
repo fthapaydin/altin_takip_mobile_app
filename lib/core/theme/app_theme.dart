@@ -20,7 +20,7 @@ class AppTheme {
         surface: surface,
         error: error,
       ),
-      textTheme: GoogleFonts.outfitTextTheme(ThemeData.dark().textTheme),
+      textTheme: GoogleFonts.ubuntuTextTheme(ThemeData.dark().textTheme),
       appBarTheme: const AppBarTheme(
         backgroundColor: background,
         elevation: 0,

@@ -7,14 +7,18 @@ import 'package:altin_takip/core/theme/app_theme.dart';
 import 'package:altin_takip/features/assets/presentation/asset_notifier.dart';
 import 'package:altin_takip/features/assets/presentation/asset_state.dart';
 import 'package:altin_takip/features/currencies/domain/currency.dart';
-import 'package:altin_takip/features/auth/presentation/auth_notifier.dart';
 import 'package:altin_takip/features/settings/presentation/preference_notifier.dart';
 import 'package:altin_takip/core/widgets/app_notification.dart';
 import 'package:altin_takip/features/currencies/presentation/history/currency_history_screen.dart';
 import 'package:altin_takip/features/assets/presentation/add_asset_screen.dart';
 
+import 'package:intl/intl.dart';
+import 'package:iconsax/iconsax.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:altin_takip/core/widgets/app_bar_widget.dart';
+import 'package:altin_takip/features/notifications/presentation/notifications_screen.dart';
+
 // Extracted Widgets
-import 'package:altin_takip/features/dashboard/presentation/widgets/dashboard_header.dart';
 import 'package:altin_takip/features/dashboard/presentation/widgets/portfolio_summary_card.dart';
 import 'package:altin_takip/features/dashboard/presentation/widgets/dashboard_general_tab.dart';
 import 'package:altin_takip/features/dashboard/presentation/widgets/dashboard_assets_tab.dart';
@@ -94,7 +98,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final assetState = ref.watch(assetProvider);
-    final authState = ref.watch(authProvider);
 
     // Listen for errors with custom notification
     ref.listen<AssetState>(assetProvider, (previous, next) {
@@ -116,6 +119,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
+        backgroundColor: AppTheme.background,
+        appBar: AppBarWidget(
+          title: 'Portföyüm',
+          subtitle: DateFormat('d MMMM yyyy', 'tr_TR').format(DateTime.now()),
+          showBack: false,
+          centerTitle: false,
+          isLargeTitle: true,
+          actions: [
+            _DashboardNotificationButton(),
+            const Gap(4),
+            _DashboardRefreshButton(),
+            const Gap(16),
+          ],
+        ),
         body: SafeArea(
           child: RefreshIndicator(
             onRefresh: () =>
@@ -124,17 +141,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             child: NestedScrollView(
               headerSliverBuilder: (context, innerBoxIsScrolled) => [
                 SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        DashboardHeader(authState: authState),
-                        const Gap(32),
-                        PortfolioSummaryCard(state: assetState),
-                        const Gap(32),
-                      ],
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _LoadingIndicator(),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+                        child: PortfolioSummaryCard(state: assetState),
+                      ),
+                      const Gap(32),
+                    ],
                   ),
                 ),
                 SliverPersistentHeader(
@@ -234,5 +250,83 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   @override
   bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
     return false;
+  }
+}
+
+// ─────────────────────────────────────────────
+
+class _DashboardNotificationButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+        );
+      },
+      icon: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [AppTheme.gold, AppTheme.gold.withValues(alpha: 0.5)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.gold.withValues(alpha: 0.2),
+              blurRadius: 8,
+              spreadRadius: 1,
+            ),
+          ],
+        ),
+        child: const Icon(Iconsax.notification, size: 20, color: Colors.black),
+      ),
+    ).animate().scale(delay: 500.ms, curve: Curves.easeOutBack);
+  }
+}
+
+class _DashboardRefreshButton extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final assetState = ref.watch(assetProvider);
+    final isLoading = assetState is AssetLoaded && assetState.isRefreshing;
+
+    return IconButton(
+      onPressed: () =>
+          ref.read(assetProvider.notifier).loadDashboard(refresh: true),
+      icon: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.05),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          isLoading ? Iconsax.timer_1 : Iconsax.refresh,
+          size: 20,
+          color: isLoading ? AppTheme.gold : Colors.white,
+        ),
+      ),
+    );
+  }
+}
+
+class _LoadingIndicator extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final assetState = ref.watch(assetProvider);
+    final isLoading = assetState is AssetLoaded && assetState.isRefreshing;
+
+    return AnimatedOpacity(
+      opacity: isLoading ? 1.0 : 0.0,
+      duration: const Duration(milliseconds: 300),
+      child: LinearProgressIndicator(
+        backgroundColor: Colors.transparent,
+        color: AppTheme.gold.withValues(alpha: 0.3),
+        minHeight: 2,
+      ),
+    );
   }
 }
