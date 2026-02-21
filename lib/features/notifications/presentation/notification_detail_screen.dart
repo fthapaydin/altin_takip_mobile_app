@@ -8,15 +8,38 @@ import 'package:altin_takip/features/notifications/domain/notification.dart'
 import 'package:altin_takip/features/dashboard/presentation/widgets/portfolio_chart.dart';
 import 'package:altin_takip/features/dashboard/domain/dashboard_models.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:altin_takip/features/notifications/presentation/notifications_notifier.dart';
+import 'package:altin_takip/core/widgets/app_bar_widget.dart';
 
-class NotificationDetailScreen extends StatelessWidget {
+class NotificationDetailScreen extends ConsumerStatefulWidget {
   final domain.Notification notification;
 
   const NotificationDetailScreen({super.key, required this.notification});
 
   @override
+  ConsumerState<NotificationDetailScreen> createState() =>
+      _NotificationDetailScreenState();
+}
+
+class _NotificationDetailScreenState
+    extends ConsumerState<NotificationDetailScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Api çağrısı ile bildirimi okundu olarak işaretle
+    if (widget.notification.readAt == null) {
+      Future.microtask(() {
+        ref
+            .read(notificationsProvider.notifier)
+            .markAsRead(widget.notification.id);
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final data = notification.data;
+    final data = widget.notification.data;
     final chartDataPoints = _getChartDataPoints(data);
     final changePercentage = data?.changePercentage ?? 0.0;
     final isPositive = changePercentage >= 0;
@@ -25,10 +48,10 @@ class NotificationDetailScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppTheme.background,
+      appBar: const AppBarWidget(title: 'Bildirim Detayı', isLargeTitle: true),
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(context),
             Expanded(
               child: data == null
                   ? _buildSkeleton(context)
@@ -457,42 +480,6 @@ class NotificationDetailScreen extends StatelessWidget {
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeader(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: AppTheme.glassColor,
-              shape: BoxShape.circle,
-              border: Border.all(color: AppTheme.glassBorder),
-            ),
-            child: IconButton(
-              icon: const Icon(
-                Icons.arrow_back_ios_new,
-                color: Colors.white,
-                size: 20,
-              ),
-              onPressed: () => Navigator.pop(context),
-            ),
-          ),
-          const Text(
-            'Bildirim Detayı',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w400,
-              fontSize: 18,
-            ),
-          ),
-          // Placeholder for visual balance
-          const SizedBox(width: 48),
         ],
       ),
     );

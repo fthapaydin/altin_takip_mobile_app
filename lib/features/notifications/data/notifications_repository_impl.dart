@@ -52,10 +52,8 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
   @override
   Future<Either<Failure, void>> markAsRead(int id) async {
     try {
-      // Assuming there's an endpoint or logic to mark as read,
-      // usually a POST/PUT or implicitly done via getDetail.
-      // If explicit endpoint exists:
-      // await _dio.post('/api/notifications/$id/read');
+      // API çağrısı bildirimi arka planda okundu olarak işaretler
+      await _dio.get('notifications/$id');
       return const Right(null);
     } on DioException catch (e) {
       return Left(ServerFailure(e.message ?? 'Bir hata oluştu'));

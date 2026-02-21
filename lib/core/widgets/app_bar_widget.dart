@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:altin_takip/core/theme/app_theme.dart';
 import 'package:gap/gap.dart';
+import 'package:iconsax/iconsax.dart';
 
 /// Centralized AppBar widget used across all screens.
 ///
@@ -44,7 +45,17 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: centerTitle,
       toolbarHeight: isLargeTitle ? 60.0 : kToolbarHeight,
       leading:
-          leading ?? (showBack ? const BackButton(color: Colors.white) : null),
+          leading ??
+          (showBack
+              ? IconButton(
+                  icon: const Icon(
+                    Iconsax.arrow_left_2,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                  onPressed: () => Navigator.pop(context),
+                )
+              : null),
       automaticallyImplyLeading: showBack,
       actions: actions,
       bottom: bottom,
@@ -57,7 +68,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
             title,
             style: TextStyle(
               color: Colors.white,
-              fontSize: isLargeTitle && !centerTitle ? 24 : 16,
+              fontSize: isLargeTitle && !centerTitle ? 22 : 16,
               fontWeight: FontWeight.w500,
               letterSpacing: isLargeTitle ? -0.5 : -0.2,
             ),

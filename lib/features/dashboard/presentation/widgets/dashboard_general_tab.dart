@@ -13,8 +13,6 @@ import 'package:altin_takip/features/settings/presentation/preference_notifier.d
 import 'package:altin_takip/features/dashboard/presentation/transactions_screen.dart';
 import 'package:iconsax/iconsax.dart';
 
-import 'package:altin_takip/core/widgets/dashed_line_painter.dart';
-
 class DashboardGeneralTab extends ConsumerWidget {
   final AssetState state;
   final Function(Currency, bool) onNavigateToHistory;
@@ -357,93 +355,82 @@ class DashboardGeneralTab extends ConsumerWidget {
       return SliverList(
         delegate: SliverChildBuilderDelegate(
           (_, __) => Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 80,
-                  child: Center(
-                    child: Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.05),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24,
+            ).copyWith(bottom: 12),
+            child: Container(
+              height: 88,
+              decoration: BoxDecoration(
+                color: AppTheme.surface,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+              ),
+              padding: const EdgeInsets.all(20),
+              child: Shimmer.fromColors(
+                baseColor: Colors.white.withValues(alpha: 0.05),
+                highlightColor: Colors.white.withValues(alpha: 0.1),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
                         shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.1),
-                        ),
                       ),
                     ),
-                  ),
-                ),
-                Expanded(
-                  child: Container(
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white.withOpacity(0.05)),
-                    ),
-                    padding: const EdgeInsets.all(16),
-                    child: Shimmer.fromColors(
-                      baseColor: Colors.white.withOpacity(0.05),
-                      highlightColor: Colors.white.withOpacity(0.1),
-                      child: Row(
+                    const Gap(16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  width: 100,
-                                  height: 14,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                ),
-                                const Gap(8),
-                                Container(
-                                  width: 60,
-                                  height: 10,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                ),
-                              ],
+                          Container(
+                            width: 120,
+                            height: 16,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4),
                             ),
                           ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                width: 80,
-                                height: 16,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                              ),
-                              const Gap(8),
-                              Container(
-                                width: 50,
-                                height: 10,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                              ),
-                            ],
+                          const Gap(8),
+                          Container(
+                            width: 80,
+                            height: 12,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
                           ),
                         ],
                       ),
                     ),
-                  ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 80,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                        const Gap(8),
+                        Container(
+                          width: 50,
+                          height: 12,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
           childCount: 5,
@@ -534,26 +521,18 @@ class DashboardGeneralTab extends ConsumerWidget {
       return SliverList(
         delegate: SliverChildBuilderDelegate((context, index) {
           final asset = displayAssets[index];
-          return _buildTimelineTransactionItem(
-            context,
-            ref,
-            asset,
-            isFirst: index == 0,
-            isLast: index == displayAssets.length - 1,
-          );
+          return _buildTransactionCard(context, ref, asset);
         }, childCount: displayAssets.length),
       );
     }
     return const SliverToBoxAdapter(child: SizedBox());
   }
 
-  Widget _buildTimelineTransactionItem(
+  Widget _buildTransactionCard(
     BuildContext context,
     WidgetRef ref,
-    Asset asset, {
-    bool isLast = false,
-    bool isFirst = false,
-  }) {
+    Asset asset,
+  ) {
     final isBuy = asset.type == 'buy';
     final color = isBuy ? const Color(0xFF4ADE80) : const Color(0xFFF87171);
     final useDynamicDate = ref.watch(preferenceProvider).useDynamicDate;
@@ -574,186 +553,146 @@ class DashboardGeneralTab extends ConsumerWidget {
     }
     final isProfitPositive = profit != null && profit >= 0;
 
-    return Stack(
-      children: [
-        // Lines
-        Positioned(
-          left: 0,
-          width: 80,
-          top: 0,
-          bottom: 0,
-          child: Center(
-            child: SizedBox(
-              width: 80,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  if (!isFirst)
-                    Positioned(
-                      top: 0,
-                      height: 6,
-                      child: CustomPaint(
-                        size: const Size(2, 6),
-                        painter: DashedLinePainter(
-                          color: Colors.white.withValues(alpha: 0.1),
-                        ),
-                      ),
-                    ),
-                  if (!isLast)
-                    Positioned(
-                      top: 38,
-                      bottom: 0,
-                      child: CustomPaint(
-                        size: const Size(2, double.infinity),
-                        painter: DashedLinePainter(
-                          color: Colors.white.withValues(alpha: 0.1),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24).copyWith(bottom: 12),
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppTheme.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
         ),
-
-        // Content
-        Padding(
-          padding: const EdgeInsets.only(left: 80, right: 24, bottom: 24),
+        child: Material(
+          color: Colors.transparent,
           child: InkWell(
             onTap: () {
               if (asset.currency != null) {
                 onNavigateToHistory(asset.currency!, asset.currency!.isGold);
               }
             },
-            borderRadius: BorderRadius.circular(16),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            borderRadius: BorderRadius.circular(20),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: color.withValues(alpha: 0.2)),
+                    ),
+                    child: Icon(
+                      isBuy ? Iconsax.arrow_down_1 : Iconsax.arrow_up_1,
+                      color: color,
+                      size: 20,
+                    ),
+                  ),
+                  const Gap(16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          asset.currency?.name ?? 'Bilinmeyen Varlık',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 0.2,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const Gap(6),
+                        Row(
+                          children: [
+                            Text(
+                              isBuy ? 'Alış' : 'Satış',
+                              style: TextStyle(
+                                color: color,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const Gap(4),
+                            Expanded(
+                              child: Text(
+                                '• $mainDateStr, $timeStr',
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.4),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Gap(12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        asset.currency?.name ?? 'Bilinmeyen Varlık',
-                        style: const TextStyle(
-                          color: Colors.white,
+                        '${_formatAmount(asset.amount)} adet',
+                        style: TextStyle(
                           fontWeight: FontWeight.w400,
-                          fontSize: 16,
-                          letterSpacing: 0.3,
+                          fontSize: 15,
+                          color: isBuy ? const Color(0xFF4ADE80) : Colors.white,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
-                      const Gap(6),
-                      Row(
-                        children: [
-                          Icon(
-                            Iconsax.calendar_1,
-                            size: 12,
-                            color: Colors.white.withValues(alpha: 0.4),
+                      const Gap(4),
+                      Text(
+                        '₺${NumberFormat('#,##0.00', 'tr_TR').format(asset.price)}',
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.5),
+                          fontSize: 12,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
+                      ),
+                      if (profit != null) ...[
+                        const Gap(6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
                           ),
-                          const Gap(4),
-                          Text(
-                            '$mainDateStr, $timeStr',
+                          decoration: BoxDecoration(
+                            color:
+                                (isProfitPositive
+                                        ? const Color(0xFF4ADE80)
+                                        : const Color(0xFFF87171))
+                                    .withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            '${isProfitPositive ? '+' : ''}₺${NumberFormat('#,##0.00', 'tr_TR').format(profit)}',
                             style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.5),
-                              fontSize: 12,
+                              fontFeatures: const [
+                                FontFeature.tabularFigures(),
+                              ],
+                              color: isProfitPositive
+                                  ? const Color(0xFF4ADE80)
+                                  : const Color(0xFFF87171),
+                              fontSize: 11,
                               fontWeight: FontWeight.w400,
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ],
                   ),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      '${_formatAmount(asset.amount)} adet',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 15,
-                        color: isBuy ? const Color(0xFF4ADE80) : Colors.white,
-                      ),
-                    ),
-                    const Gap(4),
-                    Text(
-                      '₺${NumberFormat('#,##0.00', 'tr_TR').format(asset.price)}',
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.5),
-                        fontSize: 12,
-                        fontFeatures: const [FontFeature.tabularFigures()],
-                      ),
-                    ),
-                    if (profit != null) ...[
-                      const Gap(4),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color:
-                              (isProfitPositive
-                                      ? const Color(0xFF4ADE80)
-                                      : const Color(0xFFF87171))
-                                  .withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          '${isProfitPositive ? '+' : ''}₺${NumberFormat('#,##0.00', 'tr_TR').format(profit)}',
-                          style: TextStyle(
-                            fontFeatures: const [FontFeature.tabularFigures()],
-                            color: isProfitPositive
-                                ? const Color(0xFF4ADE80)
-                                : const Color(0xFFF87171),
-                            fontSize: 11,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-
-        // Icon Bubble
-        Positioned(
-          left: 0,
-          width: 80,
-          top: 0,
-          child: Center(
-            child: Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    color.withValues(alpha: 0.2),
-                    color.withValues(alpha: 0.05),
-                  ],
-                ),
-                border: Border.all(
-                  color: color.withValues(alpha: 0.3),
-                  width: 1,
-                ),
-              ),
-              child: Icon(
-                isBuy ? Iconsax.arrow_down_1 : Iconsax.arrow_up_1,
-                color: color,
-                size: 16,
+                ],
               ),
             ),
           ),
         ),
-      ],
+      ),
     );
   }
 

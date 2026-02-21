@@ -45,23 +45,6 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       appBar: AppBarWidget(
         title: 'Bildirimler',
         isLargeTitle: true,
-        leading: Container(
-          margin: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: AppTheme.glassColor,
-            shape: BoxShape.circle,
-            border: Border.all(color: AppTheme.glassBorder),
-          ),
-          child: IconButton(
-            icon: const Icon(
-              Icons.arrow_back_ios_new,
-              color: Colors.white,
-              size: 16,
-            ),
-            padding: EdgeInsets.zero,
-            onPressed: () => Navigator.pop(context),
-          ),
-        ),
         actions: [
           IconButton(
             onPressed: () => ref

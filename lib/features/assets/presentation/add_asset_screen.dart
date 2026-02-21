@@ -163,10 +163,6 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
       appBar: AppBarWidget(
         title: 'Yeni İşlem',
         isLargeTitle: true,
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: const Icon(Iconsax.arrow_left_2, color: Colors.white, size: 20),
-        ),
         actions: [
           IconButton(
             onPressed: () {
