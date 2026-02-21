@@ -266,95 +266,39 @@ class PortfolioSummaryCard extends ConsumerWidget {
     required double profitPercentage,
   }) {
     final isPositive = profitLoss >= 0;
-    final profitColor = isPositive ? Colors.green : Colors.red;
-    final formatter = NumberFormat('#,##0.00', 'tr_TR');
+    final profitColor = isPositive
+        ? const Color(0xFF34D399) // emerald
+        : const Color(0xFFEF4444); // rose
+    final formatter = NumberFormat('#,##0', 'tr_TR');
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.04),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-      ),
-      child: Row(
-        children: [
-          // Toplam Yatırım (Total Cost)
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'TOPLAM YATIRIM',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.45),
-                    fontSize: 9,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-                const Gap(6),
-                Text(
-                  '₺${formatter.format(totalCost)}',
-                  style: const TextStyle(
-                    fontFeatures: [FontFeature.tabularFigures()],
-                    color: Colors.white,
-                    fontSize: 15,
-                    letterSpacing: -0.3,
-                  ),
-                ),
-              ],
-            ),
+    return Row(
+      children: [
+        // ── Toplam Yatırım ──
+        Expanded(
+          child: _StatTile(
+            accentColor: AppTheme.gold.withValues(alpha: 0.6),
+            icon: Iconsax.wallet_1,
+            iconColor: AppTheme.gold,
+            label: 'Yatırım',
+            value: '₺${formatter.format(totalCost)}',
+            valueColor: Colors.white,
           ),
-          Container(
-            width: 1,
-            height: 36,
-            color: Colors.white.withValues(alpha: 0.08),
+        ),
+        const Gap(8),
+        // ── Kâr / Zarar ──
+        Expanded(
+          child: _StatTile(
+            accentColor: profitColor.withValues(alpha: 0.5),
+            icon: isPositive ? Iconsax.trend_up : Iconsax.trend_down,
+            iconColor: profitColor,
+            label: 'Kâr / Zarar',
+            value:
+                '${isPositive ? '+' : '-'}₺${formatter.format(profitLoss.abs())}',
+            valueColor: profitColor,
           ),
-          // Kâr / Zarar (Profit / Loss)
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(left: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'KÂR / ZARAR',
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.45),
-                      fontSize: 9,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                  const Gap(6),
-                  Row(
-                    children: [
-                      Icon(
-                        isPositive ? Iconsax.arrow_up : Iconsax.arrow_down,
-                        color: profitColor,
-                        size: 13,
-                      ),
-                      const Gap(4),
-                      Flexible(
-                        child: Text(
-                          '₺${formatter.format(profitLoss.abs())}',
-                          style: TextStyle(
-                            fontFeatures: const [FontFeature.tabularFigures()],
-                            color: profitColor,
-                            fontSize: 15,
-                            letterSpacing: -0.3,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+        ),
+      ],
+    ).animate().fadeIn(duration: 400.ms, delay: 200.ms);
   }
 
   Widget _buildAssetAllocation(AssetState state, {bool isPrivacyMode = false}) {
@@ -740,6 +684,89 @@ class PortfolioSummaryCard extends ConsumerWidget {
     return ImageFiltered(
       imageFilter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
       child: child,
+    );
+  }
+}
+
+/// Premium stat tile with colored accent bar and icon.
+class _StatTile extends StatelessWidget {
+  final Color accentColor;
+  final IconData icon;
+  final Color iconColor;
+  final String label;
+  final String value;
+  final Color valueColor;
+
+  const _StatTile({
+    required this.accentColor,
+    required this.icon,
+    required this.iconColor,
+    required this.label,
+    required this.value,
+    required this.valueColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.04),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+      ),
+      child: Row(
+        children: [
+          // Accent bar
+          Container(
+            width: 3,
+            height: 28,
+            decoration: BoxDecoration(
+              color: accentColor,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const Gap(8),
+          // Content
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      icon,
+                      size: 10,
+                      color: iconColor.withValues(alpha: 0.7),
+                    ),
+                    const Gap(4),
+                    Text(
+                      label,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.4),
+                        fontSize: 8.5,
+                        letterSpacing: 0.8,
+                      ),
+                    ),
+                  ],
+                ),
+                const Gap(3),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                    color: valueColor,
+                    fontSize: 13,
+                    letterSpacing: -0.3,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
