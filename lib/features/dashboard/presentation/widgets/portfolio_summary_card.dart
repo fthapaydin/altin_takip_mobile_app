@@ -43,11 +43,10 @@ class PortfolioSummaryCard extends ConsumerWidget {
         (state is AssetLoaded
             ? _calculateProfitLoss(state as AssetLoaded)
             : 0.0);
+    final totalCost = dashboardSummary?.totalCost ?? (totalWorth - profitLoss);
     final profitPercentage =
         dashboardSummary?.profitLossPercentage ??
-        ((totalWorth - profitLoss) > 0
-            ? (profitLoss / (totalWorth - profitLoss)) * 100
-            : 0.0);
+        (totalCost > 0 ? (profitLoss / totalCost) * 100 : 0.0);
 
     return Container(
       width: double.infinity,
@@ -234,7 +233,16 @@ class PortfolioSummaryCard extends ConsumerWidget {
                               ),
                       ),
 
-                      const Gap(32),
+                      const Gap(20),
+
+                      // Investment Stats Row
+                      _buildInvestmentStats(
+                        totalCost: totalCost,
+                        profitLoss: profitLoss,
+                        profitPercentage: profitPercentage,
+                      ),
+
+                      const Gap(24),
 
                       // Detailed Asset Allocation
                       _buildAssetAllocation(
@@ -250,6 +258,103 @@ class PortfolioSummaryCard extends ConsumerWidget {
         ),
       ),
     ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.1, end: 0);
+  }
+
+  Widget _buildInvestmentStats({
+    required double totalCost,
+    required double profitLoss,
+    required double profitPercentage,
+  }) {
+    final isPositive = profitLoss >= 0;
+    final profitColor = isPositive ? Colors.green : Colors.red;
+    final formatter = NumberFormat('#,##0.00', 'tr_TR');
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.04),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+      ),
+      child: Row(
+        children: [
+          // Toplam Yatırım (Total Cost)
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'TOPLAM YATIRIM',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.45),
+                    fontSize: 9,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                const Gap(6),
+                Text(
+                  '₺${formatter.format(totalCost)}',
+                  style: const TextStyle(
+                    fontFeatures: [FontFeature.tabularFigures()],
+                    color: Colors.white,
+                    fontSize: 15,
+                    letterSpacing: -0.3,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            width: 1,
+            height: 36,
+            color: Colors.white.withValues(alpha: 0.08),
+          ),
+          // Kâr / Zarar (Profit / Loss)
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'KÂR / ZARAR',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.45),
+                      fontSize: 9,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  const Gap(6),
+                  Row(
+                    children: [
+                      Icon(
+                        isPositive ? Iconsax.arrow_up : Iconsax.arrow_down,
+                        color: profitColor,
+                        size: 13,
+                      ),
+                      const Gap(4),
+                      Flexible(
+                        child: Text(
+                          '₺${formatter.format(profitLoss.abs())}',
+                          style: TextStyle(
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                            color: profitColor,
+                            fontSize: 15,
+                            letterSpacing: -0.3,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildAssetAllocation(AssetState state, {bool isPrivacyMode = false}) {
