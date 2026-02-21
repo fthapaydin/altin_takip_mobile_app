@@ -27,6 +27,16 @@
 		<dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.fatalsoft.altintakip.app</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>altintakip</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>com.googleusercontent.apps.808192730816-glecgeop4cn38deftt3989hk1sl8t7sq</string>

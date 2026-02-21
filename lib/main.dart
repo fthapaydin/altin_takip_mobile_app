@@ -12,20 +12,26 @@ void main() async {
   await initializeDateFormatting('tr_TR', null);
   await initDependencies();
 
+  // Global Navigator Key for deep linking
+  final navigatorKey = GlobalKey<NavigatorState>();
+
   // Initialize OneSignal
   final oneSignal = sl<OneSignalService>();
-  await oneSignal.initialize();
+  await oneSignal.initialize(navigatorKey);
   await oneSignal.requestPermission();
 
-  runApp(const ProviderScope(child: MyApp()));
+  runApp(ProviderScope(child: MyApp(navigatorKey: navigatorKey)));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final GlobalKey<NavigatorState> navigatorKey;
+
+  const MyApp({super.key, required this.navigatorKey});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey,
       title: 'Altın Cüzdan',
       theme: AppTheme.dark,
       debugShowCheckedModeBanner: false,
