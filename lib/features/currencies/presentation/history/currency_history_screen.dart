@@ -42,9 +42,9 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
     return Scaffold(
       backgroundColor: AppTheme.background,
       appBar: AppBarWidget(title: widget.currencyName, isLargeTitle: true),
-      body: Column(
-        children: [
-          Expanded(
+      body: CustomScrollView(
+        slivers: [
+          SliverFillRemaining(
             child: Consumer(
               builder: (context, ref, child) {
                 final historyAsync = ref.watch(
@@ -97,94 +97,165 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
     return Shimmer.fromColors(
       baseColor: Colors.white.withValues(alpha: 0.05),
       highlightColor: Colors.white.withValues(alpha: 0.1),
-      child: Padding(
+      child: ListView(
         padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            // Header
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 120,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
+        physics: const NeverScrollableScrollPhysics(),
+        children: [
+          // Header
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 12,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          const Gap(8),
+                          Container(
+                            width: 80,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    const Gap(8),
-                    Container(
-                      width: 80,
-                      height: 16,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(4),
+                      const Gap(24),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 12,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          const Gap(8),
+                          Container(
+                            width: 80,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
-                Container(
-                  width: 60,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
+                    ],
                   ),
-                ),
-              ],
+                  const Gap(12),
+                  Row(
+                    children: [
+                      Container(
+                        width: 80,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      const Gap(8),
+                      Container(
+                        width: 120,
+                        height: 12,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const Gap(20),
+          // Chart Area
+          Container(
+            height: 250,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
             ),
-            const Gap(20),
-            // Chart Area
-            Expanded(
-              flex: 3,
-              child: Container(
+          ),
+          const Gap(16),
+          // Range Selector
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: List.generate(6, (index) {
+              return Container(
+                width: 40,
+                height: 32,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
                 ),
+              );
+            }),
+          ),
+          const Gap(24),
+          // Investment Summary Title
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Container(
+              width: 120,
+              height: 20,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
               ),
             ),
-            const Gap(16),
-            // Range Selector
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: List.generate(6, (index) {
-                return Container(
-                  width: 40,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                );
-              }),
+          ),
+          const Gap(16),
+          // Investment Summary Card
+          Container(
+            height: 140,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
             ),
-            const Gap(16),
-            // Transactions List
-            Expanded(
-              flex: 2,
-              child: SingleChildScrollView(
-                physics: const NeverScrollableScrollPhysics(),
-                child: Column(
-                  children: List.generate(3, (index) {
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      height: 60,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    );
-                  }),
-                ),
+          ),
+          const Gap(24),
+          // Transactions Title
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Container(
+              width: 150,
+              height: 20,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
               ),
             ),
-          ],
-        ),
+          ),
+          const Gap(16),
+          // Transactions List
+          ...List.generate(3, (index) {
+            return Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              height: 72,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
+            );
+          }),
+        ],
       ),
     );
   }
@@ -244,66 +315,180 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
     final percentage = (change / firstItem.buying) * 100;
     final isPositive = change >= 0;
 
-    return Padding(
+    return ListView(
       padding: const EdgeInsets.all(20),
+      children: [
+        // Header info
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    _buildPriceItem('Alış', lastItem.buying),
+                    const Gap(24),
+                    _buildPriceItem('Satış', lastItem.selling),
+                  ],
+                ),
+                const Gap(8),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: (isPositive ? Colors.green : Colors.red)
+                            .withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            isPositive ? Iconsax.trend_up : Iconsax.trend_down,
+                            size: 14,
+                            color: isPositive ? Colors.green : Colors.red,
+                          ),
+                          const Gap(4),
+                          Text(
+                            '%${percentage.abs().toStringAsFixed(2)}',
+                            style: TextStyle(
+                              color: isPositive ? Colors.green : Colors.red,
+                              fontWeight: FontWeight.w400,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Gap(8),
+                    Text(
+                      'Son güncelleme: ${lastItem.date.hour == 0 && lastItem.date.minute == 0 ? DateFormat('dd.MM.yyyy').format(lastItem.date) : DateFormat('HH:mm').format(lastItem.date)}',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.5),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+        const Gap(20),
+        // Chart
+        SizedBox(height: 250, child: _buildChart(sortedHistory)),
+        const Gap(16),
+        // Range Selector
+        _buildRangeSelector(selectedRange),
+        const Gap(24),
+        // Transactions List
+        if (data.userAssets.isNotEmpty) ...[
+          const Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'Yatırım Özeti',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+          const Gap(16),
+          _buildInvestmentSummary(data.userAssets, lastItem.buying),
+          const Gap(24),
+          const Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'Geçmiş İşlemlerim',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+          const Gap(16),
+          _buildTransactionsList(data.userAssets),
+        ] else
+          _buildEmptyTransactionsState(),
+        const Gap(40), // Bottom padding
+      ],
+    );
+  }
+
+  Widget _buildInvestmentSummary(List<Asset> assets, double currentPrice) {
+    double totalAmount = 0;
+    double totalCost = 0;
+
+    for (final asset in assets) {
+      if (asset.type == 'buy') {
+        totalAmount += asset.amount;
+        totalCost += (asset.price * asset.amount);
+      } else if (asset.type == 'sell') {
+        totalAmount -= asset.amount;
+        totalCost -= (asset.price * asset.amount);
+      }
+    }
+
+    if (totalAmount <= 0) return const SizedBox.shrink();
+
+    final currentValue = totalAmount * currentPrice;
+    final profit = currentValue - totalCost;
+    final profitPercentage = totalCost > 0 ? (profit / totalCost) * 100 : 0.0;
+    final isProfitPositive = profit >= 0;
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+      ),
       child: Column(
         children: [
-          // Header info
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      _buildPriceItem('Alış', lastItem.buying),
-                      const Gap(24),
-                      _buildPriceItem('Satış', lastItem.selling),
-                    ],
+                  Text(
+                    'Toplam Varlık',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.5),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
-                  const Gap(8),
+                  const Gap(4),
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: (isPositive ? Colors.green : Colors.red)
-                              .withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              isPositive
-                                  ? Iconsax.trend_up
-                                  : Iconsax.trend_down,
-                              size: 14,
-                              color: isPositive ? Colors.green : Colors.red,
-                            ),
-                            const Gap(4),
-                            Text(
-                              '%${percentage.abs().toStringAsFixed(2)}',
-                              style: TextStyle(
-                                color: isPositive ? Colors.green : Colors.red,
-                                fontWeight: FontWeight.w400,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
+                      Text(
+                        '₺${NumberFormat('#,##0.00', 'tr_TR').format(currentValue)}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w400,
+                          fontFeatures: [FontFeature.tabularFigures()],
                         ),
                       ),
                       const Gap(8),
-                      Text(
-                        'Son güncelleme: ${lastItem.date.hour == 0 && lastItem.date.minute == 0 ? DateFormat('dd.MM.yyyy').format(lastItem.date) : DateFormat('HH:mm').format(lastItem.date)}',
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.5),
-                          fontSize: 12,
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: Text(
+                          '${NumberFormat('#,##0.###', 'tr_TR').format(totalAmount)} adet',
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.4),
+                            fontSize: 14,
+                          ),
                         ),
                       ),
                     ],
@@ -312,30 +497,89 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
               ),
             ],
           ),
-          const Gap(20),
-          // Chart
-          Expanded(flex: 3, child: _buildChart(sortedHistory)),
           const Gap(16),
-          // Range Selector
-          _buildRangeSelector(selectedRange),
+          const Divider(color: Colors.white10, height: 1),
           const Gap(16),
-          // Transactions List
-          if (data.userAssets.isNotEmpty) ...[
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Geçmiş İşlemlerim',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w400,
-                ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Toplam Maliyet',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.5),
+                      fontSize: 13,
+                    ),
+                  ),
+                  const Gap(4),
+                  Text(
+                    '₺${NumberFormat('#,##0.00', 'tr_TR').format(totalCost)}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w400,
+                      fontFeatures: [FontFeature.tabularFigures()],
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const Gap(16),
-            Expanded(flex: 2, child: _buildTransactionsList(data.userAssets)),
-          ] else
-            Expanded(flex: 2, child: _buildEmptyTransactionsState()),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    'Kâr / Zarar',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.5),
+                      fontSize: 13,
+                    ),
+                  ),
+                  const Gap(4),
+                  Row(
+                    children: [
+                      Text(
+                        '${isProfitPositive ? '+' : ''}₺${NumberFormat('#,##0.00', 'tr_TR').format(profit)}',
+                        style: TextStyle(
+                          color: isProfitPositive
+                              ? const Color(0xFF4ADE80)
+                              : const Color(0xFFF87171),
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
+                      ),
+                      const Gap(8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color:
+                              (isProfitPositive
+                                      ? const Color(0xFF4ADE80)
+                                      : const Color(0xFFF87171))
+                                  .withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          '${isProfitPositive ? '+' : ''}%${profitPercentage.abs().toStringAsFixed(2)}',
+                          style: TextStyle(
+                            color: isProfitPositive
+                                ? const Color(0xFF4ADE80)
+                                : const Color(0xFFF87171),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -347,6 +591,8 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
     sortedAssets.sort((a, b) => b.date.compareTo(a.date));
 
     return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
       itemCount: sortedAssets.length,
       separatorBuilder: (context, index) => const Gap(12),
       itemBuilder: (context, index) {
