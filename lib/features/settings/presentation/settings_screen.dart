@@ -18,6 +18,7 @@ import 'package:altin_takip/features/settings/presentation/widgets/change_passwo
 import 'package:altin_takip/features/settings/presentation/widgets/logout_sheet.dart';
 import 'package:altin_takip/features/settings/presentation/widgets/delete_account_sheet.dart';
 import 'package:altin_takip/features/settings/presentation/widgets/reset_order_sheet.dart';
+import 'package:altin_takip/features/calculator/presentation/calculator_screen.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -72,8 +73,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final encryptionEnabled = authState is AuthAuthenticated
         ? authState.user.isEncrypted
         : authState is AuthEncryptionRequired
-            ? authState.user.isEncrypted
-            : _encryptionEnabled;
+        ? authState.user.isEncrypted
+        : _encryptionEnabled;
 
     return Scaffold(
       backgroundColor: AppTheme.background,
@@ -180,6 +181,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   type: NotificationType.success,
                 );
               },
+            ),
+            const Gap(8),
+            SettingCard(
+              icon: Iconsax.calculator,
+              title: 'Hesaplama Araçları',
+              subtitle: 'Dönüştürücü ve Kar/Zarar hesaplama',
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const CalculatorScreen()),
+              ),
             ),
             const Gap(24),
 

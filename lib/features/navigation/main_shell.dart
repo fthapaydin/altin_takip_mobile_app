@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:altin_takip/core/theme/app_theme.dart';
 import 'package:altin_takip/features/assets/presentation/assets_screen.dart';
 import 'package:altin_takip/features/assets/presentation/add_asset_screen.dart';
-import 'package:altin_takip/features/calculator/presentation/calculator_screen.dart';
+import 'package:altin_takip/features/goals/presentation/goals_screen.dart';
 import 'package:altin_takip/features/dashboard/presentation/dashboard_screen.dart';
 import 'package:altin_takip/features/settings/presentation/settings_screen.dart';
 import 'package:iconsax/iconsax.dart';
@@ -21,7 +21,7 @@ class _MainShellState extends ConsumerState<MainShell> {
   final List<Widget> _screens = const [
     DashboardScreen(),
     AssetsScreen(),
-    CalculatorScreen(),
+    GoalsScreen(),
     SettingsScreen(),
   ];
 
@@ -66,7 +66,7 @@ class _MainShellState extends ConsumerState<MainShell> {
               _buildNavItem(0, Iconsax.home, 'Anasayfa'),
               _buildNavItem(1, Iconsax.wallet_3, 'Portföy'),
               const SizedBox(width: 48), // Space for FAB
-              _buildNavItem(2, Iconsax.calculator, 'Hesaplama'),
+              _buildNavItem(2, Iconsax.flag, 'Hedefler'),
               _buildNavItem(3, Iconsax.setting_2, 'Ayarlar'),
             ],
           ),

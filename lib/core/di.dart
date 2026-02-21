@@ -18,6 +18,8 @@ import 'package:altin_takip/features/public_prices/domain/public_prices_reposito
 import 'package:altin_takip/features/public_prices/data/public_prices_repository_impl.dart';
 import 'package:altin_takip/features/auth/data/google_sign_in_service.dart';
 import 'package:altin_takip/core/services/onesignal_service.dart';
+import 'package:altin_takip/features/goals/domain/goal_repository.dart';
+import 'package:altin_takip/features/goals/data/goal_repository_impl.dart';
 
 final sl = GetIt.instance;
 
@@ -47,4 +49,5 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton<PublicPricesRepository>(
     () => PublicPricesRepositoryImpl(sl()),
   );
+  sl.registerLazySingleton<GoalRepository>(() => GoalRepositoryImpl(sl()));
 }
