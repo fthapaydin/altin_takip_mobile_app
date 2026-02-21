@@ -67,13 +67,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final state = ref.watch(settingsProvider);
     final isLoading = state is SettingsLoading;
 
-    // Update local state from auth provider
+    // Derive encryption state from auth provider without mutating during build
     final authState = ref.watch(authProvider);
-    if (authState is AuthAuthenticated) {
-      _encryptionEnabled = authState.user.isEncrypted;
-    } else if (authState is AuthEncryptionRequired) {
-      _encryptionEnabled = authState.user.isEncrypted;
-    }
+    final encryptionEnabled = authState is AuthAuthenticated
+        ? authState.user.isEncrypted
+        : authState is AuthEncryptionRequired
+            ? authState.user.isEncrypted
+            : _encryptionEnabled;
 
     return Scaffold(
       backgroundColor: AppTheme.background,
@@ -137,11 +137,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             SettingCard(
               icon: Iconsax.lock,
               title: 'Veri Şifreleme',
-              subtitle: _encryptionEnabled
+              subtitle: encryptionEnabled
                   ? 'Aktif - Verileriniz korunuyor'
                   : 'Kapalı - Verileri şifrele',
               trailing: Switch(
-                value: _encryptionEnabled,
+                value: encryptionEnabled,
                 onChanged: isLoading
                     ? null
                     : (val) => EncryptionSheet.show(context, val, (enabled) {
@@ -150,7 +150,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 activeColor: AppTheme.gold,
                 activeTrackColor: AppTheme.gold.withValues(alpha: 0.3),
               ),
-              statusColor: _encryptionEnabled ? Colors.green : Colors.orange,
+              statusColor: encryptionEnabled ? Colors.green : Colors.orange,
             ),
             const Gap(8),
             SettingCard(
