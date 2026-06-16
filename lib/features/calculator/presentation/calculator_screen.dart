@@ -1,7 +1,9 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:altin_takip/core/theme/app_theme.dart';
 import 'package:altin_takip/features/assets/presentation/asset_notifier.dart';
 import 'package:altin_takip/features/assets/presentation/asset_state.dart';
@@ -126,35 +128,39 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
       extendBodyBehindAppBar: true,
       appBar: AppBarWidget(
         title: 'Hesaplama',
-        centerTitle: false,
+        centerTitle: true,
         isLargeTitle: false,
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(48),
+          preferredSize: const Size.fromHeight(56),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+            padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
             child: Container(
-              height: 44,
+              height: 38,
               decoration: BoxDecoration(
-                color: AppTheme.surface,
-                borderRadius: BorderRadius.circular(30),
+                color: Colors.white.withValues(alpha: 0.02),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.05),
+                  width: 1.0,
+                ),
               ),
               child: TabBar(
                 controller: _tabController,
                 labelColor: Colors.black,
-                unselectedLabelColor: Colors.white70,
+                unselectedLabelColor: Colors.white38,
                 indicatorSize: TabBarIndicatorSize.tab,
                 dividerColor: Colors.transparent,
                 indicator: BoxDecoration(
                   color: AppTheme.gold,
-                  borderRadius: BorderRadius.circular(30),
+                  borderRadius: BorderRadius.circular(20),
                 ),
                 labelStyle: const TextStyle(
-                  fontWeight: FontWeight.w400,
-                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 12,
                 ),
                 unselectedLabelStyle: const TextStyle(
-                  fontWeight: FontWeight.w400,
-                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 12,
                 ),
                 tabs: const [
                   Tab(text: 'Dönüştürücü'),
@@ -188,7 +194,7 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
             'KAYNAK',
             style: TextStyle(
               color: AppTheme.gold,
-              fontSize: 11,
+              fontSize: 10,
               fontWeight: FontWeight.w500,
               letterSpacing: 1.5,
             ),
@@ -214,7 +220,7 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
             formatters: [TurkishCurrencyFormatter()],
             onChanged: (_) => _calculateConversion(),
           ),
-          const Gap(32),
+          const Gap(24),
           Center(
             child: InkWell(
               onTap: () {
@@ -229,23 +235,27 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
               child: Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppTheme.gold.withValues(alpha: 0.1),
+                  color: Colors.white.withValues(alpha: 0.02),
                   shape: BoxShape.circle,
+                  border: Border.all(
+                    color: AppTheme.gold.withValues(alpha: 0.15),
+                    width: 1.0,
+                  ),
                 ),
                 child: const Icon(
                   Icons.swap_vert_rounded,
                   color: AppTheme.gold,
-                  size: 24,
+                  size: 22,
                 ),
               ),
             ),
           ).animate().rotate(duration: 400.ms),
-          const Gap(32),
+          const Gap(24),
           const Text(
             'HEDEF (BOŞ BIRAKILIRSA TL)',
             style: TextStyle(
               color: AppTheme.gold,
-              fontSize: 11,
+              fontSize: 10,
               fontWeight: FontWeight.w500,
               letterSpacing: 1.5,
             ),
@@ -268,10 +278,15 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
                 width: double.infinity,
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: AppTheme.surface,
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF0F1116), Color(0xFF09090A)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                   borderRadius: BorderRadius.circular(32),
                   border: Border.all(
                     color: Colors.white.withValues(alpha: 0.05),
+                    width: 1,
                   ),
                   boxShadow: [
                     BoxShadow(
@@ -294,12 +309,12 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        'Tahmin Edilen Değer'.toUpperCase(),
+                        'TAHMİN EDİLEN DEĞER',
                         style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.3),
+                          color: AppTheme.gold.withValues(alpha: 0.8),
                           fontSize: 9,
                           fontWeight: FontWeight.w500,
-                          letterSpacing: 2,
+                          letterSpacing: 1.5,
                         ),
                       ),
                     ),
@@ -318,19 +333,19 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
                             ).format(_convertedValue),
                             style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 48,
-                              fontWeight: FontWeight.w400, // Light and sleek
-                              letterSpacing: -1.5,
+                              fontSize: 40,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: -1.0,
                             ),
                           ),
-                          const Gap(10),
+                          const Gap(8),
                           Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
+                            padding: const EdgeInsets.only(bottom: 6),
                             child: Text(
                               _toCurrency?.code ?? 'TRY',
                               style: const TextStyle(
                                 color: AppTheme.gold,
-                                fontSize: 18,
+                                fontSize: 16,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -338,7 +353,7 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
                         ],
                       ),
                     ),
-                    const Gap(8),
+                    const Gap(6),
                     Text(
                       _toCurrency?.name ?? 'Türk Lirası',
                       style: TextStyle(
@@ -348,17 +363,17 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
                       ),
                     ),
                     if (_fromCurrency != null) ...[
-                      const Gap(32),
+                      const Gap(24),
                       // Modern Rate Breakdown Card
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 16,
+                          horizontal: 16,
+                          vertical: 14,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.02),
-                          borderRadius: BorderRadius.circular(24),
+                          color: Colors.white.withValues(alpha: 0.01),
+                          borderRadius: BorderRadius.circular(20),
                           border: Border.all(
                             color: Colors.white.withValues(alpha: 0.03),
                           ),
@@ -366,7 +381,7 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
                         child: Row(
                           children: [
                             CurrencyIcon(
-                              iconUrl: _fromCurrency!.iconUrl,
+                              iconUrl: null,
                               isGold: _fromCurrency!.isGold,
                               size: 24,
                             ),
@@ -377,7 +392,7 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
                                 Text(
                                   'GÜNCEL KUR',
                                   style: TextStyle(
-                                    color: Colors.white.withValues(alpha: 0.2),
+                                    color: Colors.white.withValues(alpha: 0.3),
                                     fontSize: 8,
                                     fontWeight: FontWeight.w500,
                                     letterSpacing: 1.2,
@@ -398,17 +413,17 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 12,
-                                vertical: 8,
+                                vertical: 6,
                               ),
                               decoration: BoxDecoration(
-                                color: AppTheme.gold.withValues(alpha: 0.05),
+                                color: AppTheme.gold.withValues(alpha: 0.06),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
                                 '₺${NumberFormat('#,##0.00', 'tr_TR').format(_fromCurrency!.selling)}',
                                 style: const TextStyle(
                                   color: AppTheme.gold,
-                                  fontSize: 14,
+                                  fontSize: 13,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -433,6 +448,7 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
     final profit = _calculateProfit();
     final percentage = _calculateProfitPercentage();
     final isPositive = profit >= 0;
+    final themeColor = isPositive ? const Color(0xFF10B981) : const Color(0xFFEF4444);
 
     final buyPrice =
         double.tryParse(_buyPriceController.text.replaceAll(',', '.')) ?? 0;
@@ -456,7 +472,7 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
             'VARLIK SEÇİMİ',
             style: TextStyle(
               color: AppTheme.gold,
-              fontSize: 11,
+              fontSize: 10,
               fontWeight: FontWeight.w500,
               letterSpacing: 1.5,
             ),
@@ -521,93 +537,122 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
             width: double.infinity,
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  (isPositive ? Colors.green : Colors.red).withValues(
-                    alpha: 0.1,
-                  ),
-                  AppTheme.surface,
-                ],
+              gradient: const LinearGradient(
+                colors: [Color(0xFF0F1116), Color(0xFF09090A)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: (isPositive ? Colors.green : Colors.red).withValues(
-                  alpha: 0.2,
-                ),
+                color: Colors.white.withValues(alpha: 0.05),
+                width: 1,
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.4),
+                  blurRadius: 40,
+                  offset: const Offset(0, 20),
+                ),
+              ],
             ),
-            child: Column(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      isPositive ? Icons.trending_up : Icons.trending_down,
-                      color: isPositive ? Colors.green : Colors.red,
-                      size: 20,
+                // Accent Colored Left Strip
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Container(
+                    width: 3.5,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: themeColor,
+                      borderRadius: BorderRadius.circular(2),
                     ),
-                    const Gap(8),
-                    Text(
-                      isPositive ? 'TAHMİNİ KAR' : 'TAHMİNİ ZARAR',
-                      style: TextStyle(
-                        color: (isPositive ? Colors.green : Colors.red)
-                            .withValues(alpha: 0.8),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
                 const Gap(16),
-                Text(
-                  '${isPositive ? '+' : ''}₺${NumberFormat('#,##0.00', 'tr_TR').format(profit)}',
-                  style: TextStyle(
-                    color: isPositive ? Colors.white : Colors.red,
-                    fontSize: 32,
-                    fontWeight: FontWeight.w400,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            isPositive ? Iconsax.trend_up : Iconsax.trend_down,
+                            color: themeColor,
+                            size: 16,
+                          ),
+                          const Gap(8),
+                          Text(
+                            isPositive ? 'TAHMİNİ KAR' : 'TAHMİNİ ZARAR',
+                            style: TextStyle(
+                              color: themeColor,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 1.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Gap(16),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          Text(
+                            '${isPositive ? '+' : ''}₺${NumberFormat('#,##0.00', 'tr_TR').format(profit)}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 30,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: -1.0,
+                            ),
+                          ),
+                          const Gap(12),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: themeColor.withValues(alpha: 0.08),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: themeColor.withValues(alpha: 0.15),
+                                width: 1,
+                              ),
+                            ),
+                            child: Text(
+                              '${isPositive ? '+' : ''}%${NumberFormat('#,##0.00', 'tr_TR').format(percentage)}',
+                              style: TextStyle(
+                                color: themeColor,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (amount > 0) ...[
+                        const Gap(20),
+                        Divider(
+                          color: Colors.white.withValues(alpha: 0.05),
+                          height: 1,
+                        ),
+                        const Gap(16),
+                        _buildProfitDetail(
+                          'TOPLAM MALİYET',
+                          '₺${NumberFormat('#,##0.00', 'tr_TR').format(buyPrice * amount)}',
+                        ),
+                        const Gap(8),
+                        _buildProfitDetail(
+                          'TOPLAM DEĞER',
+                          '₺${NumberFormat('#,##0.00', 'tr_TR').format(sellPrice * amount)}',
+                        ),
+                      ],
+                    ],
                   ),
                 ),
-                const Gap(12),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: (isPositive ? Colors.green : Colors.red).withValues(
-                      alpha: 0.15,
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    '${isPositive ? '+' : ''}%${NumberFormat('#,##0.00', 'tr_TR').format(percentage)}',
-                    style: TextStyle(
-                      color: isPositive ? Colors.green : Colors.red,
-                      fontWeight: FontWeight.w400,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-                if (amount > 0) ...[
-                  const Gap(24),
-                  Divider(
-                    color: Colors.white.withValues(alpha: 0.05),
-                    height: 1,
-                  ),
-                  const Gap(24),
-                  _buildProfitDetail(
-                    'TOPLAM MALİYET',
-                    '₺${NumberFormat('#,##0.00', 'tr_TR').format(buyPrice * amount)}',
-                  ),
-                  const Gap(12),
-                  _buildProfitDetail(
-                    'TOPLAM DEĞER',
-                    '₺${NumberFormat('#,##0.00', 'tr_TR').format(sellPrice * amount)}',
-                  ),
-                ],
               ],
             ),
           ).animate().scale(duration: 400.ms, curve: Curves.easeOutBack),
@@ -660,49 +705,14 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
       ),
       borderRadius: BorderRadius.circular(16),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: AppTheme.surface,
+          color: Colors.white.withValues(alpha: 0.02),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
         ),
         child: Row(
           children: [
-            if (selectedCurrency == null && allowNull)
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: AppTheme.gold.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.currency_lira, color: AppTheme.gold),
-              )
-            else if (selectedCurrency != null)
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: AppTheme.gold.withValues(alpha: 0.05),
-                  shape: BoxShape.circle,
-                ),
-                child: CurrencyIcon(
-                  iconUrl: selectedCurrency.iconUrl,
-                  isGold: selectedCurrency.isGold,
-                  size: 24,
-                ),
-              )
-            else
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.05),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.help_outline, color: Colors.white38),
-              ),
-            const Gap(16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -714,25 +724,29 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w400,
-                      fontSize: 15,
+                      fontSize: 14,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  if (selectedCurrency != null)
-                    Text(
-                      'Canlı Değer: ₺${NumberFormat('#,##0.00', 'tr_TR').format(selectedCurrency.selling)}',
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.4),
-                        fontSize: 12,
-                      ),
+                  const Gap(2),
+                  Text(
+                    selectedCurrency != null
+                        ? 'Canlı Değer: ₺${NumberFormat('#,##0.00', 'tr_TR').format(selectedCurrency.selling)}'
+                        : 'Baz Para Birimi',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.4),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w400,
                     ),
+                  ),
                 ],
               ),
             ),
-            const Icon(
-              Icons.keyboard_arrow_down_rounded,
-              color: Colors.white38,
+            Icon(
+              Iconsax.arrow_down_1,
+              color: Colors.white.withValues(alpha: 0.4),
+              size: 18,
             ),
           ],
         ),
@@ -751,6 +765,7 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
+      barrierColor: Colors.black.withValues(alpha: 0.5),
       builder: (context) {
         final goldCurrencies = currencies.where((c) => c.isGold).toList();
         final forexCurrencies = currencies.where((c) => !c.isGold).toList();
@@ -761,83 +776,122 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
         final initialIdx =
             (currentSelection != null && !currentSelection.isGold) ? 1 : 0;
 
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.75,
-          decoration: const BoxDecoration(
-            color: AppTheme.background,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-          ),
-          child: DefaultTabController(
-            length: 2,
-            initialIndex: initialIdx,
-            child: Column(
-              children: [
-                const Gap(12),
-                Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(2),
+        return ClipRRect(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+            child: Container(
+              height: MediaQuery.of(context).size.height * 0.75,
+              decoration: BoxDecoration(
+                color: AppTheme.background.withValues(alpha: 0.95),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+                border: Border(
+                  top: BorderSide(
+                    color: Colors.white.withValues(alpha: 0.08),
+                    width: 1.0,
                   ),
                 ),
-                const Gap(24),
-                const Text(
-                  'Varlık Seçimi',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w400,
-                    color: Colors.white,
-                    letterSpacing: -0.5,
-                  ),
-                ),
-                const Gap(20),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Container(
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: AppTheme.surface,
-                      borderRadius: BorderRadius.circular(20),
+              ),
+              child: DefaultTabController(
+                length: 2,
+                initialIndex: initialIdx,
+                child: Column(
+                  children: [
+                    const Gap(12),
+                    Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
-                    child: TabBar(
-                      indicatorSize: TabBarIndicatorSize.tab,
-                      dividerColor: Colors.transparent,
-                      indicator: BoxDecoration(
-                        color: AppTheme.gold,
-                        borderRadius: BorderRadius.circular(20),
+                    const Gap(16),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Varlık Seçimi',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () => Navigator.pop(context),
+                            icon: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.05),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.close,
+                                color: Colors.white70,
+                                size: 16,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      labelColor: Colors.black,
-                      unselectedLabelColor: Colors.white38,
-                      labelStyle: const TextStyle(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 12,
-                      ),
-                      tabs: const [
-                        Tab(text: 'ALTIN'),
-                        Tab(text: 'DÖVİZ'),
-                      ],
                     ),
-                  ),
-                ),
-                const Gap(16),
-                Expanded(
-                  child: TabBarView(
-                    children: [
-                      _buildPickerList(
-                        currencies: goldCurrencies,
-                        onSelected: onSelected,
-                        allowNull: allowNull,
-                        showTL: true,
+                    const Gap(16),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Container(
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.02),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.05),
+                            width: 1.0,
+                          ),
+                        ),
+                        child: TabBar(
+                          indicatorSize: TabBarIndicatorSize.tab,
+                          dividerColor: Colors.transparent,
+                          indicator: BoxDecoration(
+                            color: AppTheme.gold,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          labelColor: Colors.black,
+                          unselectedLabelColor: Colors.white38,
+                          labelStyle: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 12,
+                          ),
+                          tabs: const [
+                            Tab(text: 'ALTIN'),
+                            Tab(text: 'DÖVİZ'),
+                          ],
+                        ),
                       ),
-                      _buildPickerList(
-                        currencies: forexCurrencies,
-                        onSelected: onSelected,
+                    ),
+                    const Gap(16),
+                    Expanded(
+                      child: TabBarView(
+                        children: [
+                          _buildPickerList(
+                            currencies: goldCurrencies,
+                            onSelected: onSelected,
+                            allowNull: allowNull,
+                            showTL: true,
+                          ),
+                          _buildPickerList(
+                            currencies: forexCurrencies,
+                            onSelected: onSelected,
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         );
@@ -871,7 +925,7 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
             title: c.name,
             subtitle:
                 'Satış: ₺${NumberFormat('#,##0.00', 'tr_TR').format(c.selling)}',
-            icon: CurrencyIcon(iconUrl: c.iconUrl, isGold: c.isGold, size: 24),
+            icon: CurrencyIcon(iconUrl: null, isGold: c.isGold, size: 24),
             onTap: () {
               onSelected(c);
               Navigator.pop(context);
@@ -892,31 +946,16 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
       padding: const EdgeInsets.only(bottom: 12),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
-            color: AppTheme.surface,
-            borderRadius: BorderRadius.circular(20),
+            color: Colors.white.withValues(alpha: 0.02),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
           ),
           child: Row(
             children: [
-              SizedBox(
-                width: 48,
-                height: 48,
-                child: Center(
-                  child: switch (icon) {
-                    CurrencyIcon ci => CurrencyIcon(
-                      iconUrl: ci.iconUrl,
-                      isGold: ci.isGold,
-                      size: 48,
-                    ),
-                    _ => icon,
-                  },
-                ),
-              ),
-              const Gap(16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -926,7 +965,7 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w400,
-                        fontSize: 16,
+                        fontSize: 14,
                       ),
                     ),
                     const Gap(2),
@@ -934,7 +973,7 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
                       subtitle,
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.4),
-                        fontSize: 13,
+                        fontSize: 11,
                         fontWeight: FontWeight.w400,
                       ),
                     ),
@@ -942,9 +981,9 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
                 ),
               ),
               Icon(
-                Icons.chevron_right_rounded,
+                Iconsax.arrow_right_3,
                 color: Colors.white.withValues(alpha: 0.2),
-                size: 20,
+                size: 16,
               ),
             ],
           ),
@@ -967,57 +1006,71 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
       children: [
         Text(
           label.toUpperCase(),
-          style: const TextStyle(
-            color: Colors.white38,
+          style: TextStyle(
+            color: AppTheme.gold.withValues(alpha: 0.8),
             fontSize: 10,
             fontWeight: FontWeight.w500,
-            letterSpacing: 1.2,
+            letterSpacing: 1.5,
           ),
         ),
         const Gap(10),
-        Container(
-          decoration: BoxDecoration(
-            color: AppTheme.surface,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+        TextField(
+          controller: controller,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(r'[\d.,]')),
+            if (formatters != null) ...formatters,
+          ],
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
           ),
-          child: TextField(
-            controller: controller,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'[\d.,]')),
-              if (formatters != null) ...formatters,
-            ],
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 16,
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: TextStyle(
+              color: Colors.white.withValues(alpha: 0.15),
+              fontSize: 13,
+            ),
+            prefixText: prefix != null ? '$prefix ' : null,
+            prefixStyle: const TextStyle(
+              color: AppTheme.gold,
               fontWeight: FontWeight.w400,
+              fontSize: 14,
             ),
-            decoration: InputDecoration(
-              hintText: hint,
-              hintStyle: TextStyle(
-                color: Colors.white.withValues(alpha: 0.15),
-                fontSize: 15,
-              ),
-              prefixText: prefix != null ? '$prefix ' : null,
-              prefixStyle: const TextStyle(
-                color: AppTheme.gold,
-                fontWeight: FontWeight.w400,
-              ),
-              suffixText: suffix,
-              suffixStyle: const TextStyle(
-                color: AppTheme.gold,
-                fontWeight: FontWeight.w400,
-                fontSize: 13,
-              ),
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 18,
+            suffixText: suffix,
+            suffixStyle: const TextStyle(
+              color: AppTheme.gold,
+              fontWeight: FontWeight.w400,
+              fontSize: 12,
+            ),
+            filled: true,
+            fillColor: Colors.white.withValues(alpha: 0.02),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 16,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide(
+                color: Colors.white.withValues(alpha: 0.05),
               ),
             ),
-            onChanged: onChanged,
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide(
+                color: Colors.white.withValues(alpha: 0.05),
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(
+                color: AppTheme.gold,
+                width: 1.2,
+              ),
+            ),
           ),
+          onChanged: onChanged,
         ),
       ],
     );

@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:gap/gap.dart';
-import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:altin_takip/core/theme/app_theme.dart';
-import 'package:altin_takip/core/utils/date_formatter.dart';
 import 'package:altin_takip/features/assets/presentation/asset_state.dart';
 import 'package:altin_takip/features/assets/domain/asset.dart';
 import 'package:altin_takip/features/currencies/domain/currency.dart';
 import 'package:altin_takip/features/settings/presentation/preference_notifier.dart';
 import 'package:altin_takip/features/dashboard/presentation/transactions_screen.dart';
+import 'package:altin_takip/features/dashboard/presentation/widgets/market_summary_widget.dart';
+import 'package:altin_takip/features/dashboard/presentation/widgets/recent_transactions_widget.dart';
 import 'package:iconsax/iconsax.dart';
 
 class DashboardGeneralTab extends ConsumerWidget {
@@ -33,16 +32,7 @@ class DashboardGeneralTab extends ConsumerWidget {
         const SliverGap(24),
         SliverToBoxAdapter(child: _buildSectionTitle(context, 'Günün Özeti')),
         const SliverGap(16),
-        if (state is AssetLoading)
-          SliverToBoxAdapter(child: _buildCarouselShimmer())
-        else if (state is AssetLoaded)
-          SliverToBoxAdapter(
-            child: _buildCurrencyCarousel(
-              context,
-              ref,
-              _getPersonalizedCurrencies(state as AssetLoaded),
-            ),
-          ),
+        _buildMarketSection(),
         const SliverGap(40),
         SliverToBoxAdapter(
           child: _buildSectionTitle(
@@ -59,14 +49,48 @@ class DashboardGeneralTab extends ConsumerWidget {
           ),
         ),
         const SliverGap(16),
-        _buildTransactionList(context, ref, state),
+        _buildTransactionsSection(ref),
         const SliverGap(100),
       ],
     );
   }
 
+  Widget _buildMarketSection() {
+    if (state is AssetLoading) {
+      return SliverToBoxAdapter(child: _buildGridShimmer());
+    } else if (state is AssetLoaded) {
+      return SliverToBoxAdapter(
+        child: MarketSummaryWidget(
+          currencies: _getPersonalizedCurrencies(state as AssetLoaded),
+          onNavigateToHistory: onNavigateToHistory,
+        ),
+      );
+    }
+    return const SliverToBoxAdapter(child: SizedBox());
+  }
+
+  Widget _buildTransactionsSection(WidgetRef ref) {
+    if (state is AssetLoading) {
+      return SliverToBoxAdapter(child: _buildTransactionsShimmer());
+    } else if (state is AssetLoaded) {
+      final loadedState = state as AssetLoaded;
+      final displayAssets = loadedState.dashboardData?.recentTransactions.take(5).toList() ??
+          (List<Asset>.from(loadedState.assets)
+            ..sort((a, b) => b.date.compareTo(a.date))).take(5).toList();
+
+      return SliverToBoxAdapter(
+        child: RecentTransactionsWidget(
+          assets: displayAssets,
+          onNavigateToHistory: onNavigateToHistory,
+          onShowAddAsset: onShowAddAsset,
+          useDynamicDate: ref.watch(preferenceProvider).useDynamicDate,
+        ),
+      );
+    }
+    return const SliverToBoxAdapter(child: SizedBox());
+  }
+
   List<Currency> _getPersonalizedCurrencies(AssetLoaded state) {
-    // If user has no assets, return default list
     if (state.assets.isEmpty) {
       return state.currencies.where((c) {
         final code = c.code.toLowerCase();
@@ -77,28 +101,23 @@ class DashboardGeneralTab extends ConsumerWidget {
       }).toList();
     }
 
-    // Get unique currency IDs from user assets, sorted by date (most recent first)
     final userAssets = List<Asset>.from(state.assets);
     userAssets.sort((a, b) => b.date.compareTo(a.date));
 
     final Set<int> uniqueCurrencyIds = {};
     for (var asset in userAssets) {
       uniqueCurrencyIds.add(asset.currencyId);
-      if (uniqueCurrencyIds.length >= 3) break; // Limit to 3 most recent
+      if (uniqueCurrencyIds.length >= 4) break;
     }
 
-    // Find these currencies in the loaded currencies list
     final personalizedList = <Currency>[];
     for (var id in uniqueCurrencyIds) {
       try {
         final currency = state.currencies.firstWhere((c) => c.id == id);
         personalizedList.add(currency);
-      } catch (_) {
-        // Currency not found
-      }
+      } catch (_) {}
     }
 
-    // If for some reason we found nothing (e.g. ID mismatch), fallback to defaults
     if (personalizedList.isEmpty) {
       return state.currencies.where((c) {
         final code = c.code.toLowerCase();
@@ -155,60 +174,52 @@ class DashboardGeneralTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildCarouselShimmer() {
-    return SizedBox(
-      height: 90,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
+  Widget _buildGridShimmer() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        padding: EdgeInsets.zero,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: 1.35,
+        ),
         itemCount: 4,
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        separatorBuilder: (_, __) => const Gap(12),
-        itemBuilder: (_, __) => Container(
-          width: 140,
-          padding: const EdgeInsets.all(14),
+        itemBuilder: (context, index) => Container(
           decoration: BoxDecoration(
             color: AppTheme.glassColor,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(20),
             border: Border.all(color: AppTheme.glassBorder),
           ),
           child: Shimmer.fromColors(
             baseColor: Colors.white.withOpacity(0.05),
             highlightColor: Colors.white.withOpacity(0.1),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      width: 50,
-                      height: 10,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                    Container(
-                      width: 30,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                  ],
-                ),
-                const Gap(8),
-                Container(
-                  width: 80,
-                  height: 18,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(4),
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(width: 20, height: 20, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)),
+                      const Gap(8),
+                      Container(width: 50, height: 12, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4))),
+                    ],
                   ),
-                ),
-              ],
+                  Container(width: 80, height: 16, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4))),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(width: 50, height: 10, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(3))),
+                      Container(width: 40, height: 10, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(3))),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -216,192 +227,36 @@ class DashboardGeneralTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildCurrencyCarousel(
-    BuildContext context,
-    WidgetRef ref,
-    List<Currency> currencies,
-  ) {
-    if (currencies.isEmpty) {
-      return Container(
-        height: 100,
-        width: double.infinity,
-        margin: const EdgeInsets.symmetric(horizontal: 24),
-        decoration: BoxDecoration(
-          color: AppTheme.glassColor,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppTheme.glassBorder),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.gold.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Iconsax.chart_2,
-                    color: AppTheme.gold,
-                    size: 24,
-                  ),
-                )
-                .animate(onPlay: (controller) => controller.repeat())
-                .shimmer(duration: 2000.ms, color: Colors.white24),
-            const Gap(16),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Piyasalar Takipte',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w400,
-                    fontSize: 14,
-                  ),
-                ),
-                Text(
-                  'Veriler güncelleniyor...',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.5),
-                    fontSize: 12,
-                  ),
-                ),
-              ],
+  Widget _buildTransactionsShimmer() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        children: List.generate(3, (index) => Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Container(
+            height: 72,
+            decoration: BoxDecoration(
+              color: AppTheme.surface,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.white.withOpacity(0.03)),
             ),
-          ],
-        ),
-      );
-    }
-
-    return SizedBox(
-      height: 90,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: currencies.length,
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        separatorBuilder: (_, __) => const Gap(12),
-        itemBuilder: (context, index) {
-          final currency = currencies[index];
-          final useDynamicDate = ref.watch(preferenceProvider).useDynamicDate;
-
-          return GestureDetector(
-            onTap: () => onNavigateToHistory(currency, currency.isGold),
-            child: Container(
-              width: 140,
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: AppTheme.glassColor,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppTheme.glassBorder),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          currency.isGold ? currency.name : currency.code,
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.7),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      Text(
-                        DateFormatter.format(
-                          currency.lastUpdatedAt,
-                          useDynamic: useDynamicDate,
-                        ),
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.3),
-                          fontSize: 9,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Text(
-                    '₺${NumberFormat('#,##0.00', 'tr_TR').format(currency.selling)}',
-                    style: const TextStyle(
-                      fontFeatures: [FontFeature.tabularFigures()],
-                      color: AppTheme.gold,
-                      fontWeight: FontWeight.w400,
-                      fontSize: 17,
-                      letterSpacing: -0.5,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildTransactionList(
-    BuildContext context,
-    WidgetRef ref,
-    AssetState state,
-  ) {
-    if (state is AssetLoading) {
-      return SliverList(
-        delegate: SliverChildBuilderDelegate(
-          (_, __) => Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 24,
-            ).copyWith(bottom: 12),
-            child: Container(
-              height: 88,
-              decoration: BoxDecoration(
-                color: AppTheme.surface,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
-              ),
-              padding: const EdgeInsets.all(20),
-              child: Shimmer.fromColors(
-                baseColor: Colors.white.withValues(alpha: 0.05),
-                highlightColor: Colors.white.withValues(alpha: 0.1),
+            child: Shimmer.fromColors(
+              baseColor: Colors.white.withOpacity(0.03),
+              highlightColor: Colors.white.withOpacity(0.06),
+              child: Padding(
+                padding: const EdgeInsets.all(14),
                 child: Row(
                   children: [
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const Gap(16),
+                    Container(width: 24, height: 24, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)),
+                    const Gap(12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Container(
-                            width: 120,
-                            height: 16,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                          ),
-                          const Gap(8),
-                          Container(
-                            width: 80,
-                            height: 12,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                          ),
+                          Container(width: 80, height: 12, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4))),
+                          const Gap(6),
+                          Container(width: 120, height: 8, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4))),
                         ],
                       ),
                     ),
@@ -409,23 +264,9 @@ class DashboardGeneralTab extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Container(
-                          width: 80,
-                          height: 16,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                        const Gap(8),
-                        Container(
-                          width: 50,
-                          height: 12,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
+                        Container(width: 50, height: 12, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4))),
+                        const Gap(6),
+                        Container(width: 60, height: 8, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4))),
                       ],
                     ),
                   ],
@@ -433,273 +274,8 @@ class DashboardGeneralTab extends ConsumerWidget {
               ),
             ),
           ),
-          childCount: 5,
-        ),
-      );
-    }
-
-    if (state is AssetLoaded) {
-      if (state.assets.isEmpty) {
-        return SliverToBoxAdapter(
-          child: Container(
-            margin: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [AppTheme.surface, AppTheme.surface.withOpacity(0.5)],
-              ),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Colors.white.withOpacity(0.05)),
-            ),
-            child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppTheme.gold.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Iconsax.wallet_money,
-                    color: AppTheme.gold,
-                    size: 32,
-                  ),
-                ).animate().scale(delay: 200.ms, duration: 400.ms),
-                const Gap(16),
-                const Text(
-                  'Yatırım Yolculuğuna Başla',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w400,
-                    fontSize: 16,
-                  ),
-                ),
-                const Gap(8),
-                Text(
-                  'Henüz bir işlem yapmadınız. İlk varlığınızı ekleyerek portföyünüzü oluşturun.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.5),
-                    fontSize: 13,
-                    height: 1.5,
-                  ),
-                ),
-                const Gap(24),
-                ElevatedButton(
-                  onPressed: onShowAddAsset,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.gold,
-                    foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 32,
-                      vertical: 12,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                  ),
-                  child: const Text(
-                    'Varlık Ekle',
-                    style: TextStyle(fontWeight: FontWeight.w400),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      }
-
-      // Use recent transactions from dashboard API if available
-      final displayAssets =
-          state.dashboardData?.recentTransactions.take(5).toList() ??
-          (List<Asset>.from(
-            state.assets,
-          )..sort((a, b) => b.date.compareTo(a.date))).take(5).toList();
-
-      return SliverList(
-        delegate: SliverChildBuilderDelegate((context, index) {
-          final asset = displayAssets[index];
-          return _buildTransactionCard(context, ref, asset);
-        }, childCount: displayAssets.length),
-      );
-    }
-    return const SliverToBoxAdapter(child: SizedBox());
-  }
-
-  Widget _buildTransactionCard(
-    BuildContext context,
-    WidgetRef ref,
-    Asset asset,
-  ) {
-    final isBuy = asset.type == 'buy';
-    final color = isBuy ? const Color(0xFF4ADE80) : const Color(0xFFF87171);
-    final useDynamicDate = ref.watch(preferenceProvider).useDynamicDate;
-
-    String mainDateStr;
-    if (useDynamicDate) {
-      mainDateStr = DateFormatter.format(asset.date, useDynamic: true);
-    } else {
-      mainDateStr = DateFormat('d MMM yyyy', 'tr_TR').format(asset.date);
-    }
-    final timeStr = DateFormat('HH:mm').format(asset.date);
-
-    double? profit;
-    if (isBuy && asset.currency != null) {
-      final currentPrice = asset.currency!.buying;
-      final costPrice = asset.price;
-      profit = (currentPrice - costPrice) * asset.amount;
-    }
-    final isProfitPositive = profit != null && profit >= 0;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24).copyWith(bottom: 12),
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppTheme.surface,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () {
-              if (asset.currency != null) {
-                onNavigateToHistory(asset.currency!, asset.currency!.isGold);
-              }
-            },
-            borderRadius: BorderRadius.circular(20),
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                      border: Border.all(color: color.withValues(alpha: 0.2)),
-                    ),
-                    child: Icon(
-                      isBuy ? Iconsax.arrow_down_1 : Iconsax.arrow_up_1,
-                      color: color,
-                      size: 20,
-                    ),
-                  ),
-                  const Gap(16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          asset.currency?.name ?? 'Bilinmeyen Varlık',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 0.2,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const Gap(6),
-                        Row(
-                          children: [
-                            Text(
-                              isBuy ? 'Alış' : 'Satış',
-                              style: TextStyle(
-                                color: color,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const Gap(4),
-                            Expanded(
-                              child: Text(
-                                '• $mainDateStr, $timeStr',
-                                style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.4),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Gap(12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '${_formatAmount(asset.amount)} adet',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w400,
-                          fontSize: 15,
-                          color: isBuy ? const Color(0xFF4ADE80) : Colors.white,
-                        ),
-                      ),
-                      const Gap(4),
-                      Text(
-                        '₺${NumberFormat('#,##0.00', 'tr_TR').format(asset.price)}',
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.5),
-                          fontSize: 12,
-                          fontFeatures: const [FontFeature.tabularFigures()],
-                        ),
-                      ),
-                      if (profit != null) ...[
-                        const Gap(6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color:
-                                (isProfitPositive
-                                        ? const Color(0xFF4ADE80)
-                                        : const Color(0xFFF87171))
-                                    .withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            '${isProfitPositive ? '+' : ''}₺${NumberFormat('#,##0.00', 'tr_TR').format(profit)}',
-                            style: TextStyle(
-                              fontFeatures: const [
-                                FontFeature.tabularFigures(),
-                              ],
-                              color: isProfitPositive
-                                  ? const Color(0xFF4ADE80)
-                                  : const Color(0xFFF87171),
-                              fontSize: 11,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
+        )),
       ),
     );
-  }
-
-  String _formatAmount(double value) {
-    if (value == value.truncateToDouble()) {
-      return value.toInt().toString();
-    }
-    return NumberFormat('#,##0.##', 'tr_TR').format(value);
   }
 }

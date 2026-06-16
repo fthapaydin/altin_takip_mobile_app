@@ -76,7 +76,7 @@ class _GoalDetailScreenState extends ConsumerState<GoalDetailScreen> {
       appBar: AppBarWidget(
         title: _detailedGoal?.name ?? 'Hedef Detayı',
         isLargeTitle: false,
-        centerTitle: false,
+        centerTitle: true,
         actions: [
           if (_detailedGoal != null && !_isActioning)
             AppBarActionButton(

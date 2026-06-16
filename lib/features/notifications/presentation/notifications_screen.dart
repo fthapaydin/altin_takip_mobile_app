@@ -66,7 +66,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
               duration: const Duration(milliseconds: 300),
               child: LinearProgressIndicator(
                 backgroundColor: Colors.transparent,
-                color: AppTheme.gold.withOpacity(0.3),
+                color: AppTheme.gold.withValues(alpha: 0.3),
                 minHeight: 2,
               ),
             ),
@@ -106,11 +106,11 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Iconsax.danger, size: 48, color: Colors.red.withOpacity(0.5)),
+            Icon(Iconsax.danger, size: 48, color: Colors.red.withValues(alpha: 0.5)),
             const Gap(16),
             Text(
               state.message,
-              style: TextStyle(color: Colors.white.withOpacity(0.7)),
+              style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
               textAlign: TextAlign.center,
             ),
             const Gap(24),
@@ -142,20 +142,20 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AppTheme.gold.withOpacity(0.05),
+                color: AppTheme.gold.withValues(alpha: 0.05),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Iconsax.notification_bing,
                 size: 48,
-                color: AppTheme.gold.withOpacity(0.5),
+                color: AppTheme.gold.withValues(alpha: 0.5),
               ),
             ),
             const Gap(24),
             Text(
               'Henüz bildiriminiz yok',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.5),
+                color: Colors.white.withValues(alpha: 0.5),
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),
@@ -188,16 +188,21 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
+        gradient: const LinearGradient(
+          colors: [Color(0xFF141518), Color(0xFF0E0F11)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: isRead ? Colors.transparent : AppTheme.gold.withOpacity(0.3),
+          color: isRead ? Colors.white.withValues(alpha: 0.05) : AppTheme.gold.withValues(alpha: 0.25),
+          width: isRead ? 1.0 : 1.2,
         ),
         boxShadow: [
           if (!isRead)
             BoxShadow(
-              color: AppTheme.gold.withOpacity(0.05),
-              blurRadius: 10,
+              color: AppTheme.gold.withValues(alpha: 0.03),
+              blurRadius: 12,
               offset: const Offset(0, 4),
             ),
         ],
@@ -226,13 +231,17 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppTheme.gold.withOpacity(0.1),
-                    shape: BoxShape.circle,
+                    color: AppTheme.gold.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: AppTheme.gold.withValues(alpha: 0.15),
+                      width: 1,
+                    ),
                   ),
                   child: const Icon(
-                    Iconsax.chart_2,
+                    Iconsax.chart_21,
                     color: AppTheme.gold,
-                    size: 24,
+                    size: 20,
                   ),
                 ),
                 const Gap(16),
@@ -251,12 +260,13 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                                 fontWeight: isRead
                                     ? FontWeight.w400
                                     : FontWeight.w500,
-                                fontSize: 16,
+                                fontSize: 15,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
+                          const Gap(8),
                           if (!isRead)
                             Container(
                               width: 8,
@@ -272,9 +282,10 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                       Text(
                         notification.body,
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.6),
-                          fontSize: 14,
+                          color: Colors.white.withValues(alpha: 0.5),
+                          fontSize: 13,
                           height: 1.4,
+                          fontWeight: FontWeight.w400,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -284,8 +295,8 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                         children: [
                           Icon(
                             Iconsax.clock,
-                            size: 14,
-                            color: Colors.white.withOpacity(0.3),
+                            size: 12,
+                            color: Colors.white.withValues(alpha: 0.3),
                           ),
                           const Gap(6),
                           Text(
@@ -294,9 +305,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                               'tr_TR',
                             ).format(notification.createdAt),
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.3),
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
+                              color: Colors.white.withValues(alpha: 0.35),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w400,
                             ),
                           ),
                         ],
@@ -323,11 +334,11 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
           decoration: BoxDecoration(
             color: AppTheme.surface,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white.withOpacity(0.05)),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
           ),
           child: Shimmer.fromColors(
-            baseColor: Colors.white.withOpacity(0.05),
-            highlightColor: Colors.white.withOpacity(0.1),
+            baseColor: Colors.white.withValues(alpha: 0.05),
+            highlightColor: Colors.white.withValues(alpha: 0.1),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

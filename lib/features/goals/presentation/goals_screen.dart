@@ -14,6 +14,7 @@ import 'package:altin_takip/features/goals/presentation/widgets/add_goal_sheet.d
 import 'package:altin_takip/features/goals/domain/goal.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:altin_takip/features/notifications/presentation/notifications_screen.dart';
 
 class GoalsScreen extends ConsumerStatefulWidget {
   const GoalsScreen({super.key});
@@ -54,6 +55,18 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
         isLargeTitle: true,
         actions: [
           AppBarActionButton(
+            icon: Iconsax.notification,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const NotificationsScreen(),
+                ),
+              );
+            },
+          ),
+          const Gap(8),
+          AppBarActionButton(
             icon: Iconsax.add,
             onTap: () => AddGoalSheet.show(context),
           ),
@@ -84,11 +97,14 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
       onRefresh: () => ref.read(goalProvider.notifier).loadGoals(refresh: true),
       color: AppTheme.gold,
       backgroundColor: AppTheme.surface,
+      edgeOffset: MediaQuery.of(context).padding.top + AppBarWidget.getExpandedHeight(isLargeTitle: true),
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: EdgeInsets.fromLTRB(
           20,
-          MediaQuery.of(context).padding.top + AppBarWidget.getExpandedHeight(isLargeTitle: true) + 12.0,
+          MediaQuery.of(context).padding.top +
+              AppBarWidget.getExpandedHeight(isLargeTitle: true) +
+              12.0,
           20,
           120,
         ),
@@ -136,7 +152,6 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
           style: TextStyle(
             color: Colors.white.withValues(alpha: 0.4),
             fontSize: 10,
-            letterSpacing: 1.5,
           ),
         ),
         const Gap(8),

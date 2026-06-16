@@ -133,9 +133,13 @@ class _EditGoalSheetState extends ConsumerState<EditGoalSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: AppTheme.background,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0F1116),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.05),
+          width: 1,
+        ),
       ),
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -157,15 +161,36 @@ class _EditGoalSheetState extends ConsumerState<EditGoalSheet> {
               ),
             ),
             const Gap(20),
-            const Center(
-              child: Text(
-                'Hedefi Düzenle',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  letterSpacing: -0.5,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Hedefi Düzenle',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    letterSpacing: -0.4,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.04),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.08),
+                        width: 1,
+                      ),
+                    ),
+                    alignment: Alignment.center,
+                    child: const Icon(Icons.close, color: Colors.white, size: 16),
+                  ),
+                ),
+              ],
             ),
             const Gap(28),
             _buildLabel('HEDEF ADI'),
@@ -194,30 +219,10 @@ class _EditGoalSheetState extends ConsumerState<EditGoalSheet> {
             const Gap(8),
             _buildPrioritySelector(),
             const Gap(32),
-            SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: ElevatedButton(
-                onPressed: _isLoading ? null : _submit,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.gold,
-                  foregroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  disabledBackgroundColor: AppTheme.gold.withValues(alpha: 0.3),
-                ),
-                child: _isLoading
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.black,
-                        ),
-                      )
-                    : const Text('Güncelle', style: TextStyle(fontSize: 15)),
-              ),
+            _GradientButton(
+              onTap: _submit,
+              text: 'Güncelle',
+              isLoading: _isLoading,
             ),
           ],
         ),
@@ -231,7 +236,7 @@ class _EditGoalSheetState extends ConsumerState<EditGoalSheet> {
       style: TextStyle(
         color: AppTheme.gold.withValues(alpha: 0.8),
         fontSize: 10,
-        letterSpacing: 1.5,
+        fontWeight: FontWeight.w500,
       ),
     );
   }
@@ -243,27 +248,37 @@ class _EditGoalSheetState extends ConsumerState<EditGoalSheet> {
     TextInputType? keyboardType,
     List<TextInputFormatter>? formatters,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+    return TextField(
+      controller: controller,
+      keyboardType: keyboardType,
+      inputFormatters: formatters,
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
       ),
-      child: TextField(
-        controller: controller,
-        keyboardType: keyboardType,
-        inputFormatters: formatters,
-        style: const TextStyle(color: Colors.white, fontSize: 15),
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.2)),
-          prefixText: prefix,
-          prefixStyle: const TextStyle(color: AppTheme.gold, fontSize: 15),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 16,
-          ),
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.25), fontSize: 13),
+        prefixText: prefix,
+        prefixStyle: const TextStyle(color: AppTheme.gold, fontSize: 14),
+        filled: true,
+        fillColor: Colors.white.withValues(alpha: 0.02),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: AppTheme.gold, width: 1.2),
         ),
       ),
     );
@@ -284,7 +299,7 @@ class _EditGoalSheetState extends ConsumerState<EditGoalSheet> {
                 decoration: BoxDecoration(
                   color: isSelected
                       ? AppTheme.gold.withValues(alpha: 0.15)
-                      : AppTheme.surface,
+                      : Colors.white.withValues(alpha: 0.02),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isSelected
@@ -299,7 +314,8 @@ class _EditGoalSheetState extends ConsumerState<EditGoalSheet> {
                       color: isSelected
                           ? AppTheme.gold
                           : Colors.white.withValues(alpha: 0.5),
-                      fontSize: 13,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
@@ -317,7 +333,7 @@ class _EditGoalSheetState extends ConsumerState<EditGoalSheet> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         decoration: BoxDecoration(
-          color: AppTheme.surface,
+          color: Colors.white.withValues(alpha: 0.02),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
         ),
@@ -326,7 +342,7 @@ class _EditGoalSheetState extends ConsumerState<EditGoalSheet> {
             Icon(
               Iconsax.calendar_1,
               color: Colors.white.withValues(alpha: 0.4),
-              size: 18,
+              size: 16,
             ),
             const Gap(12),
             Text(
@@ -337,7 +353,8 @@ class _EditGoalSheetState extends ConsumerState<EditGoalSheet> {
                 color: _targetDate != null
                     ? Colors.white
                     : Colors.white.withValues(alpha: 0.3),
-                fontSize: 14,
+                fontSize: 13,
+                fontWeight: FontWeight.w400,
               ),
             ),
             const Spacer(),
@@ -346,7 +363,7 @@ class _EditGoalSheetState extends ConsumerState<EditGoalSheet> {
                 onTap: () => setState(() => _targetDate = null),
                 child: Icon(
                   Iconsax.close_circle,
-                  size: 18,
+                  size: 16,
                   color: Colors.white.withValues(alpha: 0.3),
                 ),
               ),
@@ -377,7 +394,7 @@ class _EditGoalSheetState extends ConsumerState<EditGoalSheet> {
                 decoration: BoxDecoration(
                   color: isSelected
                       ? color.withValues(alpha: 0.1)
-                      : AppTheme.surface,
+                      : Colors.white.withValues(alpha: 0.02),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isSelected
@@ -404,7 +421,8 @@ class _EditGoalSheetState extends ConsumerState<EditGoalSheet> {
                           color: isSelected
                               ? color
                               : Colors.white.withValues(alpha: 0.5),
-                          fontSize: 12,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
@@ -415,6 +433,109 @@ class _EditGoalSheetState extends ConsumerState<EditGoalSheet> {
           ),
         );
       }).toList(),
+    );
+  }
+}
+
+// ── Shared Sub Widget ──
+
+class _GradientButton extends StatefulWidget {
+  final VoidCallback? onTap;
+  final String text;
+  final bool isLoading;
+
+  const _GradientButton({
+    required this.onTap,
+    required this.text,
+    required this.isLoading,
+  });
+
+  @override
+  State<_GradientButton> createState() => _GradientButtonState();
+}
+
+class _GradientButtonState extends State<_GradientButton>
+    with SingleTickerProviderStateMixin {
+  double _scale = 1.0;
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller =
+        AnimationController(
+          vsync: this,
+          duration: const Duration(milliseconds: 100),
+          lowerBound: 0.0,
+          upperBound: 0.05,
+        )..addListener(() {
+          setState(() {});
+        });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    _scale = 1.0 - _controller.value;
+    final isEnabled = widget.onTap != null && !widget.isLoading;
+
+    return GestureDetector(
+      onTapDown: isEnabled ? (_) => _controller.forward() : null,
+      onTapUp: isEnabled ? (_) => _controller.reverse() : null,
+      onTapCancel: isEnabled ? () => _controller.reverse() : null,
+      onTap: isEnabled ? widget.onTap : null,
+      child: Transform.scale(
+        scale: _scale,
+        child: Container(
+          width: double.infinity,
+          height: 52,
+          decoration: BoxDecoration(
+            gradient: isEnabled
+                ? AppTheme.goldGradient
+                : LinearGradient(
+                    colors: [
+                      AppTheme.gold.withValues(alpha: 0.3),
+                      AppTheme.gold.withValues(alpha: 0.2),
+                    ],
+                  ),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: isEnabled
+                ? [
+                    BoxShadow(
+                      color: AppTheme.gold.withValues(alpha: 0.2),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Center(
+            child: widget.isLoading
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.black,
+                    ),
+                  )
+                : Text(
+                    widget.text,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+          ),
+        ),
+      ),
     );
   }
 }

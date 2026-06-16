@@ -15,7 +15,7 @@ import 'package:altin_takip/features/assets/presentation/add_asset_screen.dart';
 
 import 'package:intl/intl.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+
 import 'package:altin_takip/core/widgets/app_bar_widget.dart';
 import 'package:altin_takip/features/notifications/presentation/notifications_screen.dart';
 
@@ -129,6 +129,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           centerTitle: false,
           isLargeTitle: true,
           actions: [
+            const _DashboardPrivacyButton(),
+            const Gap(4),
             _DashboardNotificationButton(),
             const Gap(4),
             _DashboardRefreshButton(),
@@ -153,7 +155,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
                         child: PortfolioSummaryCard(state: assetState),
                       ),
-                      const Gap(32),
+                      const Gap(24),
                     ],
                   ),
                 ),
@@ -173,7 +175,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         fontSize: 13,
                       ),
                       indicator: BoxDecoration(
-                        color: AppTheme.gold,
+                        gradient: AppTheme.goldGradient,
                         borderRadius: BorderRadius.circular(40),
                       ),
                       indicatorSize: TabBarIndicatorSize.tab,
@@ -276,7 +278,7 @@ class _DashboardNotificationButton extends StatelessWidget {
         );
       },
       hasBadge: true,
-    ).animate().scale(delay: 500.ms, curve: Curves.easeOutBack);
+    );
   }
 }
 
@@ -287,7 +289,7 @@ class _DashboardRefreshButton extends ConsumerWidget {
     final isLoading = assetState is AssetLoaded && assetState.isRefreshing;
 
     return AppBarActionButton(
-      icon: isLoading ? Iconsax.timer_1 : Iconsax.refresh,
+      icon: isLoading ? Iconsax.timer : Iconsax.refresh,
       onTap: () =>
           ref.read(assetProvider.notifier).loadDashboard(refresh: true),
     );
@@ -308,6 +310,21 @@ class _LoadingIndicator extends ConsumerWidget {
         color: AppTheme.gold.withValues(alpha: 0.3),
         minHeight: 2,
       ),
+    );
+  }
+}
+
+class _DashboardPrivacyButton extends ConsumerWidget {
+  const _DashboardPrivacyButton();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isPrivacy = ref.watch(preferenceProvider).isPrivacyModeEnabled;
+
+    return AppBarActionButton(
+      icon: isPrivacy ? Iconsax.eye_slash : Iconsax.eye,
+      onTap: () =>
+          ref.read(preferenceProvider.notifier).togglePrivacyMode(!isPrivacy),
     );
   }
 }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:altin_takip/features/assets/presentation/assets_screen.dart';
-import 'package:altin_takip/features/assets/presentation/add_asset_screen.dart';
 import 'package:altin_takip/features/goals/presentation/goals_screen.dart';
 import 'package:altin_takip/features/dashboard/presentation/dashboard_screen.dart';
 import 'package:altin_takip/features/settings/presentation/settings_screen.dart';
@@ -25,13 +24,6 @@ class _MainShellState extends ConsumerState<MainShell> {
     GoalsScreen(),
     SettingsScreen(),
   ];
-
-  void _showAddAssetScreen() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const AddAssetScreen()),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +75,6 @@ class _MainShellState extends ConsumerState<MainShell> {
                         setState(() => _currentIndex = index);
                         ref.read(scrollShrinkProvider.notifier).state = false;
                       },
-                      onAddTapped: _showAddAssetScreen,
                     ),
                   ),
                 ),

@@ -67,90 +67,157 @@ class _AssetSellSheetState extends ConsumerState<AssetSellSheet> {
       availableBalance = totalBuys - totalSells;
     }
 
+    final isGold = widget.asset.currency?.isGold == true;
+    final themeColor = isGold ? AppTheme.gold : const Color(0xFF60A5FA);
+
     return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: const BoxDecoration(
-        color: AppTheme.background,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0F1116),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.06),
+          width: 1.0,
+        ),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Center(
+            child: Container(
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const Gap(22),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
                 'Varlık Sat',
                 style: TextStyle(
-                  fontWeight: FontWeight.w400, // No bold
-                  fontSize: 16, // Elegant size
+                  fontWeight: FontWeight.w500,
+                  fontSize: 17,
                   color: Colors.white,
-                  letterSpacing: -0.5,
+                  letterSpacing: -0.4,
                 ),
               ),
-              IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Iconsax.close_circle),
+              GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.04),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.08),
+                      width: 1,
+                    ),
+                  ),
+                  alignment: Alignment.center,
+                  child: const Icon(Icons.close, color: Colors.white, size: 16),
+                ),
               ),
             ],
           ),
-          const Gap(8),
+          const Gap(4),
           Text(
-            widget.asset.currency?.isGold == true
+            isGold
                 ? (widget.asset.currency?.name ?? '')
                 : (widget.asset.currency?.code ?? ''),
             style: TextStyle(
-              color: Colors.white.withOpacity(0.5),
-              fontSize: 13,
+              color: Colors.white.withValues(alpha: 0.45),
+              fontSize: 12,
               fontWeight: FontWeight.w400,
             ),
           ),
           const Gap(24),
           TextField(
             controller: _amountController,
-            keyboardType: TextInputType.number,
-            style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 16),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 15, color: Colors.white),
             decoration: InputDecoration(
               labelText: 'Miktar',
+              labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 13),
               hintText: 'Maks: ${_formatAmount(availableBalance)}',
-              prefixIcon: const Icon(Iconsax.weight),
-              border: OutlineInputBorder(
+              hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.25), fontSize: 13),
+              prefixIcon: Icon(Iconsax.weight, color: Colors.white.withValues(alpha: 0.4), size: 18),
+              filled: true,
+              fillColor: Colors.white.withValues(alpha: 0.02),
+              enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.06), width: 1),
               ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(color: themeColor.withValues(alpha: 0.3), width: 1.5),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
             ),
           ),
           const Gap(16),
           TextField(
             controller: _priceController,
-            keyboardType: TextInputType.number,
-            style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 16),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 15, color: Colors.white),
             decoration: InputDecoration(
               labelText: 'Satış Fiyatı',
-              prefixIcon: const Icon(Iconsax.money),
-              border: OutlineInputBorder(
+              labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 13),
+              prefixIcon: Icon(Iconsax.money, color: Colors.white.withValues(alpha: 0.4), size: 18),
+              filled: true,
+              fillColor: Colors.white.withValues(alpha: 0.02),
+              enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.06), width: 1),
               ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(color: themeColor.withValues(alpha: 0.3), width: 1.5),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
             ),
           ),
-          const Gap(32),
-          SizedBox(
+          const Gap(28),
+          Container(
             width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => _handleSell(context, ref, availableBalance),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.gold.withOpacity(0.1),
-                foregroundColor: AppTheme.gold,
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  side: BorderSide(color: AppTheme.gold.withOpacity(0.2)),
-                ),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  themeColor.withValues(alpha: 0.15),
+                  themeColor.withValues(alpha: 0.05),
+                ],
               ),
-              child: const Text(
-                'Satışı Onayla',
-                style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: themeColor.withValues(alpha: 0.25),
+                width: 1.2,
+              ),
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => _handleSell(context, ref, availableBalance),
+                borderRadius: BorderRadius.circular(16),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: Center(
+                    child: Text(
+                      'Satışı Onayla',
+                      style: TextStyle(
+                        color: themeColor,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
           ),

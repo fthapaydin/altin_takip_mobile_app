@@ -8,11 +8,12 @@ import 'package:altin_takip/core/theme/app_theme.dart';
 import 'package:altin_takip/features/currencies/presentation/history/currency_history_providers.dart';
 import 'package:altin_takip/features/currencies/domain/currency_history.dart';
 import 'package:altin_takip/features/currencies/domain/currency_history_data.dart';
-import 'package:altin_takip/features/assets/domain/asset.dart'; // Added for Asset type
 import 'package:intl/intl.dart';
 import 'package:altin_takip/core/widgets/premium_error_view.dart';
 import 'package:altin_takip/features/assets/presentation/add_asset_screen.dart';
 import 'package:altin_takip/core/widgets/app_bar_widget.dart';
+import 'package:altin_takip/features/currencies/presentation/history/widgets/currency_investment_summary.dart';
+import 'package:altin_takip/features/currencies/presentation/history/widgets/currency_history_timeline.dart';
 
 class CurrencyHistoryScreen extends ConsumerStatefulWidget {
   final String currencyCode;
@@ -45,7 +46,8 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
       appBar: AppBarWidget(
         title: widget.currencyName,
         isLargeTitle: false,
-        centerTitle: false,
+        showBack: true,
+        centerTitle: true,
       ),
       body: CustomScrollView(
         slivers: [
@@ -414,7 +416,10 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
             ),
           ),
           const Gap(16),
-          _buildInvestmentSummary(data.userAssets, lastItem.buying),
+          CurrencyInvestmentSummary(
+            assets: data.userAssets,
+            currentPrice: lastItem.buying,
+          ),
           const Gap(24),
           const Align(
             alignment: Alignment.centerLeft,
@@ -428,259 +433,13 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
             ),
           ),
           const Gap(16),
-          _buildTransactionsList(data.userAssets),
+          CurrencyHistoryTimeline(
+            assets: data.userAssets,
+          ),
         ] else
           _buildEmptyTransactionsState(),
         const Gap(40), // Bottom padding
       ],
-    );
-  }
-
-  Widget _buildInvestmentSummary(List<Asset> assets, double currentPrice) {
-    double totalAmount = 0;
-    double totalCost = 0;
-
-    for (final asset in assets) {
-      if (asset.type == 'buy') {
-        totalAmount += asset.amount;
-        totalCost += (asset.price * asset.amount);
-      } else if (asset.type == 'sell') {
-        totalAmount -= asset.amount;
-        totalCost -= (asset.price * asset.amount);
-      }
-    }
-
-    if (totalAmount <= 0) return const SizedBox.shrink();
-
-    final currentValue = totalAmount * currentPrice;
-    final profit = currentValue - totalCost;
-    final profitPercentage = totalCost > 0 ? (profit / totalCost) * 100 : 0.0;
-    final isProfitPositive = profit >= 0;
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Toplam Varlık',
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.5),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                  const Gap(4),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        '₺${NumberFormat('#,##0.00', 'tr_TR').format(currentValue)}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.w400,
-                          fontFeatures: [FontFeature.tabularFigures()],
-                        ),
-                      ),
-                      const Gap(8),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 4),
-                        child: Text(
-                          '${NumberFormat('#,##0.###', 'tr_TR').format(totalAmount)} adet',
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.4),
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const Gap(16),
-          const Divider(color: Colors.white10, height: 1),
-          const Gap(16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Toplam Maliyet',
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.5),
-                      fontSize: 13,
-                    ),
-                  ),
-                  const Gap(4),
-                  Text(
-                    '₺${NumberFormat('#,##0.00', 'tr_TR').format(totalCost)}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w400,
-                      fontFeatures: [FontFeature.tabularFigures()],
-                    ),
-                  ),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    'Kâr / Zarar',
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.5),
-                      fontSize: 13,
-                    ),
-                  ),
-                  const Gap(4),
-                  Row(
-                    children: [
-                      Text(
-                        '${isProfitPositive ? '+' : ''}₺${NumberFormat('#,##0.00', 'tr_TR').format(profit)}',
-                        style: TextStyle(
-                          color: isProfitPositive
-                              ? const Color(0xFF4ADE80)
-                              : const Color(0xFFF87171),
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
-                          fontFeatures: const [FontFeature.tabularFigures()],
-                        ),
-                      ),
-                      const Gap(8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color:
-                              (isProfitPositive
-                                      ? const Color(0xFF4ADE80)
-                                      : const Color(0xFFF87171))
-                                  .withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          '${isProfitPositive ? '+' : ''}%${profitPercentage.abs().toStringAsFixed(2)}',
-                          style: TextStyle(
-                            color: isProfitPositive
-                                ? const Color(0xFF4ADE80)
-                                : const Color(0xFFF87171),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTransactionsList(List<Asset> assets) {
-    // Sort transactions by date descending
-    final sortedAssets = List<Asset>.from(assets);
-    sortedAssets.sort((a, b) => b.date.compareTo(a.date));
-
-    return ListView.separated(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: sortedAssets.length,
-      separatorBuilder: (context, index) => const Gap(12),
-      itemBuilder: (context, index) {
-        final asset = sortedAssets[index];
-        final isBuy = asset.type == 'buy';
-
-        return Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.05),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
-          ),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: (isBuy ? Colors.green : Colors.red).withValues(
-                    alpha: 0.1,
-                  ),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  isBuy ? Iconsax.arrow_down : Iconsax.arrow_up,
-                  color: isBuy ? Colors.green : Colors.red,
-                  size: 20,
-                ),
-              ),
-              const Gap(12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    isBuy ? 'Alış' : 'Satış',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w400,
-                      fontSize: 16,
-                    ),
-                  ),
-                  Text(
-                    DateFormat('dd.MM.yyyy').format(asset.date),
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.5),
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-              const Spacer(),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    '${NumberFormat('#,##0.###', 'tr_TR').format(asset.amount)} adet',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w400,
-                      fontSize: 14,
-                    ),
-                  ),
-                  Text(
-                    '₺${NumberFormat('#,##0.00', 'tr_TR').format(asset.price)}',
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.7),
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 

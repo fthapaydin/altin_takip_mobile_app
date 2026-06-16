@@ -19,7 +19,7 @@ class PublicPriceDetailScreen extends StatelessWidget {
       appBar: AppBarWidget(
         title: price.name,
         isLargeTitle: false,
-        centerTitle: false,
+        centerTitle: true,
       ),
       body: Center(
         child: Padding(

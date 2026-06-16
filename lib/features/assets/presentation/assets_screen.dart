@@ -21,6 +21,7 @@ import 'package:altin_takip/features/assets/presentation/widgets/empty_assets_vi
 import 'package:altin_takip/features/assets/presentation/widgets/shimmer_loading_list.dart';
 import 'package:altin_takip/features/assets/presentation/widgets/asset_group_card.dart';
 import 'package:altin_takip/core/widgets/app_bar_widget.dart';
+import 'package:altin_takip/features/notifications/presentation/notifications_screen.dart';
 
 class AssetsScreen extends ConsumerStatefulWidget {
   const AssetsScreen({super.key});
@@ -169,6 +170,18 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
         isLargeTitle: true,
         actions: [
           AppBarActionButton(
+            icon: Iconsax.notification,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const NotificationsScreen(),
+                ),
+              );
+            },
+          ),
+          const Gap(8),
+          AppBarActionButton(
             icon: Iconsax.receipt_1,
             onTap: () {
               Navigator.push(
@@ -241,6 +254,7 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
         onRefresh: () =>
             ref.read(assetProvider.notifier).loadAllAssets(refresh: true),
         color: AppTheme.gold,
+        edgeOffset: MediaQuery.of(context).padding.top + AppBarWidget.getExpandedHeight(isLargeTitle: true),
         child: ReorderableListView.builder(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: EdgeInsets.fromLTRB(

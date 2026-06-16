@@ -164,7 +164,7 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
       appBar: AppBarWidget(
         title: 'Yeni İşlem',
         isLargeTitle: false,
-        centerTitle: false,
+        centerTitle: true,
         actions: [
           AppBarActionButton(
             icon: Iconsax.receipt_1,

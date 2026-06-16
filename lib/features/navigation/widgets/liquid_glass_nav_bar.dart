@@ -7,21 +7,17 @@ class LiquidGlassNavBar extends StatelessWidget {
   final int currentIndex;
   final bool isShrunk;
   final ValueChanged<int> onTap;
-  final VoidCallback onAddTapped;
 
   const LiquidGlassNavBar({
     super.key,
     required this.currentIndex,
     required this.isShrunk,
     required this.onTap,
-    required this.onAddTapped,
   });
 
   @override
   Widget build(BuildContext context) {
-    final double xAlign = currentIndex < 2
-        ? (-1.0 + currentIndex * 0.5)
-        : (-1.0 + (currentIndex + 1) * 0.5);
+    final double xAlign = -1.0 + currentIndex * (2.0 / 3.0);
 
     // Subtle sizing adjustments
     final double barHeight = isShrunk ? 56.0 : 64.0;
@@ -54,7 +50,7 @@ class LiquidGlassNavBar extends StatelessWidget {
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.fastOutSlowIn,
                   child: FractionallySizedBox(
-                    widthFactor: 0.2,
+                    widthFactor: 0.25,
                     child: Center(
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 300),
@@ -90,15 +86,6 @@ class LiquidGlassNavBar extends StatelessWidget {
                       iconSize: iconSize,
                       onTap: () => onTap(1),
                     ),
-                    // Action button - styled flat with add_circle icon for visual harmony
-                    _NavBarItem(
-                      icon: Iconsax.add_circle,
-                      inactiveIcon: Iconsax.add_circle,
-                      isSelected: false,
-                      iconSize: iconSize,
-                      onTap: onAddTapped,
-                      customColor: AppTheme.gold.withOpacity(0.8),
-                    ),
                     _NavBarItem(
                       icon: Iconsax.flag5,
                       inactiveIcon: Iconsax.flag,
@@ -130,7 +117,6 @@ class _NavBarItem extends StatelessWidget {
   final bool isSelected;
   final double iconSize;
   final VoidCallback onTap;
-  final Color? customColor;
 
   const _NavBarItem({
     required this.icon,
@@ -138,7 +124,6 @@ class _NavBarItem extends StatelessWidget {
     required this.isSelected,
     required this.iconSize,
     required this.onTap,
-    this.customColor,
   });
 
   @override
@@ -157,7 +142,7 @@ class _NavBarItem extends StatelessWidget {
             duration: const Duration(milliseconds: 200),
             child: Icon(
               isSelected ? icon : inactiveIcon,
-              color: customColor ?? defaultColor,
+              color: defaultColor,
               size: iconSize,
             ),
           ),

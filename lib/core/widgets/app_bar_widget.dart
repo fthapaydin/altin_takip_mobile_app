@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:altin_takip/core/providers/scroll_state_provider.dart';
-import 'package:altin_takip/core/theme/app_theme.dart';
+
 
 /// WhatsApp-style full-width liquid glass AppBar.
 ///
@@ -36,10 +36,10 @@ class AppBarWidget extends ConsumerWidget implements PreferredSizeWidget {
   });
 
   // ── Heights ──
-  static const double _expandedLargeH = 64.0;
-  static const double _collapsedLargeH = 48.0;
-  static const double _expandedNormalH = 56.0;
-  static const double _collapsedNormalH = 44.0;
+  static const double _expandedLargeH = 76.0;
+  static const double _collapsedLargeH = 52.0;
+  static const double _expandedNormalH = 60.0;
+  static const double _collapsedNormalH = 48.0;
 
   double get _expandedH => isLargeTitle ? _expandedLargeH : _expandedNormalH;
 
@@ -69,7 +69,7 @@ class AppBarWidget extends ConsumerWidget implements PreferredSizeWidget {
     // to prevent overlap and transparent background issues.
     final bool isSubScreen = showBack || leading != null;
     final bool showGlass = isShrunk || forceGlass || isSubScreen;
-    final double blurSigma = (showGlass && !isSubScreen) ? 20.0 : 0.0;
+    final double blurSigma = showGlass ? 20.0 : 8.0;
 
     return ClipRect(
       child: AnimatedContainer(
@@ -92,16 +92,14 @@ class AppBarWidget extends ConsumerWidget implements PreferredSizeWidget {
             duration: const Duration(milliseconds: 280),
             curve: Curves.easeOutCubic,
             decoration: BoxDecoration(
-              color: isSubScreen
-                  ? AppTheme.background
-                  : (showGlass
-                      ? Colors.black.withValues(alpha: 0.35)
-                      : Colors.transparent),
+              color: showGlass
+                  ? Colors.black.withValues(alpha: 0.35)
+                  : Colors.black.withValues(alpha: 0.12),
               border: Border(
                 bottom: BorderSide(
                   color: showGlass
                       ? Colors.white.withValues(alpha: 0.08)
-                      : Colors.transparent,
+                      : Colors.white.withValues(alpha: 0.04),
                   width: 1.0,
                 ),
               ),
@@ -164,80 +162,132 @@ class _BarContent extends StatelessWidget {
   Widget build(BuildContext context) {
     // ── Responsive sizes ──
     final double titleSize = isShrunk
-        ? (isLargeTitle ? 15.0 : 13.0)
-        : (isLargeTitle ? 19.0 : 15.0);
-    final double subtitleSize = isShrunk ? 10.0 : 11.0;
+        ? (isLargeTitle ? 18.0 : 16.0)
+        : (isLargeTitle ? 26.0 : 18.0);
+    final double subtitleSize = isShrunk ? 11.0 : 12.0;
     final double iconSize = isShrunk ? 18.0 : 20.0;
     final double hPadding = isShrunk ? 16.0 : 20.0;
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: hPadding),
-      child: Row(
+      child: Stack(
+        alignment: Alignment.center,
         children: [
-          // ── Leading ──
-          if (leading != null)
-            leading!
-          else if (showBack)
-            AppBarBackButton(
-              size: iconSize,
-              onTap: () => Navigator.pop(context),
+          // ── Centered title block ──
+          if (centerTitle)
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  AnimatedDefaultTextStyle(
+                    duration: const Duration(milliseconds: 250),
+                    curve: Curves.easeOutCubic,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: titleSize,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: isShrunk ? -0.4 : -0.8,
+                      height: 1.2,
+                    ),
+                    child: Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  if (subtitle != null)
+                    AnimatedCrossFade(
+                      firstChild: Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(
+                          subtitle!,
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.35),
+                            fontSize: subtitleSize,
+                            fontWeight: FontWeight.w400,
+                            letterSpacing: 0.2,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      secondChild: const SizedBox.shrink(),
+                      crossFadeState: isShrunk
+                          ? CrossFadeState.showSecond
+                          : CrossFadeState.showFirst,
+                      duration: const Duration(milliseconds: 200),
+                    ),
+                ],
+              ),
             ),
 
-          if (showBack || leading != null) Gap(isShrunk ? 8 : 12),
+          // ── Leading + Title (left-aligned) + Actions row ──
+          Row(
+            children: [
+              // Leading
+              if (leading != null)
+                leading!
+              else if (showBack)
+                AppBarBackButton(
+                  size: iconSize,
+                  onTap: () => Navigator.pop(context),
+                ),
 
-          // ── Title block ──
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: centerTitle
-                  ? CrossAxisAlignment.center
-                  : CrossAxisAlignment.start,
-              children: [
-                AnimatedDefaultTextStyle(
-                  duration: const Duration(milliseconds: 250),
-                  curve: Curves.easeOutCubic,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: titleSize,
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: isShrunk ? -0.4 : -0.8,
-                    height: 1.2,
-                  ),
-                  child: Text(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+              if (!centerTitle) ...[
+                if (showBack || leading != null) Gap(isShrunk ? 8 : 12),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AnimatedDefaultTextStyle(
+                        duration: const Duration(milliseconds: 250),
+                        curve: Curves.easeOutCubic,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: titleSize,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: isShrunk ? -0.4 : -0.8,
+                          height: 1.2,
+                        ),
+                        child: Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (subtitle != null)
+                        AnimatedCrossFade(
+                          firstChild: Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: Text(
+                              subtitle!,
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.35),
+                                fontSize: subtitleSize,
+                                fontWeight: FontWeight.w400,
+                                letterSpacing: 0.2,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          secondChild: const SizedBox.shrink(),
+                          crossFadeState: isShrunk
+                              ? CrossFadeState.showSecond
+                              : CrossFadeState.showFirst,
+                          duration: const Duration(milliseconds: 200),
+                        ),
+                    ],
                   ),
                 ),
-                if (subtitle != null) ...[
-                  AnimatedCrossFade(
-                    firstChild: Padding(
-                      padding: const EdgeInsets.only(top: 2),
-                      child: Text(
-                        subtitle!,
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.35),
-                          fontSize: subtitleSize,
-                          fontWeight: FontWeight.w400,
-                          letterSpacing: 0.2,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    secondChild: const SizedBox.shrink(),
-                    crossFadeState: isShrunk
-                        ? CrossFadeState.showSecond
-                        : CrossFadeState.showFirst,
-                    duration: const Duration(milliseconds: 200),
-                  ),
-                ],
-              ],
-            ),
-          ),
+              ] else
+                const Spacer(),
 
-          // ── Actions ──
-          if (actions != null) ...actions!,
+              // Actions
+              if (actions != null) ...actions!,
+            ],
+          ),
         ],
       ),
     );
@@ -247,7 +297,9 @@ class _BarContent extends StatelessWidget {
 // ══════════════════════════════════════════════════════════════════════
 // Clean borderless action button
 // ══════════════════════════════════════════════════════════════════════
-class AppBarActionButton extends StatelessWidget {
+// Clean borderless action button with touch animations & glass backing
+// ══════════════════════════════════════════════════════════════════════
+class AppBarActionButton extends StatefulWidget {
   final IconData icon;
   final VoidCallback onTap;
   final Color? iconColor;
@@ -264,42 +316,73 @@ class AppBarActionButton extends StatelessWidget {
   });
 
   @override
+  State<AppBarActionButton> createState() => _AppBarActionButtonState();
+}
+
+class _AppBarActionButtonState extends State<AppBarActionButton> {
+  bool _isPressed = false;
+
+  @override
   Widget build(BuildContext context) {
+    final color = widget.iconColor ?? Colors.white.withValues(alpha: 0.9);
+
     return GestureDetector(
-      onTap: onTap,
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapUp: (_) => setState(() => _isPressed = false),
+      onTapCancel: () => setState(() => _isPressed = false),
+      onTap: widget.onTap,
       behavior: HitTestBehavior.opaque,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
-        child: Stack(
-          alignment: Alignment.center,
-          clipBehavior: Clip.none,
-          children: [
-            Icon(
-              icon,
-              color: iconColor ?? Colors.white.withValues(alpha: 0.9),
-              size: 22,
-            ),
-            if (hasBadge)
-              Positioned(
-                top: -3,
-                right: -3,
-                child: Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: badgeColor ?? const Color(0xFFFBBF24), // Gold/amber badge
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: (badgeColor ?? const Color(0xFFFBBF24)).withValues(alpha: 0.5),
-                        blurRadius: 4,
-                        spreadRadius: 1,
-                      ),
-                    ],
-                  ),
-                ),
+      child: AnimatedScale(
+        scale: _isPressed ? 0.92 : 1.0,
+        duration: const Duration(milliseconds: 100),
+        child: AnimatedOpacity(
+          opacity: _isPressed ? 0.75 : 1.0,
+          duration: const Duration(milliseconds: 100),
+          child: Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.04),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.08),
+                width: 1,
               ),
-          ],
+            ),
+            alignment: Alignment.center,
+            child: Stack(
+              alignment: Alignment.center,
+              clipBehavior: Clip.none,
+              children: [
+                Icon(
+                  widget.icon,
+                  color: color,
+                  size: 19,
+                ),
+                if (widget.hasBadge)
+                  Positioned(
+                    top: -2,
+                    right: -2,
+                    child: Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: widget.badgeColor ?? const Color(0xFFFBBF24),
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: (widget.badgeColor ?? const Color(0xFFFBBF24))
+                                .withValues(alpha: 0.4),
+                            blurRadius: 3,
+                            spreadRadius: 0.5,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -307,29 +390,53 @@ class AppBarActionButton extends StatelessWidget {
 }
 
 // ══════════════════════════════════════════════════════════════════════
-// Clean borderless back button
+// Clean borderless back button with touch animations & glass backing
 // ══════════════════════════════════════════════════════════════════════
-class AppBarBackButton extends StatelessWidget {
+class AppBarBackButton extends StatefulWidget {
   final double size;
   final VoidCallback onTap;
 
-  const AppBarBackButton({
-    super.key,
-    required this.size,
-    required this.onTap,
-  });
+  const AppBarBackButton({super.key, required this.size, required this.onTap});
+
+  @override
+  State<AppBarBackButton> createState() => _AppBarBackButtonState();
+}
+
+class _AppBarBackButtonState extends State<AppBarBackButton> {
+  bool _isPressed = false;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapUp: (_) => setState(() => _isPressed = false),
+      onTapCancel: () => setState(() => _isPressed = false),
+      onTap: widget.onTap,
       behavior: HitTestBehavior.opaque,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-        child: Icon(
-          Iconsax.arrow_left_2,
-          color: Colors.white.withValues(alpha: 0.9),
-          size: 22,
+      child: AnimatedScale(
+        scale: _isPressed ? 0.92 : 1.0,
+        duration: const Duration(milliseconds: 100),
+        child: AnimatedOpacity(
+          opacity: _isPressed ? 0.75 : 1.0,
+          duration: const Duration(milliseconds: 100),
+          child: Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.04),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.08),
+                width: 1,
+              ),
+            ),
+            alignment: Alignment.center,
+            child: const Icon(
+              Iconsax.arrow_left_2,
+              color: Colors.white,
+              size: 20,
+            ),
+          ),
         ),
       ),
     );

@@ -18,40 +18,98 @@ class GoalCard extends StatelessWidget {
     final percentage = progress?.progressPercentage ?? 0;
     final normalized = (percentage / 100).clamp(0.0, 1.0);
     final formatter = NumberFormat('#,##0', 'tr_TR');
+    final color = _categoryColor(goal.category);
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         decoration: BoxDecoration(
-          color: AppTheme.surface,
+          gradient: _categoryGradient(goal.category),
           borderRadius: BorderRadius.circular(24),
           border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
         ),
-        child: Column(
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header Row
-            _HeaderRow(goal: goal),
-            const Gap(16),
-            // Progress bar
-            _ProgressBar(normalized: normalized),
-            const Gap(12),
-            // Amount row
-            _AmountRow(
-              progress: progress,
-              percentage: percentage,
-              formatter: formatter,
+            // Left vertical indicator strip
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Container(
+                width: 4,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
             ),
-            // Target date row (if exists)
-            if (goal.targetDate != null) ...[
-              const Gap(12),
-              _TargetDateRow(targetDate: goal.targetDate!),
-            ],
+            const Gap(16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header Row
+                  _HeaderRow(goal: goal),
+                  const Gap(16),
+                  // Progress bar
+                  _ProgressBar(normalized: normalized, category: goal.category),
+                  const Gap(12),
+                  // Amount row
+                  _AmountRow(
+                    progress: progress,
+                    percentage: percentage,
+                    formatter: formatter,
+                    category: goal.category,
+                  ),
+                  // Target date row (if exists)
+                  if (goal.targetDate != null) ...[
+                    const Gap(12),
+                    _TargetDateRow(targetDate: goal.targetDate!),
+                  ],
+                ],
+              ),
+            ),
           ],
         ),
       ),
     ).animate().fadeIn(duration: 400.ms).slideX(begin: 0.05, end: 0);
+  }
+}
+
+// ── Shared Helpers ──
+
+LinearGradient _categoryGradient(GoalCategory category) {
+  switch (category) {
+    case GoalCategory.gold:
+      return const LinearGradient(
+        colors: [Color(0xFF16140F), Color(0xFF0F0E0B)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    case GoalCategory.currency:
+      return const LinearGradient(
+        colors: [Color(0xFF0F131C), Color(0xFF090B10)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    case GoalCategory.all:
+      return const LinearGradient(
+        colors: [Color(0xFF0F1614), Color(0xFF090E0D)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+  }
+}
+
+Color _categoryColor(GoalCategory category) {
+  switch (category) {
+    case GoalCategory.gold:
+      return AppTheme.gold;
+    case GoalCategory.currency:
+      return const Color(0xFF4C82F7);
+    case GoalCategory.all:
+      return const Color(0xFF34D399);
   }
 }
 
@@ -65,21 +123,6 @@ class _HeaderRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        // Category icon
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: _categoryColor(goal.category).withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(
-            _categoryIcon(goal.category),
-            color: _categoryColor(goal.category),
-            size: 20,
-          ),
-        ),
-        const Gap(12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -90,6 +133,7 @@ class _HeaderRow extends StatelessWidget {
                   color: Colors.white,
                   fontSize: 15,
                   letterSpacing: -0.3,
+                  fontWeight: FontWeight.w500,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -100,6 +144,7 @@ class _HeaderRow extends StatelessWidget {
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.4),
                   fontSize: 11,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
             ],
@@ -109,28 +154,6 @@ class _HeaderRow extends StatelessWidget {
         _StatusBadge(goal: goal),
       ],
     );
-  }
-
-  IconData _categoryIcon(GoalCategory category) {
-    switch (category) {
-      case GoalCategory.gold:
-        return Iconsax.coin_1;
-      case GoalCategory.currency:
-        return Iconsax.dollar_circle;
-      case GoalCategory.all:
-        return Iconsax.chart;
-    }
-  }
-
-  Color _categoryColor(GoalCategory category) {
-    switch (category) {
-      case GoalCategory.gold:
-        return AppTheme.gold;
-      case GoalCategory.currency:
-        return const Color(0xFF4C82F7);
-      case GoalCategory.all:
-        return const Color(0xFF34D399);
-    }
   }
 }
 
@@ -159,7 +182,12 @@ class _StatusBadge extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: TextStyle(color: color, fontSize: 10, letterSpacing: 0.5),
+        style: TextStyle(
+          color: color,
+          fontSize: 10,
+          letterSpacing: 0.5,
+          fontWeight: FontWeight.w400,
+        ),
       ),
     );
   }
@@ -193,10 +221,12 @@ class _PriorityDot extends StatelessWidget {
 
 class _ProgressBar extends StatelessWidget {
   final double normalized;
-  const _ProgressBar({required this.normalized});
+  final GoalCategory category;
+  const _ProgressBar({required this.normalized, required this.category});
 
   @override
   Widget build(BuildContext context) {
+    final color = _categoryColor(category);
     return ClipRRect(
       borderRadius: BorderRadius.circular(6),
       child: SizedBox(
@@ -210,8 +240,8 @@ class _ProgressBar extends StatelessWidget {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppTheme.gold,
-                      AppTheme.gold.withValues(alpha: 0.7),
+                      color,
+                      color.withValues(alpha: 0.7),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(6),
@@ -229,11 +259,13 @@ class _AmountRow extends StatelessWidget {
   final GoalProgress? progress;
   final double percentage;
   final NumberFormat formatter;
+  final GoalCategory category;
 
   const _AmountRow({
     required this.progress,
     required this.percentage,
     required this.formatter,
+    required this.category,
   });
 
   @override
@@ -246,11 +278,16 @@ class _AmountRow extends StatelessWidget {
           style: TextStyle(
             color: Colors.white.withValues(alpha: 0.6),
             fontSize: 12,
+            fontWeight: FontWeight.w400,
           ),
         ),
         Text(
           '%${percentage.toStringAsFixed(1)}',
-          style: const TextStyle(color: AppTheme.gold, fontSize: 12),
+          style: TextStyle(
+            color: _categoryColor(category),
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ],
     );

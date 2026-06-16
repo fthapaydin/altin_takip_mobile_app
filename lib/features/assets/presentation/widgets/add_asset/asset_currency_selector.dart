@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:altin_takip/core/theme/app_theme.dart';
-import 'package:altin_takip/core/widgets/currency_icon.dart';
 import 'package:altin_takip/features/currencies/domain/currency.dart';
 
 class AssetCurrencySelector extends StatelessWidget {
@@ -33,29 +32,6 @@ class AssetCurrencySelector extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    AppTheme.gold.withOpacity(0.2),
-                    AppTheme.gold.withOpacity(0.05),
-                  ],
-                ),
-                shape: BoxShape.circle,
-                border: Border.all(color: AppTheme.gold.withOpacity(0.2)),
-              ),
-              child: CurrencyIcon(
-                iconUrl: selectedCurrency?.iconUrl,
-                isGold: isGold,
-                size: 36,
-                color: AppTheme.gold,
-              ),
-            ),
-            const Gap(12),
             Expanded(
               child: Text(
                 selectedCurrency?.name ?? 'Seçiniz',
@@ -242,31 +218,6 @@ class _AssetSelectionSheetState extends State<_AssetSelectionSheet> {
                           ),
                           child: Row(
                             children: [
-                              Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                    colors: [
-                                      AppTheme.gold.withOpacity(0.2),
-                                      AppTheme.gold.withOpacity(0.05),
-                                    ],
-                                  ),
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: AppTheme.gold.withOpacity(0.2),
-                                  ),
-                                ),
-                                child: CurrencyIcon(
-                                  iconUrl: currency.iconUrl,
-                                  isGold: currency.isGold,
-                                  size: 40,
-                                  color: AppTheme.gold,
-                                ),
-                              ),
-                              const Gap(12),
                               Expanded(
                                 child: Text(
                                   currency.name,

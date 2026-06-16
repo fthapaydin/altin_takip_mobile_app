@@ -68,7 +68,9 @@ class PortfolioChart extends StatelessWidget {
                 return Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: Text(
-                    NumberFormat.compact(locale: 'tr_TR').format(value),
+                    value < 10000
+                        ? NumberFormat('#,##0', 'tr_TR').format(value)
+                        : NumberFormat.compact(locale: 'tr_TR').format(value),
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.5),
                       fontSize: 10,

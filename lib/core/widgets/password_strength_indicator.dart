@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:altin_takip/core/theme/app_theme.dart';
 import 'package:gap/gap.dart';
 
 class PasswordStrengthIndicator extends StatelessWidget {

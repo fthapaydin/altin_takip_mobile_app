@@ -6,10 +6,9 @@ import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:altin_takip/core/theme/app_theme.dart';
 import 'package:altin_takip/features/assets/presentation/asset_state.dart';
-import 'package:altin_takip/features/dashboard/presentation/widgets/portfolio_chart.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:altin_takip/features/assets/presentation/asset_notifier.dart';
 import 'package:altin_takip/features/settings/presentation/preference_notifier.dart';
+import 'package:altin_takip/features/dashboard/presentation/portfolio_detail_screen.dart';
 import 'package:iconsax/iconsax.dart';
 
 class PortfolioSummaryCard extends ConsumerWidget {
@@ -22,15 +21,11 @@ class PortfolioSummaryCard extends ConsumerWidget {
     final isPrivacyMode = ref.watch(preferenceProvider).isPrivacyModeEnabled;
 
     if (state is AssetLoading) {
-      return _buildPortfolioShimmer();
+      return const _PortfolioShimmer();
     }
 
-    // Use dashboard data if available, otherwise calculate from assets
     final dashboardSummary = (state is AssetLoaded)
         ? (state as AssetLoaded).dashboardData?.summary
-        : null;
-    final chartData = (state is AssetLoaded)
-        ? (state as AssetLoaded).dashboardData?.chartData
         : null;
 
     final totalWorth =
@@ -48,580 +43,105 @@ class PortfolioSummaryCard extends ConsumerWidget {
         dashboardSummary?.profitLossPercentage ??
         (totalCost > 0 ? (profitLoss / totalCost) * 100 : 0.0);
 
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(32),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.04),
-          width: 1.0,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.4),
-            offset: const Offset(0, 20),
-            blurRadius: 40,
-            spreadRadius: -10,
+    return GestureDetector(
+      onTap: () {
+        if (state is AssetLoaded) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => PortfolioDetailScreen(state: state as AssetLoaded),
+            ),
+          );
+        }
+      },
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: AppTheme.surface,
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.05),
+            width: 1.0,
           ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(32),
-        child: Stack(
-          children: [
-            // Ambient Gradient Mesh
-            Positioned(
-              top: -50,
-              right: -50,
-              child: ImageFiltered(
-                imageFilter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
-                child: Container(
-                  width: 150,
-                  height: 150,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppTheme.gold.withOpacity(0.15),
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              bottom: -50,
-              left: -30,
-              child: ImageFiltered(
-                imageFilter: ImageFilter.blur(sigmaX: 60, sigmaY: 60),
-                child: Container(
-                  width: 200,
-                  height: 200,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.blueAccent.withOpacity(0.1),
-                  ),
-                ),
-              ),
-            ),
-
-            // Main Content
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: _buildPrivacyBlur(
-                enabled: isPrivacyMode,
-                child: AbsorbPointer(
-                  absorbing: isPrivacyMode,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Header: Title & Profit Pill
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'TOPLAM VARLIK',
-                                style: TextStyle(
-                                  color: Colors.white.withOpacity(0.5),
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w500,
-                                  letterSpacing: 1.5,
-                                ),
-                              ),
-                              const Gap(8),
-                              Text(
-                                '₺${NumberFormat('#,##0.00', 'tr_TR').format(totalWorth)}',
-                                style: const TextStyle(
-                                  fontFeatures: [FontFeature.tabularFigures()],
-                                  color: Colors.white,
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.w400,
-                                  letterSpacing: -1,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color:
-                                  (profitLoss >= 0 ? Colors.green : Colors.red)
-                                      .withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                color:
-                                    (profitLoss >= 0
-                                            ? Colors.green
-                                            : Colors.red)
-                                        .withValues(alpha: 0.2),
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  profitLoss >= 0
-                                      ? Iconsax.arrow_up
-                                      : Iconsax.arrow_down,
-                                  color: profitLoss >= 0
-                                      ? Colors.green
-                                      : Colors.red,
-                                  size: 14,
-                                ),
-                                const Gap(4),
-                                Text(
-                                  '%${NumberFormat('#,##0.1', 'tr_TR').format(profitPercentage.abs())}',
-                                  style: TextStyle(
-                                    color: profitLoss >= 0
-                                        ? Colors.green
-                                        : Colors.red,
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const Gap(24),
-
-                      // Chart Area
-                      SizedBox(
-                        height: 120,
-                        width: double.infinity,
-                        child: chartData != null && chartData.isNotEmpty
-                            ? PortfolioChart(
-                                chartData: chartData,
-                                totalCost: totalWorth - profitLoss,
-                              )
-                            : Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'Grafik verisi alınamadı',
-                                      style: TextStyle(
-                                        color: Colors.white.withOpacity(0.3),
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                    if (state is AssetLoaded &&
-                                        !(state as AssetLoaded)
-                                            .isRefreshing) ...[
-                                      const Gap(8),
-                                      TextButton.icon(
-                                        onPressed: () {
-                                          ref
-                                              .read(assetProvider.notifier)
-                                              .loadDashboard(refresh: true);
-                                        },
-                                        icon: const Icon(
-                                          Iconsax.refresh,
-                                          size: 16,
-                                        ),
-                                        label: const Text('Tekrar Dene'),
-                                        style: TextButton.styleFrom(
-                                          foregroundColor: AppTheme.gold,
-                                          textStyle: const TextStyle(
-                                            fontSize: 12,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                              ),
-                      ),
-
-                      const Gap(20),
-
-                      // Investment Stats Row
-                      _buildInvestmentStats(
-                        totalCost: totalCost,
-                        profitLoss: profitLoss,
-                        profitPercentage: profitPercentage,
-                      ),
-
-                      const Gap(24),
-
-                      // Detailed Asset Allocation
-                      _buildAssetAllocation(
-                        state,
-                        isPrivacyMode: isPrivacyMode,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.3),
+              offset: const Offset(0, 16),
+              blurRadius: 32,
+              spreadRadius: -8,
             ),
           ],
         ),
-      ),
-    ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.1, end: 0);
-  }
-
-  Widget _buildInvestmentStats({
-    required double totalCost,
-    required double profitLoss,
-    required double profitPercentage,
-  }) {
-    final isPositive = profitLoss >= 0;
-    final profitColor = isPositive
-        ? const Color(0xFF34D399) // emerald
-        : const Color(0xFFEF4444); // rose
-    final formatter = NumberFormat('#,##0', 'tr_TR');
-
-    return Row(
-      children: [
-        // ── Toplam Yatırım ──
-        Expanded(
-          child: _StatTile(
-            accentColor: AppTheme.gold.withValues(alpha: 0.6),
-            icon: Iconsax.wallet_1,
-            iconColor: AppTheme.gold,
-            label: 'Yatırım',
-            value: '₺${formatter.format(totalCost)}',
-            valueColor: Colors.white,
-          ),
-        ),
-        const Gap(8),
-        // ── Kâr / Zarar ──
-        Expanded(
-          child: _StatTile(
-            accentColor: profitColor.withValues(alpha: 0.5),
-            icon: isPositive ? Iconsax.trend_up : Iconsax.trend_down,
-            iconColor: profitColor,
-            label: 'Kâr / Zarar',
-            value:
-                '${isPositive ? '+' : '-'}₺${formatter.format(profitLoss.abs())}',
-            valueColor: profitColor,
-          ),
-        ),
-      ],
-    ).animate().fadeIn(duration: 400.ms, delay: 200.ms);
-  }
-
-  Widget _buildAssetAllocation(AssetState state, {bool isPrivacyMode = false}) {
-    if (state is! AssetLoaded) return const SizedBox();
-
-    double goldValue = 0;
-    double forexValue = 0;
-
-    final Map<int, double> holdings = {};
-    for (var asset in state.assets) {
-      final amount = asset.amount;
-      if (asset.type == 'buy') {
-        holdings[asset.currencyId] = (holdings[asset.currencyId] ?? 0) + amount;
-      } else {
-        holdings[asset.currencyId] = (holdings[asset.currencyId] ?? 0) - amount;
-      }
-    }
-
-    holdings.forEach((currencyId, amount) {
-      final currency = state.currencies.firstWhere(
-        (c) => c.id == currencyId,
-        orElse: () => state.currencies.first,
-      );
-      final value = amount * currency.selling;
-      if (currency.type == 'Altın') {
-        goldValue += value;
-      } else {
-        forexValue += value;
-      }
-    });
-
-    final total = goldValue + forexValue;
-    if (total == 0) return const SizedBox();
-
-    final goldPercent = (goldValue / total * 100);
-    final forexPercent = (forexValue / total * 100);
-
-    return Column(
-      children: [
-        // Progress Bar
-        ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: SizedBox(
-            height: 12,
-            child: Row(
-              children: [
-                if (goldValue > 0)
-                  Expanded(
-                    flex: goldPercent.round(),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            AppTheme.gold,
-                            AppTheme.gold.withValues(alpha: 0.7),
-                          ],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                        ),
-                      ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(28),
+          child: Stack(
+            children: [
+              // Subtle ambient glow
+              Positioned(
+                top: -40,
+                right: -40,
+                child: ImageFiltered(
+                  imageFilter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
+                  child: Container(
+                    width: 120,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppTheme.gold.withValues(alpha: 0.12),
                     ),
                   ),
-                if (forexValue > 0)
-                  Expanded(
-                    flex: forexPercent.round(),
-                    child: Container(
-                      color: const Color(0xFF4C82F7).withValues(alpha: 0.3),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ),
-        const Gap(20),
-        // Details Row
-        Row(
-          children: [
-            Expanded(
-              child: _buildAllocationItem(
-                label: 'ALTIN',
-                amount: goldValue,
-                percentage: goldPercent,
-                color: AppTheme.gold,
-                isPrivacyMode: isPrivacyMode,
+                ),
               ),
-            ),
-            Container(
-              width: 1,
-              height: 32,
-              color: Colors.white.withValues(alpha: 0.1),
-            ),
-            Expanded(
-              child: _buildAllocationItem(
-                label: 'DÖVİZ',
-                amount: forexValue,
-                percentage: forexPercent,
-                color: const Color(0xFF4C82F7),
-                isRight: true,
-                isPrivacyMode: isPrivacyMode,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
 
-  Widget _buildAllocationItem({
-    required String label,
-    required double amount,
-    required double percentage,
-    required Color color,
-    bool isRight = false,
-    bool isPrivacyMode = false,
-  }) {
-    return Padding(
-      padding: EdgeInsets.only(left: isRight ? 24 : 0, right: isRight ? 0 : 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 6,
-                height: 6,
-                decoration: BoxDecoration(
-                  color: color,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: color.withValues(alpha: 0.5),
-                      blurRadius: 6,
-                    ),
-                  ],
-                ),
-              ),
-              const Gap(8),
-              Text(
-                label,
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.6),
-                  fontSize: 10,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 1.2,
-                ),
-              ),
-            ],
-          ),
-          const Gap(4),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '₺${NumberFormat('#,##0.00', 'tr_TR').format(amount)}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 15,
-                ),
-              ),
-              Text(
-                '%${percentage.toStringAsFixed(0)}',
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.4),
-                  fontWeight: FontWeight.w500,
-                  fontSize: 12,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPortfolioShimmer() {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(32),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.04),
-          width: 1.0,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.4),
-            offset: const Offset(0, 20),
-            blurRadius: 40,
-            spreadRadius: -10,
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(32),
-        child: Shimmer.fromColors(
-          baseColor: Colors.white.withOpacity(0.05),
-          highlightColor: Colors.white.withOpacity(0.1),
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header Row
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
+              // Main Content
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
+                child: _buildPrivacyBlur(
+                  enabled: isPrivacyMode,
+                  child: AbsorbPointer(
+                    absorbing: isPrivacyMode,
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Container(
-                          width: 80,
-                          height: 10,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
+                        // ── Balance Row ──
+                        _BalanceRow(
+                          totalWorth: totalWorth,
+                          profitLoss: profitLoss,
+                          profitPercentage: profitPercentage,
                         ),
-                        const Gap(12),
-                        Container(
-                          width: 150,
-                          height: 32,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
+                        const Gap(20),
+
+                        // ── Stat Tiles ──
+                        _StatRow(
+                          totalCost: totalCost,
+                          profitLoss: profitLoss,
                         ),
+                        const Gap(16),
+
+                        // ── "Detayları Gör" CTA ──
+                        const _DetailsCta(),
                       ],
                     ),
-                    Container(
-                      width: 70,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                  ],
-                ),
-                const Gap(32),
-
-                // Chart Placeholder (Curved Line imitation)
-                Container(
-                  height: 120,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                const Gap(32),
-
-                // Allocation Bar
-                Container(
-                  height: 12,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                const Gap(20),
-
-                // Allocation Details
-                Row(
-                  children: [
-                    Expanded(child: _buildShimmerAllocationItem()),
-                    Container(width: 1, height: 32, color: Colors.white),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 24),
-                        child: _buildShimmerAllocationItem(isRight: true),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
-    );
+    ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.08, end: 0);
   }
 
-  Widget _buildShimmerAllocationItem({bool isRight = false}) {
-    return Column(
-      crossAxisAlignment: isRight
-          ? CrossAxisAlignment.end
-          : CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: isRight
-              ? MainAxisAlignment.end
-              : MainAxisAlignment.start,
-          children: [
-            Container(width: 6, height: 6, color: Colors.white),
-            const Gap(8),
-            Container(
-              width: 40,
-              height: 10,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-          ],
-        ),
-        const Gap(8),
-        Container(
-          width: 80,
-          height: 14,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(4),
-          ),
-        ),
-      ],
+  Widget _buildPrivacyBlur({
+    required Widget child,
+    required bool enabled,
+    double sigma = 6.6,
+  }) {
+    if (!enabled) return child;
+    return ImageFiltered(
+      imageFilter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
+      child: child,
     );
   }
 
@@ -631,7 +151,6 @@ class PortfolioSummaryCard extends ConsumerWidget {
     double currentTotalValue = 0;
     final Map<int, double> holdings = {};
 
-    // Calculate net holdings per currency
     for (var asset in state.assets) {
       final amount = asset.amount;
       if (asset.type == 'buy') {
@@ -641,10 +160,8 @@ class PortfolioSummaryCard extends ConsumerWidget {
       }
     }
 
-    // Multiply net holdings by current selling price
     holdings.forEach((currencyId, amount) {
       try {
-        // Find currency in loaded list or use the one from assets if not there
         final currency = state.currencies.firstWhere(
           (c) => c.id == currencyId,
           orElse: () {
@@ -656,9 +173,7 @@ class PortfolioSummaryCard extends ConsumerWidget {
           },
         );
         currentTotalValue += amount * currency.selling;
-      } catch (_) {
-        // Fallback for missing currency info
-      }
+      } catch (_) {}
     });
 
     return currentTotalValue;
@@ -682,31 +197,150 @@ class PortfolioSummaryCard extends ConsumerWidget {
 
     return currentVal - totalCost;
   }
+}
 
-  Widget _buildPrivacyBlur({
-    required Widget child,
-    required bool enabled,
-    double sigma = 6.6,
-  }) {
-    if (!enabled) return child;
-    return ImageFiltered(
-      imageFilter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
-      child: child,
+// ─────────────────────────────────────────────
+// Balance row: value + profit pill
+// ─────────────────────────────────────────────
+
+class _BalanceRow extends StatelessWidget {
+  final double totalWorth;
+  final double profitLoss;
+  final double profitPercentage;
+
+  const _BalanceRow({
+    required this.totalWorth,
+    required this.profitLoss,
+    required this.profitPercentage,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isPositive = profitLoss >= 0;
+    final pillColor = isPositive
+        ? const Color(0xFF34D399)
+        : const Color(0xFFEF4444);
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'TOPLAM VARLIK',
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.45),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 1.5,
+                ),
+              ),
+              const Gap(6),
+              Text(
+                '₺${NumberFormat('#,##0.00', 'tr_TR').format(totalWorth)}',
+                style: const TextStyle(
+                  fontFeatures: [FontFeature.tabularFigures()],
+                  color: Colors.white,
+                  fontSize: 30,
+                  fontWeight: FontWeight.w400,
+                  letterSpacing: -1,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: pillColor.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: pillColor.withValues(alpha: 0.15),
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                isPositive ? Iconsax.arrow_up : Iconsax.arrow_down,
+                color: pillColor,
+                size: 12,
+              ),
+              const Gap(3),
+              Text(
+                '%${NumberFormat('#,##0.1', 'tr_TR').format(profitPercentage.abs())}',
+                style: TextStyle(
+                  color: pillColor,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
 
-/// Premium stat tile with colored accent bar and icon.
-class _StatTile extends StatelessWidget {
-  final Color accentColor;
+// ─────────────────────────────────────────────
+// Stat row: investment + profit/loss
+// ─────────────────────────────────────────────
+
+class _StatRow extends StatelessWidget {
+  final double totalCost;
+  final double profitLoss;
+
+  const _StatRow({
+    required this.totalCost,
+    required this.profitLoss,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isPositive = profitLoss >= 0;
+    final profitColor = isPositive
+        ? const Color(0xFF34D399)
+        : const Color(0xFFEF4444);
+    final formatter = NumberFormat('#,##0.00', 'tr_TR');
+
+    return Row(
+      children: [
+        Expanded(
+          child: _MiniStat(
+            icon: Iconsax.wallet_1,
+            iconColor: AppTheme.gold,
+            label: 'Yatırım',
+            value: '₺${formatter.format(totalCost)}',
+            valueColor: Colors.white,
+          ),
+        ),
+        const Gap(8),
+        Expanded(
+          child: _MiniStat(
+            icon: isPositive ? Iconsax.trend_up : Iconsax.trend_down,
+            iconColor: profitColor,
+            label: 'Kâr / Zarar',
+            value:
+                '${isPositive ? '+' : '-'}₺${formatter.format(profitLoss.abs())}',
+            valueColor: profitColor,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _MiniStat extends StatelessWidget {
   final IconData icon;
   final Color iconColor;
   final String label;
   final String value;
   final Color valueColor;
 
-  const _StatTile({
-    required this.accentColor,
+  const _MiniStat({
     required this.icon,
     required this.iconColor,
     required this.label,
@@ -721,44 +355,38 @@ class _StatTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.04),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       child: Row(
         children: [
-          // Accent bar
           Container(
             width: 3,
-            height: 28,
+            height: 26,
             decoration: BoxDecoration(
-              color: accentColor,
+              color: iconColor.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
           const Gap(8),
-          // Content
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    Icon(
-                      icon,
-                      size: 10,
-                      color: iconColor.withValues(alpha: 0.7),
-                    ),
+                    Icon(icon, size: 10, color: iconColor.withValues(alpha: 0.7)),
                     const Gap(4),
                     Text(
                       label,
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.4),
-                        fontSize: 8.5,
-                        letterSpacing: 0.8,
+                        fontSize: 9,
+                        letterSpacing: 0.6,
                       ),
                     ),
                   ],
                 ),
-                const Gap(3),
+                const Gap(2),
                 Text(
                   value,
                   style: TextStyle(
@@ -774,6 +402,160 @@ class _StatTile extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+// "Detayları Gör" CTA row
+// ─────────────────────────────────────────────
+
+class _DetailsCta extends StatelessWidget {
+  const _DetailsCta();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(
+            color: Colors.white.withValues(alpha: 0.06),
+          ),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'Portföy Detayları',
+            style: TextStyle(
+              color: AppTheme.gold.withValues(alpha: 0.8),
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              letterSpacing: 0.3,
+            ),
+          ),
+          const Gap(6),
+          Icon(
+            Iconsax.arrow_right_3,
+            size: 14,
+            color: AppTheme.gold.withValues(alpha: 0.6),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+// Shimmer / Loading state
+// ─────────────────────────────────────────────
+
+class _PortfolioShimmer extends StatelessWidget {
+  const _PortfolioShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.05),
+          width: 1.0,
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(28),
+        child: Shimmer.fromColors(
+          baseColor: Colors.white.withValues(alpha: 0.05),
+          highlightColor: Colors.white.withValues(alpha: 0.1),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 80,
+                          height: 10,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                        const Gap(10),
+                        Container(
+                          width: 150,
+                          height: 28,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      width: 60,
+                      height: 28,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                  ],
+                ),
+                const Gap(20),
+
+                // Stat tiles
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                    ),
+                    const Gap(8),
+                    Expanded(
+                      child: Container(
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const Gap(16),
+
+                // CTA placeholder
+                Container(
+                  height: 16,
+                  width: 100,
+                  margin: const EdgeInsets.only(top: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

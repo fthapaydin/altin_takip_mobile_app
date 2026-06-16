@@ -3,15 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
 import 'package:altin_takip/core/theme/app_theme.dart';
-import 'package:altin_takip/core/utils/date_formatter.dart';
 import 'package:altin_takip/features/assets/presentation/asset_notifier.dart';
 import 'package:altin_takip/features/assets/presentation/asset_state.dart';
 import 'package:altin_takip/features/assets/domain/asset.dart';
-import 'package:altin_takip/features/settings/presentation/preference_notifier.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:sticky_headers/sticky_headers.dart';
 import 'package:altin_takip/features/assets/presentation/add_asset_screen.dart';
-import 'package:altin_takip/core/widgets/currency_icon.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:altin_takip/core/widgets/app_bar_widget.dart';
 
@@ -28,7 +25,7 @@ class TransactionsScreen extends ConsumerWidget {
       appBar: AppBarWidget(
         title: 'Geçmiş İşlemler',
         showBack: true,
-        centerTitle: false,
+        centerTitle: true,
         isLargeTitle: false,
         actions: [
           AppBarActionButton(
@@ -94,7 +91,10 @@ class TransactionsScreen extends ConsumerWidget {
       return ListView.builder(
         padding: EdgeInsets.only(
           bottom: 80,
-          top: MediaQuery.of(context).padding.top + AppBarWidget.getExpandedHeight(isLargeTitle: false) + 12.0,
+          top:
+              MediaQuery.of(context).padding.top +
+              AppBarWidget.getExpandedHeight(isLargeTitle: false) +
+              12.0,
         ),
         itemCount: groupedAssets.keys.length,
         itemBuilder: (context, index) {
@@ -142,25 +142,22 @@ class TransactionsScreen extends ConsumerWidget {
     return StickyHeader(
       header: Container(
         width: double.infinity,
-        color: AppTheme.background, // Match items background for readability
+        color: AppTheme.background,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         child: Row(
           children: [
             Text(
               headerText,
-              style: TextStyle(
+              style: const TextStyle(
                 color: AppTheme.gold,
-                fontSize: 13,
-                fontWeight: FontWeight.w400,
-                letterSpacing: 0.5,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                letterSpacing: 0.8,
               ),
             ),
             const Gap(8),
             Expanded(
-              child: Divider(
-                color: AppTheme.gold.withValues(alpha: 0.2),
-                height: 1,
-              ),
+              child: Divider(color: AppTheme.gold.withOpacity(0.12), height: 1),
             ),
           ],
         ),
@@ -174,7 +171,7 @@ class TransactionsScreen extends ConsumerWidget {
             ref,
             asset,
             index: index + (groupIndex * 10),
-          ); // Offset index for staggering
+          );
         }).toList(),
       ),
     );
@@ -187,12 +184,7 @@ class TransactionsScreen extends ConsumerWidget {
     required int index,
   }) {
     final isBuy = asset.type == 'buy';
-    final useDynamicDate = ref.watch(preferenceProvider).useDynamicDate;
-    final formattedDate = DateFormatter.format(
-      asset.date,
-      useDynamic: useDynamicDate,
-    );
-    final timeStr = DateFormat('HH:mm').format(asset.date);
+    final formatter = NumberFormat('#,##0.00', 'tr_TR');
 
     double? profit;
     if (isBuy && asset.currency != null) {
@@ -206,160 +198,164 @@ class TransactionsScreen extends ConsumerWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: isBuy
+              ? [const Color(0xFF131715), const Color(0xFF0E1110)]
+              : [const Color(0xFF181414), const Color(0xFF120E0E)],
+        ),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.04)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: Border.all(
+          color: isBuy
+              ? const Color(0xFF4ADE80).withOpacity(0.06)
+              : const Color(0xFFF87171).withOpacity(0.06),
+        ),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
-          onTap: () {}, // Optional details tap
+          onTap: () {},
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Icon Container
+                // ── Sleek Vertical Accent Indicator ──
                 Container(
-                  width: 44,
-                  height: 44,
+                  width: 3,
+                  height: 32,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        AppTheme.gold.withOpacity(0.2),
-                        AppTheme.gold.withOpacity(0.05),
-                      ],
-                    ),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AppTheme.gold.withOpacity(0.2)),
-                  ),
-                  child: CurrencyIcon(
-                    iconUrl: asset.currency?.iconUrl,
-                    isGold: asset.currency?.isGold ?? false,
-                    size: 44,
-                    color: AppTheme.gold,
+                    color: isBuy
+                        ? const Color(0xFF4ADE80)
+                        : const Color(0xFFF87171),
+                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-                const Gap(16),
+                const Gap(12),
 
-                // Asset Info
+                // ── Main Content Area ──
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
-                        asset.currency?.name ?? 'Varlık',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 15,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const Gap(4),
+                      // Row 1: Name and Quantity
                       Row(
                         children: [
-                          Icon(
-                            Iconsax.clock,
-                            size: 12,
-                            color: Colors.white.withValues(alpha: 0.3),
-                          ),
-                          const Gap(4),
-                          Text(
-                            useDynamicDate ? formattedDate : timeStr,
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.4),
-                              fontSize: 12,
+                          Expanded(
+                            child: Text(
+                              asset.currency?.name ?? 'Varlık',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 15,
+                                color: Colors.white,
+                                letterSpacing: 0.1,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
+                          ),
+                          const Gap(12),
+                          Text(
+                            '${isBuy ? '+' : '-'}${NumberFormat('#,##0.##', 'tr_TR').format(asset.amount)} Adet',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 15,
+                              color: isBuy
+                                  ? const Color(0xFF4ADE80)
+                                  : const Color(0xFFF87171),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Gap(6),
+                      // Row 2: Code/Time and Price + Profit
+                      Row(
+                        children: [
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                '₺${formatter.format(asset.price)}',
+                                style: TextStyle(
+                                  fontFeatures: const [
+                                    FontFeature.tabularFigures(),
+                                  ],
+                                  color: Colors.white.withOpacity(0.5),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                              if (profit != null) ...[
+                                const Gap(8),
+                                _ProfitTag(
+                                  profit: profit,
+                                  isProfitPositive: isProfitPositive,
+                                ),
+                              ],
+                            ],
                           ),
                         ],
                       ),
                     ],
                   ),
                 ),
-
-                // Values
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      '${isBuy ? '+' : '-'}${NumberFormat('#,##0.##', 'tr_TR').format(asset.amount)}',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 15,
-                        color: isBuy ? Colors.green : Colors.red,
-                      ),
-                    ),
-                    const Gap(2),
-                    Text(
-                      '₺${NumberFormat('#,##0.00', 'tr_TR').format(asset.price)}',
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.5),
-                        fontSize: 12,
-                      ),
-                    ),
-                    if (profit != null) ...[
-                      const Gap(4),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: (isProfitPositive ? Colors.green : Colors.red)
-                              .withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              isProfitPositive
-                                  ? Iconsax.trend_up
-                                  : Iconsax.trend_down,
-                              size: 10,
-                              color: isProfitPositive
-                                  ? Colors.green
-                                  : Colors.red,
-                            ),
-                            const Gap(2),
-                            Text(
-                              '₺${NumberFormat('#,##0.0', 'tr_TR').format(profit.abs())}',
-                              style: TextStyle(
-                                color: isProfitPositive
-                                    ? Colors.green
-                                    : Colors.red,
-                                fontSize: 10,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
               ],
             ),
           ),
         ),
       ),
-    ).animate().fadeIn(delay: (50 * index).ms).slideX(begin: 0.1, curve: Curves.easeOut);
+    );
   }
 
   void _showAddAssetScreen(BuildContext context) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const AddAssetScreen()),
+    );
+  }
+}
+
+class _ProfitTag extends StatelessWidget {
+  final double profit;
+  final bool isProfitPositive;
+
+  const _ProfitTag({required this.profit, required this.isProfitPositive});
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isProfitPositive
+        ? const Color(0xFF4ADE80)
+        : const Color(0xFFF87171);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: color.withOpacity(0.12), width: 1),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            isProfitPositive ? Iconsax.trend_up : Iconsax.trend_down,
+            size: 10,
+            color: color,
+          ),
+          const Gap(2),
+          Text(
+            '₺${NumberFormat('#,##0.00', 'tr_TR').format(profit.abs())}',
+            style: TextStyle(
+              fontFeatures: const [FontFeature.tabularFigures()],
+              color: color,
+              fontSize: 10,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

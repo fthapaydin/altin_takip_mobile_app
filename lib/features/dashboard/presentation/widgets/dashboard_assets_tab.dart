@@ -1,17 +1,12 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:iconsax/iconsax.dart';
-
-import 'package:gap/gap.dart';
-import 'package:intl/intl.dart';
 import 'package:altin_takip/core/theme/app_theme.dart';
-import 'package:altin_takip/core/utils/date_formatter.dart';
 import 'package:altin_takip/features/assets/presentation/asset_state.dart';
 import 'package:altin_takip/features/currencies/domain/currency.dart';
 import 'package:altin_takip/features/settings/presentation/preference_notifier.dart';
-import 'package:altin_takip/core/widgets/currency_icon.dart';
+import 'package:altin_takip/features/dashboard/presentation/widgets/currency_list_card.dart';
 
 class DashboardAssetsTab extends ConsumerStatefulWidget {
   final AssetState state;
@@ -46,87 +41,7 @@ class _DashboardAssetsTabState extends ConsumerState<DashboardAssetsTab> {
   @override
   Widget build(BuildContext context) {
     if (widget.state is AssetLoading) {
-      return ListView.builder(
-        padding: const EdgeInsets.fromLTRB(24, 16, 24, 100),
-        itemCount: 8,
-        itemBuilder: (_, __) => Padding(
-          padding: const EdgeInsets.only(bottom: 16),
-          child: Shimmer.fromColors(
-            baseColor: AppTheme.surface,
-            highlightColor: Colors.white.withOpacity(0.05),
-            child: Container(
-              height: 80,
-              decoration: BoxDecoration(
-                color: Colors.black,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.white.withOpacity(0.05)),
-              ),
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: const BoxDecoration(
-                      color: Colors.white10,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const Gap(16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 100,
-                          height: 14,
-                          decoration: BoxDecoration(
-                            color: Colors.white10,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                        const Gap(8),
-                        Container(
-                          width: 60,
-                          height: 10,
-                          decoration: BoxDecoration(
-                            color: Colors.white10,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 80,
-                        height: 16,
-                        decoration: BoxDecoration(
-                          color: Colors.white10,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                      const Gap(8),
-                      Container(
-                        width: 50,
-                        height: 10,
-                        decoration: BoxDecoration(
-                          color: Colors.white10,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
+      return const _AssetTabShimmer();
     }
 
     if (widget.state is AssetLoaded) {
@@ -143,7 +58,6 @@ class _DashboardAssetsTabState extends ConsumerState<DashboardAssetsTab> {
         widget.currentOrder,
       );
 
-      // Apply Search Filter
       final displayCurrencies = _searchQuery.isEmpty
           ? sortedCurrencies
           : sortedCurrencies.where((c) {
@@ -155,114 +69,29 @@ class _DashboardAssetsTabState extends ConsumerState<DashboardAssetsTab> {
 
       return Column(
         children: [
-          // Search Bar
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
-            child: Container(
-              height: 48,
-              decoration: BoxDecoration(
-                color: AppTheme.surface,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white.withOpacity(0.05)),
-              ),
-              child: TextField(
-                controller: _searchController,
-                onChanged: (value) {
-                  setState(() {
-                    _searchQuery = value;
-                  });
-                },
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  hintText: '${isGoldTab ? 'Altın' : 'Döviz'} Ara...',
-                  hintStyle: TextStyle(
-                    color: Colors.white.withOpacity(0.3),
-                    fontSize: 14,
-                  ),
-                  prefixIcon: Icon(
-                    Iconsax.search_normal_1,
-                    size: 20,
-                    color: Colors.white.withOpacity(0.3),
-                  ),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
-                  ),
-                  suffixIcon: _searchQuery.isNotEmpty
-                      ? IconButton(
-                          icon: Icon(
-                            Icons.close,
-                            size: 20,
-                            color: Colors.white.withOpacity(0.3),
-                          ),
-                          onPressed: () {
-                            _searchController.clear();
-                            setState(() {
-                              _searchQuery = '';
-                            });
-                          },
-                        )
-                      : null,
-                ),
-              ),
-            ),
-          ),
-
-          // List
+          _buildSearchBar(isGoldTab),
           Expanded(
             child: _searchQuery.isNotEmpty
                 ? ListView.builder(
                     padding: const EdgeInsets.fromLTRB(24, 16, 24, 100),
                     itemCount: displayCurrencies.length,
-                    itemBuilder: (context, index) {
-                      final currency = displayCurrencies[index];
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 16),
-                        child: _buildPremiumCurrencyCard(
-                          context,
-                          currency,
-                          isGold: isGoldTab,
-                          index: index,
-                        ),
-                      );
-                    },
+                    itemBuilder: (context, index) => _buildCardItem(displayCurrencies[index]),
                   )
                 : ReorderableListView.builder(
                     physics: const AlwaysScrollableScrollPhysics(),
                     padding: const EdgeInsets.fromLTRB(24, 16, 24, 100),
                     itemCount: displayCurrencies.length,
-                    proxyDecorator: (child, index, animation) {
-                      return Material(
-                        color: Colors.transparent,
-                        elevation: 4,
-                        borderRadius: BorderRadius.circular(16),
-                        child: child,
-                      );
-                    },
-                    onReorder: (oldIndex, newIndex) {
-                      if (newIndex > oldIndex) newIndex--;
-                      final item = displayCurrencies.removeAt(oldIndex);
-                      displayCurrencies.insert(newIndex, item);
-
-                      final newOrder = displayCurrencies
-                          .map((c) => c.code)
-                          .toList();
-                      widget.onReorder(newOrder);
-                    },
-                    itemBuilder: (context, index) {
-                      final currency = displayCurrencies[index];
-                      return Container(
-                        key: ValueKey(currency.code),
-                        margin: const EdgeInsets.only(bottom: 16),
-                        child: _buildPremiumCurrencyCard(
-                          context,
-                          currency,
-                          isGold: isGoldTab,
-                          index: index,
-                        ),
-                      );
-                    },
+                    proxyDecorator: (child, index, animation) => Material(
+                      color: Colors.transparent,
+                      elevation: 4,
+                      borderRadius: BorderRadius.circular(20),
+                      child: child,
+                    ),
+                    onReorder: (oldIndex, newIndex) => _handleReorder(displayCurrencies, oldIndex, newIndex),
+                    itemBuilder: (context, index) => Container(
+                      key: ValueKey(displayCurrencies[index].code),
+                      child: _buildCardItem(displayCurrencies[index]),
+                    ),
                   ),
           ),
         ],
@@ -271,10 +100,69 @@ class _DashboardAssetsTabState extends ConsumerState<DashboardAssetsTab> {
     return const SizedBox();
   }
 
-  List<Currency> _getSortedCurrencies(
-    List<Currency> currencies,
-    List<String> order,
-  ) {
+  Widget _buildSearchBar(bool isGoldTab) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+      child: TextField(
+        controller: _searchController,
+        onChanged: (value) => setState(() => _searchQuery = value),
+        style: const TextStyle(color: Colors.white, fontSize: 14),
+        decoration: InputDecoration(
+          isDense: true,
+          filled: true,
+          fillColor: AppTheme.surface,
+          hintText: '${isGoldTab ? 'Altın' : 'Döviz'} Ara...',
+          hintStyle: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 13),
+          prefixIcon: Icon(Iconsax.search_normal_1, size: 18, color: Colors.white.withOpacity(0.3)),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(24),
+            borderSide: BorderSide(color: Colors.white.withOpacity(0.04)),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(24),
+            borderSide: BorderSide(color: Colors.white.withOpacity(0.04)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(24),
+            borderSide: const BorderSide(color: AppTheme.gold, width: 1),
+          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          suffixIcon: _searchQuery.isNotEmpty
+              ? IconButton(
+                  icon: Icon(Icons.close, size: 18, color: Colors.white.withOpacity(0.3)),
+                  onPressed: () {
+                    _searchController.clear();
+                    setState(() => _searchQuery = '');
+                  },
+                )
+              : null,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCardItem(Currency currency) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: CurrencyListCard(
+        currency: currency,
+        isGold: widget.type == 'Altın',
+        useDynamicDate: ref.watch(preferenceProvider).useDynamicDate,
+        onTap: () => widget.onNavigateToHistory(currency, widget.type == 'Altın'),
+      ),
+    );
+  }
+
+  void _handleReorder(List<Currency> displayCurrencies, int oldIndex, int newIndex) {
+    if (newIndex > oldIndex) newIndex--;
+    final item = displayCurrencies.removeAt(oldIndex);
+    displayCurrencies.insert(newIndex, item);
+
+    final newOrder = displayCurrencies.map((c) => c.code).toList();
+    widget.onReorder(newOrder);
+  }
+
+  List<Currency> _getSortedCurrencies(List<Currency> currencies, List<String> order) {
     if (order.isEmpty) return currencies;
 
     final sorted = List<Currency>.from(currencies);
@@ -290,135 +178,28 @@ class _DashboardAssetsTabState extends ConsumerState<DashboardAssetsTab> {
 
     return sorted;
   }
+}
 
-  Widget _buildPremiumCurrencyCard(
-    BuildContext context,
-    Currency currency, {
-    required bool isGold,
-    required int index,
-  }) {
-    final useDynamicDate = ref.watch(preferenceProvider).useDynamicDate;
-    final priceChange = currency.selling - currency.buying;
-    final isPositive = priceChange >= 0;
+class _AssetTabShimmer extends StatelessWidget {
+  const _AssetTabShimmer();
 
-    return GestureDetector(
-      onTap: () => widget.onNavigateToHistory(currency, isGold),
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppTheme.surface,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white.withOpacity(0.05)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 100),
+      itemCount: 8,
+      itemBuilder: (_, __) => Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Shimmer.fromColors(
+          baseColor: AppTheme.surface,
+          highlightColor: Colors.white.withOpacity(0.05),
+          child: Container(
+            height: 72,
+            decoration: BoxDecoration(
+              color: Colors.black,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.white.withOpacity(0.04)),
             ),
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              // Icon
-              Container(
-                width: 48,
-                height: 48,
-                child: CurrencyIcon(
-                  iconUrl: currency.iconUrl,
-                  isGold: isGold,
-                  size: 48,
-                  color: AppTheme.gold,
-                ),
-              ),
-              const Gap(16),
-              // Info
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      isGold ? currency.name : currency.code,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 15,
-                        color: Colors.white,
-                        letterSpacing: 0.3,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const Gap(4),
-                    Text(
-                      DateFormatter.format(
-                        currency.lastUpdatedAt,
-                        useDynamic: useDynamicDate,
-                      ),
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.4),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // Prices
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '₺${NumberFormat('#,##0.00', 'tr_TR').format(currency.selling)}',
-                    style: const TextStyle(
-                      fontFeatures: [FontFeature.tabularFigures()],
-                      color: AppTheme.gold,
-                      fontWeight: FontWeight.w400,
-                      fontSize: 16,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                  const Gap(4),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Alış: ₺${NumberFormat('#,##0.00', 'tr_TR').format(currency.buying)}',
-                        style: TextStyle(
-                          fontFeatures: const [FontFeature.tabularFigures()],
-                          color: Colors.white.withOpacity(0.5),
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const Gap(8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: (isPositive ? Colors.green : Colors.red)
-                              .withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          '${isPositive ? "+" : ""}%${NumberFormat('#,##0.00', 'tr_TR').format((priceChange / currency.buying) * 100)}',
-                          style: TextStyle(
-                            fontFeatures: const [FontFeature.tabularFigures()],
-                            fontSize: 10,
-                            color: isPositive
-                                ? Color(0xFF4ADE80)
-                                : Color(0xFFF87171),
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
           ),
         ),
       ),

@@ -52,7 +52,7 @@ class _NotificationDetailScreenState
       appBar: const AppBarWidget(
         title: 'Bildirim Detayı',
         isLargeTitle: false,
-        centerTitle: false,
+        centerTitle: true,
       ),
       body: SafeArea(
         top: false,
@@ -73,24 +73,28 @@ class _NotificationDetailScreenState
                         children: [
                           // Chart Section (if data available)
                           if (chartDataPoints.isNotEmpty) ...[
-                            const Text(
+                            Text(
                               'PERFORMANS ANALİZİ',
                               style: TextStyle(
-                                color: AppTheme.gold,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400,
-                                letterSpacing: 1.2,
+                                color: AppTheme.gold.withValues(alpha: 0.8),
+                                fontSize: 10,
+                                fontWeight: FontWeight.w500,
+                                letterSpacing: 1.5,
                               ),
                             ),
                             const Gap(16),
                             Container(
                               padding: const EdgeInsets.all(24),
                               decoration: BoxDecoration(
-                                color:
-                                    Colors.black, // Darker background for chart
+                                gradient: const LinearGradient(
+                                  colors: [Color(0xFF0F1116), Color(0xFF09090A)],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
                                 borderRadius: BorderRadius.circular(32),
                                 border: Border.all(
-                                  color: Colors.white.withOpacity(0.05),
+                                  color: Colors.white.withValues(alpha: 0.05),
+                                  width: 1,
                                 ),
                               ),
                               child: Column(
@@ -107,11 +111,9 @@ class _NotificationDetailScreenState
                                           Text(
                                             'PORTFÖY DEĞERİ',
                                             style: TextStyle(
-                                              color: Colors.white.withOpacity(
-                                                0.5,
-                                              ),
+                                              color: Colors.white.withValues(alpha: 0.4),
                                               fontSize: 10,
-                                              fontWeight: FontWeight.w400,
+                                              fontWeight: FontWeight.w500,
                                             ),
                                           ),
                                           const Gap(4),
@@ -119,8 +121,8 @@ class _NotificationDetailScreenState
                                             '₺${NumberFormat('#,##0.00', 'tr_TR').format(data.currentValue ?? 0)}',
                                             style: const TextStyle(
                                               color: Colors.white,
-                                              fontSize: 24,
-                                              fontWeight: FontWeight.w400,
+                                              fontSize: 22,
+                                              fontWeight: FontWeight.w500,
                                             ),
                                           ),
                                         ],
@@ -131,13 +133,17 @@ class _NotificationDetailScreenState
                                           vertical: 6,
                                         ),
                                         decoration: BoxDecoration(
-                                          color:
-                                              (isPositive
-                                                      ? Colors.green
-                                                      : Colors.red)
-                                                  .withOpacity(0.1),
-                                          borderRadius: BorderRadius.circular(
-                                            12,
+                                          color: (isPositive
+                                                  ? const Color(0xFF10B981)
+                                                  : const Color(0xFFEF4444))
+                                              .withValues(alpha: 0.08),
+                                          borderRadius: BorderRadius.circular(12),
+                                          border: Border.all(
+                                            color: (isPositive
+                                                    ? const Color(0xFF10B981)
+                                                    : const Color(0xFFEF4444))
+                                                .withValues(alpha: 0.15),
+                                            width: 1,
                                           ),
                                         ),
                                         child: Row(
@@ -147,21 +153,21 @@ class _NotificationDetailScreenState
                                               '${isPositive ? '+' : ''}${NumberFormat('#,##0.00', 'tr_TR').format(data.changeAmount ?? 0)}',
                                               style: TextStyle(
                                                 color: isPositive
-                                                    ? Colors.green
-                                                    : Colors.red,
-                                                fontWeight: FontWeight.w400,
-                                                fontSize: 14,
+                                                    ? const Color(0xFF10B981)
+                                                    : const Color(0xFFEF4444),
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 12,
                                               ),
                                             ),
-                                            const Gap(8),
+                                            const Gap(6),
                                             Text(
                                               '(%${changePercentage.toStringAsFixed(2)})',
                                               style: TextStyle(
                                                 color: isPositive
-                                                    ? Colors.green
-                                                    : Colors.red,
-                                                fontWeight: FontWeight.w400,
-                                                fontSize: 14,
+                                                    ? const Color(0xFF10B981)
+                                                    : const Color(0xFFEF4444),
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 12,
                                               ),
                                             ),
                                           ],
@@ -174,8 +180,6 @@ class _NotificationDetailScreenState
                                     height: 200,
                                     child: PortfolioChart(
                                       chartData: chartDataPoints,
-                                      // We can optionally calculate total cost if data provided,
-                                      // but for now we'll just show the value curve.
                                     ),
                                   ),
                                 ],
@@ -187,17 +191,18 @@ class _NotificationDetailScreenState
 
                           // Assets List (if available)
                           if (assets != null && assets.isNotEmpty) ...[
-                            const Text(
+                            Text(
                               'VARLIK DETAYLARI',
                               style: TextStyle(
-                                color: AppTheme.gold,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400,
-                                letterSpacing: 1.2,
+                                color: AppTheme.gold.withValues(alpha: 0.8),
+                                fontSize: 10,
+                                fontWeight: FontWeight.w500,
+                                letterSpacing: 1.5,
                               ),
                             ),
                             const Gap(16),
                             ListView.separated(
+                              padding: EdgeInsets.zero,
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
                               itemCount: _groupAssets(assets).length,
@@ -206,32 +211,40 @@ class _NotificationDetailScreenState
                                 final asset = _groupAssets(assets)[index];
                                 final isAssetPositive =
                                     asset.changePercentage >= 0;
+                                final isGoldAsset = asset.currencyCode.toLowerCase().contains('altin') ||
+                                    asset.currencyCode.toLowerCase().contains('xau') ||
+                                    asset.currencyName.toLowerCase().contains('altin') ||
+                                    asset.currencyName.toLowerCase().contains('gold');
+                                final themeColor = isGoldAsset ? AppTheme.gold : const Color(0xFF4C82F7);
 
                                 return Container(
                                   padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
-                                    color: AppTheme.surface,
+                                    color: Colors.white.withValues(alpha: 0.02),
                                     borderRadius: BorderRadius.circular(16),
                                     border: Border.all(
-                                      color: Colors.white.withOpacity(0.05),
+                                      color: Colors.white.withValues(alpha: 0.05),
+                                      width: 1,
                                     ),
                                   ),
                                   child: Row(
                                     children: [
-                                      // Icon or Fallback
+                                      // Dynamic Category Avatar Container
                                       Container(
                                         width: 40,
                                         height: 40,
-                                        padding: const EdgeInsets.all(8),
                                         decoration: BoxDecoration(
-                                          color: Colors.white.withOpacity(0.05),
-                                          shape: BoxShape.circle,
+                                          color: themeColor.withValues(alpha: 0.08),
+                                          borderRadius: BorderRadius.circular(12),
+                                          border: Border.all(
+                                            color: themeColor.withValues(alpha: 0.15),
+                                            width: 1,
+                                          ),
                                         ),
-                                        // For now using generic icon, can implement network image if needed
-                                        // or specific icon based on currency code
-                                        child: const Icon(
-                                          Iconsax.coin,
-                                          color: AppTheme.gold,
+                                        alignment: Alignment.center,
+                                        child: Icon(
+                                          isGoldAsset ? Iconsax.coin_1 : Iconsax.dollar_circle,
+                                          color: themeColor,
                                           size: 20,
                                         ),
                                       ),
@@ -245,17 +258,17 @@ class _NotificationDetailScreenState
                                               asset.currencyName,
                                               style: const TextStyle(
                                                 color: Colors.white,
-                                                fontWeight: FontWeight.w400,
+                                                fontWeight: FontWeight.w500,
                                                 fontSize: 14,
                                               ),
                                             ),
+                                            const Gap(2),
                                             Text(
                                               '${asset.amount % 1 == 0 ? asset.amount.toInt() : asset.amount} Adet',
                                               style: TextStyle(
-                                                color: Colors.white.withOpacity(
-                                                  0.5,
-                                                ),
-                                                fontSize: 12,
+                                                color: Colors.white.withValues(alpha: 0.45),
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w400,
                                               ),
                                             ),
                                           ],
@@ -269,10 +282,11 @@ class _NotificationDetailScreenState
                                             '₺${NumberFormat('#,##0.00', 'tr_TR').format(asset.currentValue)}',
                                             style: const TextStyle(
                                               color: Colors.white,
-                                              fontWeight: FontWeight.w400,
+                                              fontWeight: FontWeight.w500,
                                               fontSize: 14,
                                             ),
                                           ),
+                                          const Gap(2),
                                           Row(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
@@ -280,10 +294,10 @@ class _NotificationDetailScreenState
                                                 '${isAssetPositive ? '+' : ''}${NumberFormat('#,##0.00', 'tr_TR').format(asset.changeAmount)} ₺',
                                                 style: TextStyle(
                                                   color: isAssetPositive
-                                                      ? Colors.green
-                                                      : Colors.red,
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w500,
+                                                      ? const Color(0xFF10B981)
+                                                      : const Color(0xFFEF4444),
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.w400,
                                                 ),
                                               ),
                                               const Gap(4),
@@ -291,10 +305,10 @@ class _NotificationDetailScreenState
                                                 '(${isAssetPositive ? '+' : ''}%${asset.changePercentage.toStringAsFixed(2)})',
                                                 style: TextStyle(
                                                   color: isAssetPositive
-                                                      ? Colors.green
-                                                      : Colors.red,
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w500,
+                                                      ? const Color(0xFF10B981)
+                                                      : const Color(0xFFEF4444),
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.w400,
                                                 ),
                                               ),
                                             ],
@@ -325,8 +339,8 @@ class _NotificationDetailScreenState
         children: [
           // Title
           Shimmer.fromColors(
-            baseColor: Colors.white.withOpacity(0.05),
-            highlightColor: Colors.white.withOpacity(0.1),
+            baseColor: Colors.white.withValues(alpha: 0.05),
+            highlightColor: Colors.white.withValues(alpha: 0.1),
             child: Container(
               width: 120,
               height: 12,
@@ -343,11 +357,11 @@ class _NotificationDetailScreenState
             decoration: BoxDecoration(
               color: Colors.black,
               borderRadius: BorderRadius.circular(32),
-              border: Border.all(color: Colors.white.withOpacity(0.05)),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
             ),
             child: Shimmer.fromColors(
-              baseColor: Colors.white.withOpacity(0.05),
-              highlightColor: Colors.white.withOpacity(0.1),
+              baseColor: Colors.white.withValues(alpha: 0.05),
+              highlightColor: Colors.white.withValues(alpha: 0.1),
               child: Column(
                 children: [
                   Row(
@@ -401,8 +415,8 @@ class _NotificationDetailScreenState
           const Gap(24),
           // Asset Title
           Shimmer.fromColors(
-            baseColor: Colors.white.withOpacity(0.05),
-            highlightColor: Colors.white.withOpacity(0.1),
+            baseColor: Colors.white.withValues(alpha: 0.05),
+            highlightColor: Colors.white.withValues(alpha: 0.1),
             child: Container(
               width: 120,
               height: 12,
@@ -424,11 +438,11 @@ class _NotificationDetailScreenState
               decoration: BoxDecoration(
                 color: AppTheme.surface,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white.withOpacity(0.05)),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
               ),
               child: Shimmer.fromColors(
-                baseColor: Colors.white.withOpacity(0.05),
-                highlightColor: Colors.white.withOpacity(0.1),
+                baseColor: Colors.white.withValues(alpha: 0.05),
+                highlightColor: Colors.white.withValues(alpha: 0.1),
                 child: Row(
                   children: [
                     Container(
