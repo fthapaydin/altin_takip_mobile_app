@@ -5,7 +5,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:altin_takip/core/theme/app_theme.dart';
 import 'package:altin_takip/features/public_prices/domain/public_price.dart';
-import 'package:altin_takip/features/public_prices/presentation/public_price_detail_screen.dart';
+import 'package:altin_takip/features/public_prices/presentation/widgets/auth_bottom_sheet.dart';
 
 class PublicPriceListView extends StatelessWidget {
   final List<PublicPrice> prices;
@@ -70,14 +70,7 @@ class _PublicPriceRow extends StatelessWidget {
         : const Color(0xFFF87171);
 
     return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => PublicPriceDetailScreen(price: price),
-          ),
-        );
-      },
+      onTap: () => AuthBottomSheet.show(context, price.name),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 16),
         child: Row(

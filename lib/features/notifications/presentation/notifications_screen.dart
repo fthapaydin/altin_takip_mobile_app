@@ -42,33 +42,25 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.background,
+      extendBodyBehindAppBar: true,
       appBar: AppBarWidget(
         title: 'Bildirimler',
-        isLargeTitle: true,
+        isLargeTitle: false,
         actions: [
-          IconButton(
-            onPressed: () => ref
+          AppBarActionButton(
+            icon: isLoading ? Iconsax.timer_1 : Iconsax.refresh,
+            onTap: () => ref
                 .read(notificationsProvider.notifier)
                 .loadNotifications(refresh: true),
-            icon: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.05),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                isLoading ? Iconsax.timer_1 : Iconsax.refresh,
-                size: 20,
-                color: isLoading ? AppTheme.gold : Colors.white,
-              ),
-            ),
           ),
           const Gap(16),
         ],
       ),
       body: SafeArea(
+        top: false,
         child: Column(
           children: [
+            Gap(MediaQuery.of(context).padding.top + AppBarWidget.getExpandedHeight(isLargeTitle: false) + 8.0),
             AnimatedOpacity(
               opacity: isLoading ? 1.0 : 0.0,
               duration: const Duration(milliseconds: 300),
@@ -180,7 +172,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
           .read(notificationsProvider.notifier)
           .loadNotifications(refresh: true),
       child: ListView.builder(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.fromLTRB(24, 8, 24, 80),
         itemCount: notifications.length,
         itemBuilder: (context, index) {
           final notification = notifications[index];
@@ -257,8 +249,8 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: isRead
-                                    ? FontWeight.w600
-                                    : FontWeight.w800,
+                                    ? FontWeight.w400
+                                    : FontWeight.w500,
                                 fontSize: 16,
                               ),
                               maxLines: 1,

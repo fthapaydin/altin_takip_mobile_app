@@ -24,26 +24,16 @@ class TransactionsScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppTheme.background,
+      extendBodyBehindAppBar: true,
       appBar: AppBarWidget(
         title: 'Geçmiş İşlemler',
         showBack: true,
         centerTitle: false,
-        isLargeTitle: true,
-        leading: IconButton(
-          icon: const Icon(Iconsax.arrow_left_2, color: Colors.white, size: 20),
-          onPressed: () => Navigator.pop(context),
-        ),
+        isLargeTitle: false,
         actions: [
-          IconButton(
-            onPressed: () => _showAddAssetScreen(context),
-            icon: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppTheme.gold.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Iconsax.add, color: AppTheme.gold, size: 20),
-            ),
+          AppBarActionButton(
+            icon: Iconsax.add,
+            onTap: () => _showAddAssetScreen(context),
           ),
           const Gap(16),
         ],
@@ -102,7 +92,10 @@ class TransactionsScreen extends ConsumerWidget {
       }
 
       return ListView.builder(
-        padding: const EdgeInsets.only(bottom: 80, top: 20),
+        padding: EdgeInsets.only(
+          bottom: 80,
+          top: MediaQuery.of(context).padding.top + AppBarWidget.getExpandedHeight(isLargeTitle: false) + 12.0,
+        ),
         itemCount: groupedAssets.keys.length,
         itemBuilder: (context, index) {
           final dateKey = groupedAssets.keys.elementAt(index);
@@ -267,7 +260,7 @@ class TransactionsScreen extends ConsumerWidget {
                       Text(
                         asset.currency?.name ?? 'Varlık',
                         style: const TextStyle(
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                           fontSize: 15,
                           color: Colors.white,
                         ),

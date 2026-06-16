@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
@@ -120,6 +121,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       length: 3,
       child: Scaffold(
         backgroundColor: AppTheme.background,
+        extendBodyBehindAppBar: true,
         appBar: AppBarWidget(
           title: 'Portföyüm',
           subtitle: DateFormat('d MMMM yyyy', 'tr_TR').format(DateTime.now()),
@@ -134,6 +136,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ],
         ),
         body: SafeArea(
+          top: false,
           child: RefreshIndicator(
             onRefresh: () =>
                 ref.read(assetProvider.notifier).loadDashboard(refresh: true),
@@ -144,9 +147,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Gap(MediaQuery.of(context).padding.top + 8.0),
                       _LoadingIndicator(),
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+                        padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
                         child: PortfolioSummaryCard(state: assetState),
                       ),
                       const Gap(32),
@@ -233,16 +237,21 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
     double shrinkOffset,
     bool overlapsContent,
   ) {
-    return Container(
-      color: AppTheme.background, // Match background to hide content behind
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppTheme.glassColor,
-          borderRadius: BorderRadius.circular(50),
-          border: Border.all(color: AppTheme.glassBorder),
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+        child: Container(
+          color: AppTheme.background.withOpacity(0.4),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppTheme.glassColor,
+              borderRadius: BorderRadius.circular(50),
+              border: Border.all(color: AppTheme.glassBorder),
+            ),
+            child: _tabBar,
+          ),
         ),
-        child: _tabBar,
       ),
     );
   }
@@ -258,32 +267,15 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
 class _DashboardNotificationButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: () {
+    return AppBarActionButton(
+      icon: Iconsax.notification,
+      onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => const NotificationsScreen()),
         );
       },
-      icon: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [AppTheme.gold, AppTheme.gold.withValues(alpha: 0.5)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: AppTheme.gold.withValues(alpha: 0.2),
-              blurRadius: 8,
-              spreadRadius: 1,
-            ),
-          ],
-        ),
-        child: const Icon(Iconsax.notification, size: 20, color: Colors.black),
-      ),
+      hasBadge: true,
     ).animate().scale(delay: 500.ms, curve: Curves.easeOutBack);
   }
 }
@@ -294,21 +286,10 @@ class _DashboardRefreshButton extends ConsumerWidget {
     final assetState = ref.watch(assetProvider);
     final isLoading = assetState is AssetLoaded && assetState.isRefreshing;
 
-    return IconButton(
-      onPressed: () =>
+    return AppBarActionButton(
+      icon: isLoading ? Iconsax.timer_1 : Iconsax.refresh,
+      onTap: () =>
           ref.read(assetProvider.notifier).loadDashboard(refresh: true),
-      icon: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.05),
-          shape: BoxShape.circle,
-        ),
-        child: Icon(
-          isLoading ? Iconsax.timer_1 : Iconsax.refresh,
-          size: 20,
-          color: isLoading ? AppTheme.gold : Colors.white,
-        ),
-      ),
     );
   }
 }

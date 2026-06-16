@@ -48,15 +48,26 @@ class _NotificationDetailScreenState
 
     return Scaffold(
       backgroundColor: AppTheme.background,
-      appBar: const AppBarWidget(title: 'Bildirim Detayı', isLargeTitle: true),
+      extendBodyBehindAppBar: true,
+      appBar: const AppBarWidget(
+        title: 'Bildirim Detayı',
+        isLargeTitle: false,
+        centerTitle: false,
+      ),
       body: SafeArea(
+        top: false,
         child: Column(
           children: [
             Expanded(
               child: data == null
                   ? _buildSkeleton(context)
                   : SingleChildScrollView(
-                      padding: const EdgeInsets.all(24),
+                      padding: EdgeInsets.fromLTRB(
+                        24,
+                        MediaQuery.of(context).padding.top + AppBarWidget.getExpandedHeight(isLargeTitle: false) + 12.0,
+                        24,
+                        24,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [

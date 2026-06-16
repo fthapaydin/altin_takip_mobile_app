@@ -123,11 +123,11 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
 
     return Scaffold(
       backgroundColor: AppTheme.background,
+      extendBodyBehindAppBar: true,
       appBar: AppBarWidget(
         title: 'Hesaplama',
-        showBack: false,
         centerTitle: false,
-        isLargeTitle: true,
+        isLargeTitle: false,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48),
           child: Padding(
@@ -173,9 +173,14 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
   }
 
   Widget _buildConverterTab(List<Currency> currencies) {
+    final double topPadding = MediaQuery.of(context).padding.top +
+        AppBarWidget.getExpandedHeight(isLargeTitle: false) +
+        48.0 + // TabBar height
+        16.0;
+
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 150),
+      padding: EdgeInsets.fromLTRB(24, topPadding, 24, 150),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -184,7 +189,7 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
             style: TextStyle(
               color: AppTheme.gold,
               fontSize: 11,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w500,
               letterSpacing: 1.5,
             ),
           ),
@@ -241,7 +246,7 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
             style: TextStyle(
               color: AppTheme.gold,
               fontSize: 11,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w500,
               letterSpacing: 1.5,
             ),
           ),
@@ -293,7 +298,7 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.3),
                           fontSize: 9,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w500,
                           letterSpacing: 2,
                         ),
                       ),
@@ -314,7 +319,7 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 48,
-                              fontWeight: FontWeight.w200, // Light and sleek
+                              fontWeight: FontWeight.w400, // Light and sleek
                               letterSpacing: -1.5,
                             ),
                           ),
@@ -326,7 +331,7 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
                               style: const TextStyle(
                                 color: AppTheme.gold,
                                 fontSize: 18,
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
@@ -374,8 +379,8 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
                                   style: TextStyle(
                                     color: Colors.white.withValues(alpha: 0.2),
                                     fontSize: 8,
-                                    fontWeight: FontWeight.w900,
-                                    letterSpacing: 1,
+                                    fontWeight: FontWeight.w500,
+                                    letterSpacing: 1.2,
                                   ),
                                 ),
                                 const Gap(2),
@@ -404,7 +409,7 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
                                 style: const TextStyle(
                                   color: AppTheme.gold,
                                   fontSize: 14,
-                                  fontWeight: FontWeight.w900,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ),
@@ -436,9 +441,14 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
     final amount =
         double.tryParse(_amountController.text.replaceAll(',', '.')) ?? 0;
 
+    final double topPadding = MediaQuery.of(context).padding.top +
+        AppBarWidget.getExpandedHeight(isLargeTitle: false) +
+        48.0 + // TabBar height
+        16.0;
+
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.fromLTRB(24, topPadding, 24, 150),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -447,7 +457,7 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
             style: TextStyle(
               color: AppTheme.gold,
               fontSize: 11,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w500,
               letterSpacing: 1.5,
             ),
           ),
@@ -545,7 +555,7 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
                         color: (isPositive ? Colors.green : Colors.red)
                             .withValues(alpha: 0.8),
                         fontSize: 11,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w500,
                         letterSpacing: 1.2,
                       ),
                     ),
@@ -616,8 +626,8 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
           style: TextStyle(
             color: Colors.white.withValues(alpha: 0.4),
             fontSize: 10,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 1,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 1.2,
           ),
         ),
         Text(
@@ -960,7 +970,7 @@ class _CalculatorScreenState extends ConsumerState<CalculatorScreen>
           style: const TextStyle(
             color: Colors.white38,
             fontSize: 10,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w500,
             letterSpacing: 1.2,
           ),
         ),

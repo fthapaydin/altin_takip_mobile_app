@@ -130,7 +130,7 @@ class PortfolioChart extends StatelessWidget {
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.2),
                     fontSize: 9,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                   ),
                   labelResolver: (line) => 'MALİYET',
                 ),
@@ -144,11 +144,11 @@ class PortfolioChart extends StatelessWidget {
             }).toList(),
             isCurved: true,
             curveSmoothness: 0.4,
-            color: const Color(0xFFFFD700),
+            color: AppTheme.gold,
             barWidth: 2,
             isStrokeCapRound: true,
             shadow: Shadow(
-              color: const Color(0xFFFFD700).withValues(alpha: 0.5),
+              color: AppTheme.gold.withValues(alpha: 0.5),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -179,8 +179,8 @@ class PortfolioChart extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  const Color(0xFFFFD700).withValues(alpha: 0.15),
-                  const Color(0xFFFFD700).withValues(alpha: 0.0),
+                  AppTheme.gold.withValues(alpha: 0.15),
+                  AppTheme.gold.withValues(alpha: 0.0),
                 ],
                 stops: const [0, 0.8],
               ),
@@ -200,7 +200,7 @@ class PortfolioChart extends StatelessWidget {
                 return spotIndexes.map((spotIndex) {
                   return TouchedSpotIndicatorData(
                     FlLine(
-                      color: const Color(0xFFFFD700).withValues(alpha: 0.3),
+                      color: AppTheme.gold.withValues(alpha: 0.3),
                       strokeWidth: 1,
                       dashArray: [4, 4],
                     ),
@@ -208,9 +208,9 @@ class PortfolioChart extends StatelessWidget {
                       getDotPainter: (spot, percent, barData, index) {
                         return FlDotCirclePainter(
                           radius: 6,
-                          color: const Color(0xFF1E1E1E),
+                          color: AppTheme.surface,
                           strokeWidth: 3,
-                          strokeColor: const Color(0xFFFFD700),
+                          strokeColor: AppTheme.gold,
                         );
                       },
                     ),
@@ -227,7 +227,7 @@ class PortfolioChart extends StatelessWidget {
             getTooltipColor: (_) =>
                 const Color(0xFF252525).withValues(alpha: 0.95),
             tooltipBorder: BorderSide(
-              color: const Color(0xFFFFD700).withValues(alpha: 0.2),
+              color: AppTheme.gold.withValues(alpha: 0.2),
               width: 1,
             ),
             getTooltipItems: (touchedSpots) {
@@ -253,7 +253,7 @@ class PortfolioChart extends StatelessWidget {
                     TextSpan(
                       text: '₺$valueStr',
                       style: const TextStyle(
-                        color: Color(0xFFFFD700),
+                        color: AppTheme.gold,
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
                         letterSpacing: -0.5,

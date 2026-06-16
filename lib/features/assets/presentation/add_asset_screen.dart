@@ -160,12 +160,15 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
 
     return Scaffold(
       backgroundColor: AppTheme.background,
+      extendBodyBehindAppBar: true,
       appBar: AppBarWidget(
         title: 'Yeni İşlem',
-        isLargeTitle: true,
+        isLargeTitle: false,
+        centerTitle: false,
         actions: [
-          IconButton(
-            onPressed: () {
+          AppBarActionButton(
+            icon: Iconsax.receipt_1,
+            onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -173,25 +176,19 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
                 ),
               );
             },
-            icon: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Iconsax.receipt_1,
-                size: 20,
-                color: Colors.white,
-              ),
-            ),
           ),
           const Gap(16),
         ],
       ),
       body: SafeArea(
+        top: false,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.fromLTRB(
+            24,
+            MediaQuery.of(context).padding.top + AppBarWidget.getExpandedHeight(isLargeTitle: false) + 12.0,
+            24,
+            24,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -252,11 +249,12 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
 
               // Currency Selection
               const Text(
-                'Varlık Seçimi',
+                'VARLIK SEÇİMİ',
                 style: TextStyle(
-                  color: Colors.white54,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w400,
+                  color: Colors.white38,
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 1.2,
                 ),
               ),
               const Gap(8),
@@ -283,11 +281,12 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Miktar',
+                          'MİKTAR',
                           style: TextStyle(
-                            color: Colors.white54,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w400,
+                            color: Colors.white38,
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 1.2,
                           ),
                         ),
                         const Gap(8),
@@ -308,11 +307,12 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Birim Fiyat',
+                          'BİRİM FİYAT',
                           style: TextStyle(
-                            color: Colors.white54,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w400,
+                            color: Colors.white38,
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 1.2,
                           ),
                         ),
                         const Gap(8),
@@ -347,9 +347,14 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Toplam Tutar',
-                          style: TextStyle(color: Colors.white54, fontSize: 13),
+                        const Text(
+                          'TOPLAM TUTAR',
+                          style: TextStyle(
+                            color: Colors.white38,
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 1.2,
+                          ),
                         ),
                         const Gap(4),
                         Text(
@@ -369,7 +374,7 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
                         decimalDigits: 2,
                       ).format(_totalAmount),
                       style: const TextStyle(
-                        fontSize: 20,
+                        fontSize: 18,
                         fontWeight: FontWeight.w400,
                         color: AppTheme.gold,
                       ),
@@ -381,11 +386,12 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
 
               // Date Selection
               const Text(
-                'İşlem Tarihi',
+                'İŞLEM TARİHİ',
                 style: TextStyle(
-                  color: Colors.white54,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w400,
+                  color: Colors.white38,
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 1.2,
                 ),
               ),
               const Gap(8),
@@ -439,7 +445,7 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
                       : const Text(
                           'Kaydet',
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 15,
                             fontWeight: FontWeight.w400,
                           ),
                         ),

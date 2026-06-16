@@ -64,7 +64,7 @@ class TransactionListItem extends StatelessWidget {
                       asset.currency?.name ?? 'Bilinmeyen Varlık',
                       style: const TextStyle(
                         color: Colors.white,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         fontSize: 15,
                         letterSpacing: 0.3,
                       ),
@@ -93,7 +93,7 @@ class TransactionListItem extends StatelessWidget {
                     style: const TextStyle(
                       fontFeatures: [FontFeature.tabularFigures()],
                       color: Colors.white,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                       fontSize: 15,
                     ),
                   ),

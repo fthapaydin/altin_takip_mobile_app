@@ -302,8 +302,8 @@ class AssetGroupCard extends ConsumerWidget {
           style: TextStyle(
             color: Colors.white.withValues(alpha: 0.5),
             fontSize: 10,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.5,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 1.0,
           ),
         ),
         const Gap(4),
@@ -387,7 +387,7 @@ class AssetGroupCard extends ConsumerWidget {
         style: TextStyle(
           color: color,
           fontSize: 11,
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w500,
           letterSpacing: 1.5,
         ),
       ),

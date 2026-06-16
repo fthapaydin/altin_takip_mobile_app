@@ -41,7 +41,12 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.background,
-      appBar: AppBarWidget(title: widget.currencyName, isLargeTitle: true),
+      extendBodyBehindAppBar: true,
+      appBar: AppBarWidget(
+        title: widget.currencyName,
+        isLargeTitle: false,
+        centerTitle: false,
+      ),
       body: CustomScrollView(
         slivers: [
           SliverFillRemaining(
@@ -94,11 +99,15 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
   }
 
   Widget _buildLoading() {
+    final double topPadding = MediaQuery.of(context).padding.top +
+        AppBarWidget.getExpandedHeight(isLargeTitle: false) +
+        12.0;
+
     return Shimmer.fromColors(
       baseColor: Colors.white.withValues(alpha: 0.05),
       highlightColor: Colors.white.withValues(alpha: 0.1),
       child: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.fromLTRB(20, topPadding, 20, 20),
         physics: const NeverScrollableScrollPhysics(),
         children: [
           // Header
@@ -315,8 +324,12 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
     final percentage = (change / firstItem.buying) * 100;
     final isPositive = change >= 0;
 
+    final double topPadding = MediaQuery.of(context).padding.top +
+        AppBarWidget.getExpandedHeight(isLargeTitle: false) +
+        12.0;
+
     return ListView(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.fromLTRB(20, topPadding, 20, 20),
       children: [
         // Header info
         Row(

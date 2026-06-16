@@ -27,35 +27,38 @@ class CustomAssetTextField extends StatelessWidget {
           ),
         ],
       ),
-      child: TextField(
-        controller: controller,
-        keyboardType: keyboardType,
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.w400,
-          fontSize: 16,
-        ),
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
-          filled: true,
-          fillColor: Colors.white.withOpacity(0.05),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 16,
+      child: SizedBox(
+        height: 56,
+        child: TextField(
+          controller: controller,
+          keyboardType: keyboardType,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w400,
+            fontSize: 15,
           ),
-          prefixIcon: Icon(
-            icon,
-            size: 20,
-            color: AppTheme.gold.withOpacity(0.7),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: AppTheme.gold, width: 1.5),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 15),
+            filled: true,
+            fillColor: Colors.white.withOpacity(0.05),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 16,
+            ),
+            prefixIcon: Icon(
+              icon,
+              size: 20,
+              color: AppTheme.gold.withOpacity(0.7),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(color: AppTheme.gold, width: 1.5),
+            ),
           ),
         ),
       ),

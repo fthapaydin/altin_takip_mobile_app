@@ -55,7 +55,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                         'AI ASİSTAN',
                         style: TextStyle(
                           fontSize: 16,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w500,
                           letterSpacing: 2,
                           color: Colors.white,
                         ),

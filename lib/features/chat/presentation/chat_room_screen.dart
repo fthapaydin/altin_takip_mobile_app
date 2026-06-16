@@ -371,7 +371,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                     color: isUser ? Colors.black : Colors.white,
                     fontSize: 14,
                     height: 1.4,
-                    fontWeight: isUser ? FontWeight.w600 : FontWeight.normal,
+                    fontWeight: isUser ? FontWeight.w500 : FontWeight.normal,
                   ),
                 ),
         ),
@@ -559,7 +559,7 @@ class _TypeWriterTextState extends State<_TypeWriterText> {
         color: widget.isUser ? Colors.black : Colors.white,
         fontSize: 14,
         height: 1.4,
-        fontWeight: widget.isUser ? FontWeight.w600 : FontWeight.normal,
+        fontWeight: widget.isUser ? FontWeight.w500 : FontWeight.normal,
       ),
     );
   }

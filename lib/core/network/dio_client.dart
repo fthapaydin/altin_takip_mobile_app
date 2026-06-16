@@ -8,7 +8,8 @@ class DioClient {
   DioClient(this._storageService) {
     dio = Dio(
       BaseOptions(
-        baseUrl: 'https://altin.kiracilarim.com/api/',
+        baseUrl: 'https://altin.fatalsoft.com.tr/api/',
+        //baseUrl: 'http://172.20.10.4:8001/api/',
         connectTimeout: const Duration(seconds: 30),
         receiveTimeout: const Duration(seconds: 30),
         sendTimeout: const Duration(seconds: 30),
@@ -43,5 +44,7 @@ class DioClient {
         },
       ),
     );
+
+    dio.interceptors.add(LogInterceptor(requestBody: true, responseBody: true));
   }
 }

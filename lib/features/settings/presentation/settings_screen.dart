@@ -78,6 +78,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.background,
+      extendBodyBehindAppBar: true,
       appBar: const AppBarWidget(
         title: 'Ayarlar',
         showBack: false,
@@ -85,9 +86,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         isLargeTitle: true,
       ),
       body: SafeArea(
+        top: false,
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
+          padding: EdgeInsets.fromLTRB(
+            20,
+            MediaQuery.of(context).padding.top + AppBarWidget.getExpandedHeight(isLargeTitle: true) + 12.0,
+            20,
+            100,
+          ),
           children: [
             // ── Appearance ──
             const SectionHeader(title: 'Görünüm', icon: Iconsax.eye),

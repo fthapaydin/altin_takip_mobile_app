@@ -24,18 +24,18 @@ class AssetCurrencySelector extends StatelessWidget {
     return GestureDetector(
       onTap: () => _showCurrencyPicker(context),
       child: Container(
-        height: 64,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
+        height: 56,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
         ),
         child: Row(
           children: [
             Container(
-              width: 40,
-              height: 40,
+              width: 36,
+              height: 36,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
@@ -51,40 +51,27 @@ class AssetCurrencySelector extends StatelessWidget {
               child: CurrencyIcon(
                 iconUrl: selectedCurrency?.iconUrl,
                 isGold: isGold,
-                size: 40,
+                size: 36,
                 color: AppTheme.gold,
               ),
             ),
-            const Gap(16),
+            const Gap(12),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Varlık',
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.5),
-                      fontSize: 12,
-                    ),
-                  ),
-                  const Gap(2),
-                  Text(
-                    selectedCurrency?.name ?? 'Seçiniz',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+              child: Text(
+                selectedCurrency?.name ?? 'Seçiniz',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w400,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
             Icon(
               Iconsax.arrow_down_1,
               color: Colors.white.withValues(alpha: 0.3),
+              size: 20,
             ),
           ],
         ),

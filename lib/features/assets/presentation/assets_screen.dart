@@ -161,14 +161,16 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.background,
+      extendBodyBehindAppBar: true,
       appBar: AppBarWidget(
         title: 'Varlıklarım',
         showBack: false,
         centerTitle: false,
         isLargeTitle: true,
         actions: [
-          IconButton(
-            onPressed: () {
+          AppBarActionButton(
+            icon: Iconsax.receipt_1,
+            onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -176,52 +178,33 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
                 ),
               );
             },
-            icon: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
-              ),
-              child: const Icon(
-                Iconsax.receipt_1,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
           ),
           const Gap(8),
-          IconButton(
-            onPressed: _showAddAssetScreen,
-            icon: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppTheme.gold,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppTheme.gold.withValues(alpha: 0.3),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: const Icon(Iconsax.add, color: Colors.black, size: 20),
-            ),
+          AppBarActionButton(
+            icon: Iconsax.add,
+            onTap: _showAddAssetScreen,
           ),
           const Gap(16),
         ],
       ),
       body: SafeArea(
-        child: Column(
+        top: false,
+        child: Stack(
           children: [
+            Positioned.fill(
+              child: _buildBody(state),
+            ),
             if (state is AssetLoaded && state.isRefreshing)
-              LinearProgressIndicator(
-                backgroundColor: Colors.transparent,
-                color: AppTheme.gold.withValues(alpha: 0.3),
-                minHeight: 2,
+              Positioned(
+                top: MediaQuery.of(context).padding.top + AppBarWidget.getExpandedHeight(isLargeTitle: true),
+                left: 0,
+                right: 0,
+                child: LinearProgressIndicator(
+                  backgroundColor: Colors.transparent,
+                  color: AppTheme.gold.withValues(alpha: 0.3),
+                  minHeight: 2,
+                ),
               ),
-            Expanded(child: _buildBody(state)),
           ],
         ),
       ),
@@ -260,7 +243,12 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen> {
         color: AppTheme.gold,
         child: ReorderableListView.builder(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(20, 10, 20, 80),
+          padding: EdgeInsets.fromLTRB(
+            20,
+            MediaQuery.of(context).padding.top + AppBarWidget.getExpandedHeight(isLargeTitle: true) + 12.0,
+            20,
+            80,
+          ),
           itemCount: sortedGroups.length,
           proxyDecorator: (child, index, animation) {
             return Material(

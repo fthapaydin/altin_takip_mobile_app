@@ -309,7 +309,7 @@ class DashboardGeneralTab extends ConsumerWidget {
                           style: TextStyle(
                             color: Colors.white.withOpacity(0.7),
                             fontSize: 12,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,

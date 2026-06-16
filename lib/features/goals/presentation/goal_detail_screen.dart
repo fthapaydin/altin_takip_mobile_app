@@ -13,6 +13,7 @@ import 'package:altin_takip/features/goals/presentation/widgets/edit_goal_sheet.
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:altin_takip/core/widgets/app_bar_widget.dart';
 
 class GoalDetailScreen extends ConsumerStatefulWidget {
   final int goalId;
@@ -71,28 +72,16 @@ class _GoalDetailScreenState extends ConsumerState<GoalDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.background,
-      appBar: AppBar(
-        backgroundColor: AppTheme.background,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: IconButton(
-          icon: const Icon(Iconsax.arrow_left_2, color: Colors.white, size: 20),
-          onPressed: () => Navigator.pop(context),
-        ),
-        centerTitle: true,
-        title: Text(
-          _detailedGoal?.name ?? 'Hedef Detayı',
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            letterSpacing: -0.2,
-          ),
-        ),
+      extendBodyBehindAppBar: true,
+      appBar: AppBarWidget(
+        title: _detailedGoal?.name ?? 'Hedef Detayı',
+        isLargeTitle: false,
+        centerTitle: false,
         actions: [
           if (_detailedGoal != null && !_isActioning)
-            IconButton(
-              icon: const Icon(Iconsax.more, color: Colors.white, size: 20),
-              onPressed: () => _showActionsSheet(context),
+            AppBarActionButton(
+              icon: Iconsax.more,
+              onTap: () => _showActionsSheet(context),
             ),
         ],
       ),
@@ -328,7 +317,12 @@ class _GoalDetailScreenState extends ConsumerState<GoalDetailScreen> {
       backgroundColor: AppTheme.surface,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 40),
+        padding: EdgeInsets.fromLTRB(
+          20,
+          MediaQuery.of(context).padding.top + AppBarWidget.getExpandedHeight(isLargeTitle: false) + 12.0,
+          20,
+          40,
+        ),
         children: [
           _ProgressSection(
             normalized: normalized,

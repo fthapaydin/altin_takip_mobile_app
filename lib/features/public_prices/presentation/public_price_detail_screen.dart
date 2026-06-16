@@ -15,7 +15,12 @@ class PublicPriceDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBarWidget(title: price.name),
+      extendBodyBehindAppBar: true,
+      appBar: AppBarWidget(
+        title: price.name,
+        isLargeTitle: false,
+        centerTitle: false,
+      ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),

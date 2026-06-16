@@ -340,7 +340,7 @@ class _DashboardAssetsTabState extends ConsumerState<DashboardAssetsTab> {
                     Text(
                       isGold ? currency.name : currency.code,
                       style: const TextStyle(
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         fontSize: 15,
                         color: Colors.white,
                         letterSpacing: 0.3,

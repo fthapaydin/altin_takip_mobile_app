@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  static const Color gold = Color(0xFFFFD700);
-  static const Color darkGold = Color(0xFFB8860B);
-  static const Color background = Color(0xFF0F0F0F);
-  static const Color surface = Color(0xFF1A1A1A);
-  static const Color error = Color(0xFFCF6679);
+  static const Color gold = Color(0xFFE5C07B); // Champagne Gold
+  static const Color darkGold = Color(0xFFC49B55); // Satin Bronze
+  static const Color background = Color(0xFF09090A); // Cosmic Obsidian Black
+  static const Color surface = Color(0xFF131416); // Obsidian Surface
+  static const Color error = Color(0xFFEF4444); // Premium Clean Red
 
   static ThemeData get dark {
     return ThemeData(
@@ -20,7 +20,8 @@ class AppTheme {
         surface: surface,
         error: error,
       ),
-      textTheme: GoogleFonts.ubuntuTextTheme(ThemeData.dark().textTheme),
+      fontFamily: GoogleFonts.plusJakartaSans().fontFamily,
+      textTheme: GoogleFonts.plusJakartaSansTextTheme(ThemeData.dark().textTheme),
       appBarTheme: const AppBarTheme(
         backgroundColor: background,
         elevation: 0,
@@ -34,7 +35,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          textStyle: const TextStyle(fontWeight: FontWeight.w400, fontSize: 15),
+          textStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -65,11 +66,20 @@ class AppTheme {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [
-      Color(0xFF1A1A1A), // Dark Midnight
-      Color(0xFF2C2C2C), // Soft Charcoal
-      Color(0xFF1F1F1F), // Darker Midnight
+      Color(0xFF131416), // Dark Obsidian Surface
+      Color(0xFF1C1D21), // Slate Obsidian
+      Color(0xFF131416), // Dark Obsidian Surface
     ],
     stops: [0.0, 0.5, 1.0],
+  );
+
+  static const LinearGradient goldGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      Color(0xFFE5C07B), // Warm Champagne Gold
+      Color(0xFFC49B55), // Satin Bronze
+    ],
   );
 
   static const Color glassColor = Color(0x0DFFFFFF); // 5% White

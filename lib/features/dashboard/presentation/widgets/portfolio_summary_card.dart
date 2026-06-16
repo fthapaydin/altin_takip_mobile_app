@@ -51,11 +51,15 @@ class PortfolioSummaryCard extends ConsumerWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E), // Deep matte charcoal
+        color: AppTheme.surface,
         borderRadius: BorderRadius.circular(32),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.04),
+          width: 1.0,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withOpacity(0.4),
             offset: const Offset(0, 20),
             blurRadius: 40,
             spreadRadius: -10,
@@ -120,7 +124,7 @@ class PortfolioSummaryCard extends ConsumerWidget {
                                 style: TextStyle(
                                   color: Colors.white.withOpacity(0.5),
                                   fontSize: 10,
-                                  fontWeight: FontWeight.w800,
+                                  fontWeight: FontWeight.w500,
                                   letterSpacing: 1.5,
                                 ),
                               ),
@@ -441,8 +445,8 @@ class PortfolioSummaryCard extends ConsumerWidget {
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.6),
                   fontSize: 10,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 1.2,
                 ),
               ),
             ],
@@ -456,7 +460,7 @@ class PortfolioSummaryCard extends ConsumerWidget {
                 '₺${NumberFormat('#,##0.00', 'tr_TR').format(amount)}',
                 style: const TextStyle(
                   color: Colors.white,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                   fontSize: 15,
                 ),
               ),
@@ -479,11 +483,15 @@ class PortfolioSummaryCard extends ConsumerWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
+        color: AppTheme.surface,
         borderRadius: BorderRadius.circular(32),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.04),
+          width: 1.0,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withOpacity(0.4),
             offset: const Offset(0, 20),
             blurRadius: 40,
             spreadRadius: -10,

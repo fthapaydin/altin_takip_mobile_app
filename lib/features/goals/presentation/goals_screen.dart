@@ -46,25 +46,18 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.background,
+      extendBodyBehindAppBar: true,
       appBar: AppBarWidget(
         title: 'Hedeflerim',
         showBack: false,
         centerTitle: false,
         isLargeTitle: true,
         actions: [
-          GestureDetector(
+          AppBarActionButton(
+            icon: Iconsax.add,
             onTap: () => AddGoalSheet.show(context),
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: AppTheme.gold.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Iconsax.add, color: AppTheme.gold, size: 20),
-            ),
           ),
-          const Gap(4),
+          const Gap(16),
         ],
       ),
       body: _buildBody(state),
@@ -93,7 +86,12 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
       backgroundColor: AppTheme.surface,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 120),
+        padding: EdgeInsets.fromLTRB(
+          20,
+          MediaQuery.of(context).padding.top + AppBarWidget.getExpandedHeight(isLargeTitle: true) + 12.0,
+          20,
+          120,
+        ),
         children: [
           if (activeGoals.isNotEmpty) ...[
             _buildSectionHeader('Aktif Hedefler', activeGoals.length),

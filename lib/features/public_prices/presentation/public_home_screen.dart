@@ -56,14 +56,12 @@ class _PublicHomeScreenState extends ConsumerState<PublicHomeScreen> {
               headerSliverBuilder: (context, innerBoxIsScrolled) => [
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildHeader(context),
-                        const Gap(40),
-                        _buildTitle(),
-                        const Gap(24),
+                        _buildUnifiedHeader(context),
+                        const Gap(20),
                         _buildPromoCard(context),
                       ],
                     ),
@@ -74,22 +72,21 @@ class _PublicHomeScreenState extends ConsumerState<PublicHomeScreen> {
                   delegate: _SliverAppBarDelegate(
                     TabBar(
                       isScrollable: false,
-                      labelColor: Colors.black,
-                      unselectedLabelColor: Colors.white,
+                      labelColor: AppTheme.gold,
+                      unselectedLabelColor: Colors.white.withOpacity(0.4),
                       labelStyle: const TextStyle(
                         fontWeight: FontWeight.w500,
-                        fontSize: 13,
+                        fontSize: 14,
+                        letterSpacing: 0.2,
                       ),
                       unselectedLabelStyle: const TextStyle(
                         fontWeight: FontWeight.w400,
-                        fontSize: 13,
+                        fontSize: 14,
+                        letterSpacing: 0.2,
                       ),
-                      indicator: BoxDecoration(
-                        color: AppTheme.gold,
-                        borderRadius: BorderRadius.circular(40),
-                      ),
+                      indicatorColor: AppTheme.gold,
                       indicatorSize: TabBarIndicatorSize.tab,
-                      dividerColor: Colors.transparent,
+                      dividerColor: Colors.white.withOpacity(0.08),
                       overlayColor: MaterialStateProperty.all(
                         Colors.transparent,
                       ),
@@ -124,83 +121,65 @@ class _PublicHomeScreenState extends ConsumerState<PublicHomeScreen> {
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildUnifiedHeader(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Row(
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: AppTheme.gold.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: const Icon(
-                Iconsax.wallet_3,
-                color: AppTheme.gold,
-                size: 22,
-              ),
-            ),
-            const Gap(12),
             const Text(
               'Altın Cüzdan',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 20,
+                fontSize: 22,
                 fontWeight: FontWeight.w500,
-                letterSpacing: -0.5,
+                letterSpacing: -0.8,
               ),
+            ),
+            const Gap(4),
+            Row(
+              children: [
+                Container(
+                  width: 6,
+                  height: 6,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF4ADE80),
+                    shape: BoxShape.circle,
+                  ),
+                )
+                .animate(onPlay: (controller) => controller.repeat(reverse: true))
+                .scaleXY(begin: 0.8, end: 1.3, duration: 1.seconds)
+                .fadeIn(duration: 1.seconds),
+                const Gap(6),
+                Text(
+                  'Canlı Piyasa Kurları',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.4),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w400,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
-        InkWell(
-          onTap: () => Navigator.push(
+        IconButton(
+          onPressed: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const LoginScreen()),
           ),
-          borderRadius: BorderRadius.circular(14),
-          child: Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.05),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: Colors.white.withOpacity(0.1)),
-            ),
-            child: const Icon(Iconsax.user, color: Colors.white, size: 22),
+          icon: const Icon(Iconsax.user, color: Colors.white70, size: 22),
+          style: IconButton.styleFrom(
+            backgroundColor: Colors.white.withOpacity(0.03),
+            padding: const EdgeInsets.all(8),
+            shape: const CircleBorder(),
           ),
         ),
       ],
     ).animate().fadeIn(duration: 400.ms).slideY(begin: -0.1, end: 0);
-  }
-
-  Widget _buildTitle() {
-    return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Piyasalar',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 36,
-                fontWeight: FontWeight.w400,
-                letterSpacing: -1,
-              ),
-            ),
-            const Gap(8),
-            Text(
-              'Canlı döviz ve altın kurları',
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.5),
-                fontSize: 15,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          ],
-        )
-        .animate()
-        .fadeIn(delay: 100.ms, duration: 400.ms)
-        .slideY(begin: 0.1, end: 0);
   }
 
   Widget _buildPromoCard(BuildContext context) {
@@ -208,71 +187,60 @@ class _PublicHomeScreenState extends ConsumerState<PublicHomeScreen> {
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppTheme.glassColor,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: AppTheme.glassBorder),
+            color: Colors.white.withOpacity(0.02),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.white.withOpacity(0.04)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: AppTheme.gold.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Text(
-                  'ÜCRETSİZ',
-                  style: TextStyle(
-                    color: AppTheme.gold,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: 1,
-                  ),
+              const Text(
+                'ÜCRETSİZ',
+                style: TextStyle(
+                  color: AppTheme.gold,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 1,
                 ),
               ),
-              const Gap(16),
+              const Gap(8),
               const Text(
                 'Portföyünüzü Yönetin',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 18,
+                  fontSize: 16,
                   fontWeight: FontWeight.w500,
                   letterSpacing: -0.5,
                 ),
               ),
-              const Gap(6),
+              const Gap(4),
               Text(
                 'Varlıklarınızı ekleyerek kar zarar durumunuzu anlık takip edin.',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.6),
-                  fontSize: 13,
-                  height: 1.5,
+                  color: Colors.white.withOpacity(0.5),
+                  fontSize: 12,
+                  height: 1.4,
                 ),
               ),
-              const Gap(24),
+              const Gap(16),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
+                child: OutlinedButton(
                   onPressed: () => Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => const RegisterScreen()),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.gold,
-                    foregroundColor: Colors.black,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: AppTheme.gold, width: 1.0),
+                    foregroundColor: AppTheme.gold,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(100),
                     ),
                   ),
                   child: const Text(
                     'Kayıt Ol',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
                   ),
                 ),
               ),
@@ -291,9 +259,9 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   final TabBar _tabBar;
 
   @override
-  double get minExtent => _tabBar.preferredSize.height + 24;
+  double get minExtent => _tabBar.preferredSize.height + 16;
   @override
-  double get maxExtent => _tabBar.preferredSize.height + 24;
+  double get maxExtent => _tabBar.preferredSize.height + 16;
 
   @override
   Widget build(
@@ -303,15 +271,8 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   ) {
     return Container(
       color: AppTheme.background,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppTheme.glassColor,
-          borderRadius: BorderRadius.circular(50),
-          border: Border.all(color: AppTheme.glassBorder),
-        ),
-        child: _tabBar,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      child: _tabBar,
     );
   }
 
