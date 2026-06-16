@@ -30,19 +30,19 @@ class AssetDatePicker extends StatelessWidget {
                 colorScheme: const ColorScheme.dark(
                   primary: AppTheme.gold, // Header background & selection
                   onPrimary: Colors.black, // Header text & selection text
-                  surface: Color(0xFF1E1E1E), // Background
+                  surface: AppTheme.surface, // Background
                   onSurface: Colors.white, // Body text
                 ),
-                dialogBackgroundColor: const Color(0xFF1E1E1E),
+                dialogBackgroundColor: AppTheme.surface,
                 datePickerTheme: DatePickerThemeData(
-                  headerBackgroundColor: const Color(0xFF1E1E1E),
+                  headerBackgroundColor: AppTheme.surface,
                   headerForegroundColor: AppTheme.gold,
-                  backgroundColor: const Color(0xFF1E1E1E),
+                  backgroundColor: AppTheme.surface,
                   surfaceTintColor: Colors.transparent,
-                  dividerColor: Colors.white.withOpacity(0.1),
+                  dividerColor: Colors.white.withValues(alpha: 0.05),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
-                    side: BorderSide(color: Colors.white.withOpacity(0.1)),
+                    side: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
                   ),
                   headerHeadlineStyle: const TextStyle(
                     fontSize: 24,
@@ -59,33 +59,43 @@ class AssetDatePicker extends StatelessWidget {
       },
       borderRadius: BorderRadius.circular(16),
       child: Container(
-        height: 56,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.05),
+          color: Colors.white.withValues(alpha: 0.02),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
         ),
         child: Row(
           children: [
-            Icon(
-              Iconsax.calendar_1,
-              size: 20,
-              color: AppTheme.gold.withValues(alpha: 0.7),
-            ),
-            const Gap(12),
-            Text(
-              DateFormat('d MMMM yyyy', 'tr_TR').format(selectedDate),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 15,
-                fontWeight: FontWeight.w400,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    DateFormat('d MMMM yyyy', 'tr_TR').format(selectedDate),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  const Gap(2),
+                  Text(
+                    'İşlem Gerçekleşme Tarihi',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.4),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
               ),
             ),
-            const Spacer(),
             Icon(
-              Iconsax.arrow_down_1,
-              color: Colors.white.withValues(alpha: 0.3),
+              Iconsax.calendar_1,
+              color: Colors.white.withValues(alpha: 0.4),
+              size: 18,
             ),
           ],
         ),

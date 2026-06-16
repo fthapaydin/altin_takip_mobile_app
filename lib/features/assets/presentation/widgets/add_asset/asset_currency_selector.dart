@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:intl/intl.dart';
 import 'package:altin_takip/core/theme/app_theme.dart';
 import 'package:altin_takip/features/currencies/domain/currency.dart';
 
@@ -20,34 +21,51 @@ class AssetCurrencySelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
       onTap: () => _showCurrencyPicker(context),
+      borderRadius: BorderRadius.circular(16),
       child: Container(
-        height: 56,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.05),
+          color: Colors.white.withValues(alpha: 0.02),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
         ),
         child: Row(
           children: [
             Expanded(
-              child: Text(
-                selectedCurrency?.name ?? 'Seçiniz',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w400,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    selectedCurrency?.name ?? 'Varlık Seçin',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const Gap(2),
+                  Text(
+                    selectedCurrency != null
+                        ? 'Canlı Satış: ₺${NumberFormat('#,##0.00', 'tr_TR').format(selectedCurrency!.selling)} | Alış: ₺${NumberFormat('#,##0.00', 'tr_TR').format(selectedCurrency!.buying)}'
+                        : 'Lütfen bir varlık seçin',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.4),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
               ),
             ),
             Icon(
               Iconsax.arrow_down_1,
-              color: Colors.white.withValues(alpha: 0.3),
-              size: 20,
+              color: Colors.white.withValues(alpha: 0.4),
+              size: 18,
             ),
           ],
         ),
@@ -119,10 +137,10 @@ class _AssetSelectionSheetState extends State<_AssetSelectionSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.75, // Taller for search
+      height: MediaQuery.of(context).size.height * 0.75,
       decoration: const BoxDecoration(
-        color: Color(0xFF1E1E1E),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
         children: [
@@ -139,41 +157,46 @@ class _AssetSelectionSheetState extends State<_AssetSelectionSheet> {
           const Text(
             'Varlık Seçin',
             style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w400,
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
               color: Colors.white,
-              letterSpacing: -0.5,
+              letterSpacing: 0.2,
             ),
           ),
           const Gap(24),
-          // Search Bar
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Container(
-              height: 50,
+              height: 48,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
+                color: Colors.white.withValues(alpha: 0.02),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
               ),
               child: TextField(
                 controller: _searchController,
-                style: const TextStyle(color: Colors.white),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                ),
                 decoration: InputDecoration(
                   hintText: 'Varlık Ara...',
                   hintStyle: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.3),
-                    fontSize: 14,
+                    color: Colors.white.withValues(alpha: 0.15),
+                    fontSize: 13,
                   ),
                   prefixIcon: Icon(
                     Iconsax.search_normal,
                     color: Colors.white.withValues(alpha: 0.3),
-                    size: 20,
+                    size: 18,
                   ),
                   border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
-                    vertical: 14,
+                    vertical: 12,
                   ),
                 ),
               ),
@@ -187,6 +210,7 @@ class _AssetSelectionSheetState extends State<_AssetSelectionSheet> {
                       'Sonuç bulunamadı',
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.3),
+                        fontSize: 14,
                       ),
                     ),
                   )
@@ -207,13 +231,14 @@ class _AssetSelectionSheetState extends State<_AssetSelectionSheet> {
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? AppTheme.gold.withValues(alpha: 0.1)
-                                : Colors.white.withValues(alpha: 0.05),
+                                ? AppTheme.gold.withValues(alpha: 0.08)
+                                : Colors.white.withValues(alpha: 0.02),
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
                               color: isSelected
-                                  ? AppTheme.gold.withValues(alpha: 0.5)
-                                  : Colors.transparent,
+                                  ? AppTheme.gold.withValues(alpha: 0.2)
+                                  : Colors.white.withValues(alpha: 0.05),
+                              width: 1.0,
                             ),
                           ),
                           child: Row(
@@ -225,7 +250,7 @@ class _AssetSelectionSheetState extends State<_AssetSelectionSheet> {
                                     color: isSelected
                                         ? AppTheme.gold
                                         : Colors.white,
-                                    fontSize: 16,
+                                    fontSize: 14,
                                     fontWeight: FontWeight.w400,
                                   ),
                                 ),
@@ -234,6 +259,7 @@ class _AssetSelectionSheetState extends State<_AssetSelectionSheet> {
                                 const Icon(
                                   Iconsax.tick_circle,
                                   color: AppTheme.gold,
+                                  size: 20,
                                 ),
                             ],
                           ),

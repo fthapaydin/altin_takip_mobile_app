@@ -194,41 +194,36 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
             children: [
               // Category Tabs
               Container(
-                height: 48,
-                padding: const EdgeInsets.all(4),
+                height: 38,
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(24),
+                  color: Colors.white.withValues(alpha: 0.02),
+                  borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: Colors.white.withValues(alpha: 0.05),
+                    width: 1.0,
                   ),
                 ),
                 child: TabBar(
                   controller: _tabController,
+                  labelColor: Colors.black,
+                  unselectedLabelColor: Colors.white38,
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  dividerColor: Colors.transparent,
+                  overlayColor: WidgetStateProperty.all(Colors.transparent),
                   indicator: BoxDecoration(
                     color: AppTheme.gold,
                     borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppTheme.gold.withValues(alpha: 0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
                   ),
-                  indicatorSize: TabBarIndicatorSize.tab,
-                  labelColor: Colors.black,
                   labelStyle: const TextStyle(
-                    fontWeight: FontWeight.w400,
-                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 12,
+                    letterSpacing: 0.2,
                   ),
-                  unselectedLabelColor: Colors.white60,
                   unselectedLabelStyle: const TextStyle(
-                    fontWeight: FontWeight.w400,
-                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 12,
+                    letterSpacing: 0.2,
                   ),
-                  dividerColor: Colors.transparent,
-                  overlayColor: WidgetStateProperty.all(Colors.transparent),
                   tabs: const [
                     Tab(text: 'Altın'),
                     Tab(text: 'Döviz'),
@@ -251,10 +246,10 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
               const Text(
                 'VARLIK SEÇİMİ',
                 style: TextStyle(
-                  color: Colors.white38,
-                  fontSize: 10.5,
+                  color: AppTheme.gold,
+                  fontSize: 10,
                   fontWeight: FontWeight.w500,
-                  letterSpacing: 1.2,
+                  letterSpacing: 1.5,
                 ),
               ),
               const Gap(8),
@@ -283,10 +278,10 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
                         const Text(
                           'MİKTAR',
                           style: TextStyle(
-                            color: Colors.white38,
-                            fontSize: 10.5,
+                            color: AppTheme.gold,
+                            fontSize: 10,
                             fontWeight: FontWeight.w500,
-                            letterSpacing: 1.2,
+                            letterSpacing: 1.5,
                           ),
                         ),
                         const Gap(8),
@@ -309,10 +304,10 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
                         const Text(
                           'BİRİM FİYAT',
                           style: TextStyle(
-                            color: Colors.white38,
-                            fontSize: 10.5,
+                            color: AppTheme.gold,
+                            fontSize: 10,
                             fontWeight: FontWeight.w500,
-                            letterSpacing: 1.2,
+                            letterSpacing: 1.5,
                           ),
                         ),
                         const Gap(8),
@@ -333,12 +328,17 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
 
               // Total Amount Display
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: AppTheme.surface,
-                  borderRadius: BorderRadius.circular(16),
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF0F1116), Color(0xFF09090A)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: Colors.white.withValues(alpha: 0.05),
+                    width: 1,
                   ),
                 ),
                 child: Row(
@@ -350,20 +350,24 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
                         const Text(
                           'TOPLAM TUTAR',
                           style: TextStyle(
-                            color: Colors.white38,
-                            fontSize: 10.5,
+                            color: AppTheme.gold,
+                            fontSize: 10,
                             fontWeight: FontWeight.w500,
-                            letterSpacing: 1.2,
+                            letterSpacing: 1.5,
                           ),
                         ),
                         const Gap(4),
                         Text(
                           _selectedCurrency != null
                               ? _isBuy
-                                    ? 'Ödenecek Tutar'
-                                    : 'Alınacak Tutar'
+                                  ? 'Ödenecek Tutar'
+                                  : 'Alınacak Tutar'
                               : 'İşlem Tutarı',
-                          style: TextStyle(color: Colors.white30, fontSize: 11),
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.35),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w400,
+                          ),
                         ),
                       ],
                     ),
@@ -374,9 +378,10 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
                         decimalDigits: 2,
                       ).format(_totalAmount),
                       style: const TextStyle(
-                        fontSize: 18,
+                        fontSize: 22,
                         fontWeight: FontWeight.w400,
-                        color: AppTheme.gold,
+                        color: Colors.white,
+                        letterSpacing: -0.5,
                       ),
                     ),
                   ],
@@ -388,10 +393,10 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
               const Text(
                 'İŞLEM TARİHİ',
                 style: TextStyle(
-                  color: Colors.white38,
-                  fontSize: 10.5,
+                  color: AppTheme.gold,
+                  fontSize: 10,
                   fontWeight: FontWeight.w500,
-                  letterSpacing: 1.2,
+                  letterSpacing: 1.5,
                 ),
               ),
               const Gap(8),
@@ -418,35 +423,33 @@ class _AddAssetScreenState extends ConsumerState<AddAssetScreen>
               // Submit Button
               SizedBox(
                 width: double.infinity,
-                height: 56,
+                height: 52,
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _submit,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.gold,
                     foregroundColor: Colors.black,
-                    elevation: 8,
-                    shadowColor: AppTheme.gold.withValues(alpha: 0.4),
+                    elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    disabledBackgroundColor: AppTheme.gold.withValues(
-                      alpha: 0.5,
-                    ),
+                    disabledBackgroundColor: AppTheme.gold.withValues(alpha: 0.3),
                   ),
                   child: _isLoading
                       ? const SizedBox(
-                          height: 24,
-                          width: 24,
+                          height: 20,
+                          width: 20,
                           child: CircularProgressIndicator(
                             color: Colors.black,
-                            strokeWidth: 2.5,
+                            strokeWidth: 2.0,
                           ),
                         )
                       : const Text(
                           'Kaydet',
                           style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w400,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 0.5,
                           ),
                         ),
                 ),

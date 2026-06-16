@@ -19,18 +19,21 @@ class TransactionTypeSelector extends StatelessWidget {
         : const Color(0xFFEF4444); // Rose red
 
     return Container(
-      height: 52,
-      padding: const EdgeInsets.all(4),
+      height: 40,
+      padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.03),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+        color: Colors.white.withValues(alpha: 0.02),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.05),
+          width: 1.0,
+        ),
       ),
       child: Stack(
         children: [
           // Sliding Selector Indicator
           AnimatedAlign(
-            duration: const Duration(milliseconds: 250),
+            duration: const Duration(milliseconds: 200),
             curve: Curves.easeOutCubic,
             alignment: isBuy ? Alignment.centerLeft : Alignment.centerRight,
             child: FractionallySizedBox(
@@ -40,26 +43,19 @@ class TransactionTypeSelector extends StatelessWidget {
                   gradient: LinearGradient(
                     colors: isBuy
                         ? [
-                            const Color(0xFF10B981).withValues(alpha: 0.18),
-                            const Color(0xFF10B981).withValues(alpha: 0.06),
+                            const Color(0xFF10B981).withValues(alpha: 0.12),
+                            const Color(0xFF10B981).withValues(alpha: 0.02),
                           ]
                         : [
-                            const Color(0xFFEF4444).withValues(alpha: 0.18),
-                            const Color(0xFFEF4444).withValues(alpha: 0.06),
+                            const Color(0xFFEF4444).withValues(alpha: 0.12),
+                            const Color(0xFFEF4444).withValues(alpha: 0.02),
                           ],
                   ),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(17),
                   border: Border.all(
-                    color: activeColor.withValues(alpha: 0.3),
+                    color: activeColor.withValues(alpha: 0.15),
                     width: 1.0,
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: activeColor.withValues(alpha: 0.08),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
                 ),
               ),
             ),
@@ -78,20 +74,20 @@ class TransactionTypeSelector extends StatelessWidget {
                       children: [
                         Icon(
                           Iconsax.add_circle5,
-                          size: 16,
+                          size: 14,
                           color: isBuy
                               ? const Color(0xFF10B981)
-                              : Colors.white.withValues(alpha: 0.35),
+                              : Colors.white.withValues(alpha: 0.3),
                         ),
-                        const Gap(8),
+                        const Gap(6),
                         Text(
                           'Alım',
                           style: TextStyle(
                             color: isBuy
                                 ? Colors.white
-                                : Colors.white.withValues(alpha: 0.35),
+                                : Colors.white.withValues(alpha: 0.3),
                             fontWeight: isBuy ? FontWeight.w500 : FontWeight.w400,
-                            fontSize: 14,
+                            fontSize: 13,
                             letterSpacing: 0.2,
                           ),
                         ),
@@ -110,20 +106,20 @@ class TransactionTypeSelector extends StatelessWidget {
                       children: [
                         Icon(
                           Iconsax.minus_cirlce5,
-                          size: 16,
+                          size: 14,
                           color: !isBuy
                               ? const Color(0xFFEF4444)
-                              : Colors.white.withValues(alpha: 0.35),
+                              : Colors.white.withValues(alpha: 0.3),
                         ),
-                        const Gap(8),
+                        const Gap(6),
                         Text(
                           'Satım',
                           style: TextStyle(
                             color: !isBuy
                                 ? Colors.white
-                                : Colors.white.withValues(alpha: 0.35),
+                                : Colors.white.withValues(alpha: 0.3),
                             fontWeight: !isBuy ? FontWeight.w500 : FontWeight.w400,
-                            fontSize: 14,
+                            fontSize: 13,
                             letterSpacing: 0.2,
                           ),
                         ),
