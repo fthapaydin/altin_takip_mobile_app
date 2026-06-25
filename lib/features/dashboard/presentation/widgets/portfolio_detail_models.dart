@@ -25,6 +25,9 @@ class PortfolioBreakdownItem {
   final Color color;
   final String type;
   final double amount;
+  final int currencyId;
+  final String currencyCode;
+  final bool isGold;
 
   const PortfolioBreakdownItem({
     required this.name,
@@ -33,5 +36,8 @@ class PortfolioBreakdownItem {
     required this.color,
     required this.type,
     required this.amount,
+    required this.currencyId,
+    required this.currencyCode,
+    required this.isGold,
   });
 }

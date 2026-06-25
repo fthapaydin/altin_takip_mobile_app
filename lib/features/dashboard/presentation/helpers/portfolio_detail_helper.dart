@@ -142,6 +142,9 @@ class PortfolioDetailHelper {
         color: color,
         type: currency.type,
         amount: amount,
+        currencyId: currency.id,
+        currencyCode: currency.code,
+        isGold: isGold,
       ));
     });
 
@@ -155,6 +158,9 @@ class PortfolioDetailHelper {
         color: item.color,
         type: item.type,
         amount: item.amount,
+        currencyId: item.currencyId,
+        currencyCode: item.currencyCode,
+        isGold: item.isGold,
       );
     }).toList()
       ..sort((a, b) => b.value.compareTo(a.value));

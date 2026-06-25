@@ -4,6 +4,7 @@ import 'package:gap/gap.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:altin_takip/core/theme/app_theme.dart';
 import 'package:altin_takip/features/dashboard/presentation/widgets/portfolio_detail_models.dart';
+import 'package:altin_takip/features/currencies/presentation/history/currency_history_screen.dart';
 
 /// Row representing an individual asset, with its total current value and percentage visual indicator.
 class PortfolioDetailAssetRow extends StatelessWidget {
@@ -26,131 +27,152 @@ class PortfolioDetailAssetRow extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: AppTheme.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
         ),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                // Color dot
-                Container(
-                  width: 10,
-                  height: 10,
-                  decoration: BoxDecoration(
-                    color: item.color,
-                    borderRadius: BorderRadius.circular(4),
-                    boxShadow: [
-                      BoxShadow(
-                        color: item.color.withValues(alpha: 0.35),
-                        blurRadius: 6,
-                      ),
-                    ],
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CurrencyHistoryScreen(
+                    currencyCode: item.currencyCode,
+                    currencyId: item.currencyId.toString(),
+                    currencyName: item.name,
+                    isGold: item.isGold,
                   ),
                 ),
-                const Gap(12),
-                // Name + type
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              );
+            },
+            borderRadius: BorderRadius.circular(16),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: Column(
+                children: [
+                  Row(
                     children: [
-                      Text(
-                        item.name,
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.9),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
+                      // Color dot
+                      Container(
+                        width: 10,
+                        height: 10,
+                        decoration: BoxDecoration(
+                          color: item.color,
+                          borderRadius: BorderRadius.circular(4),
+                          boxShadow: [
+                            BoxShadow(
+                              color: item.color.withValues(alpha: 0.35),
+                              blurRadius: 6,
+                            ),
+                          ],
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
-                      const Gap(2),
-                      Text(
-                        item.type,
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.3),
-                          fontSize: 10,
-                          fontWeight: FontWeight.w400,
+                      const Gap(12),
+                      // Name + type
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item.name,
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.9),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const Gap(2),
+                            Text(
+                              item.type,
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.3),
+                                fontSize: 10,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ],
                         ),
+                      ),
+                      // Value + percentage
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            '₺${formatter.format(item.value)}',
+                            style: const TextStyle(
+                              fontFeatures: [FontFeature.tabularFigures()],
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: -0.3,
+                            ),
+                          ),
+                          const Gap(2),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: item.color.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              '%${item.percentage.toStringAsFixed(1)}',
+                              style: TextStyle(
+                                color: item.color,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ),
-                // Value + percentage
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      '₺${formatter.format(item.value)}',
-                      style: const TextStyle(
-                        fontFeatures: [FontFeature.tabularFigures()],
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: -0.3,
+                  const Gap(10),
+                  // Progress bar
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(2),
+                    child: SizedBox(
+                      height: 3,
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          return Stack(
+                            children: [
+                              Container(
+                                width: constraints.maxWidth,
+                                color: Colors.white.withValues(alpha: 0.04),
+                              ),
+                              AnimatedContainer(
+                                duration: const Duration(milliseconds: 800),
+                                curve: Curves.easeOutCubic,
+                                width: constraints.maxWidth * barFraction,
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      item.color.withValues(alpha: 0.6),
+                                      item.color,
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       ),
                     ),
-                    const Gap(2),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: item.color.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        '%${item.percentage.toStringAsFixed(1)}',
-                        style: TextStyle(
-                          color: item.color,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const Gap(10),
-            // Progress bar
-            ClipRRect(
-              borderRadius: BorderRadius.circular(2),
-              child: SizedBox(
-                height: 3,
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    return Stack(
-                      children: [
-                        Container(
-                          width: constraints.maxWidth,
-                          color: Colors.white.withValues(alpha: 0.04),
-                        ),
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 800),
-                          curve: Curves.easeOutCubic,
-                          width: constraints.maxWidth * barFraction,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                item.color.withValues(alpha: 0.6),
-                                item.color,
-                              ],
-                            ),
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
+                  ),
+                ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     ).animate().fadeIn(
