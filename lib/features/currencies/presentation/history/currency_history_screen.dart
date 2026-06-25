@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shimmer/shimmer.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:gap/gap.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:intl/intl.dart';
 import 'package:altin_takip/core/theme/app_theme.dart';
-import 'package:altin_takip/features/currencies/presentation/history/currency_history_providers.dart';
+import 'package:altin_takip/core/widgets/app_bar_widget.dart';
+import 'package:altin_takip/core/widgets/premium_error_view.dart';
 import 'package:altin_takip/features/currencies/domain/currency_history.dart';
 import 'package:altin_takip/features/currencies/domain/currency_history_data.dart';
-import 'package:intl/intl.dart';
-import 'package:altin_takip/core/widgets/premium_error_view.dart';
-import 'package:altin_takip/features/assets/presentation/add_asset_screen.dart';
-import 'package:altin_takip/core/widgets/app_bar_widget.dart';
+import 'package:altin_takip/features/currencies/presentation/history/currency_history_providers.dart';
 import 'package:altin_takip/features/currencies/presentation/history/widgets/currency_investment_summary.dart';
 import 'package:altin_takip/features/currencies/presentation/history/widgets/currency_history_timeline.dart';
+import 'package:altin_takip/features/currencies/presentation/history/widgets/currency_history_shimmer.dart';
+import 'package:altin_takip/features/currencies/presentation/history/widgets/currency_history_chart.dart';
+import 'package:altin_takip/features/currencies/presentation/history/widgets/currency_history_range_selector.dart';
+import 'package:altin_takip/features/currencies/presentation/history/widgets/currency_history_empty_state.dart';
 
+/// Screen presenting the detailed price history, chart, and transaction records of a selected currency.
 class CurrencyHistoryScreen extends ConsumerStatefulWidget {
   final String currencyCode;
   final String currencyId;
@@ -37,9 +39,6 @@ class CurrencyHistoryScreen extends ConsumerStatefulWidget {
 class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
   @override
   Widget build(BuildContext context) {
-    final selectedRange =
-        ref.watch(currencyHistoryRangeProvider)[widget.currencyId] ?? '1w';
-
     return Scaffold(
       backgroundColor: AppTheme.background,
       extendBodyBehindAppBar: true,
@@ -54,17 +53,13 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
           SliverFillRemaining(
             child: Consumer(
               builder: (context, ref, child) {
-                final historyAsync = ref.watch(
-                  currencyHistoryProvider(widget.currencyId),
-                );
-                final isLoading =
-                    historyAsync.isRefreshing ||
-                    (historyAsync.isLoading && historyAsync.hasValue);
+                final historyAsync = ref.watch(currencyHistoryProvider(widget.currencyId));
+                final isLoading = historyAsync.isRefreshing || (historyAsync.isLoading && historyAsync.hasValue);
 
                 if (historyAsync.hasValue) {
                   return Stack(
                     children: [
-                      _buildContent(historyAsync.value!, selectedRange),
+                      _buildContent(historyAsync.value!),
                       if (isLoading)
                         Positioned(
                           top: 0,
@@ -72,9 +67,7 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
                           right: 0,
                           child: LinearProgressIndicator(
                             backgroundColor: Colors.transparent,
-                            color:
-                                (widget.isGold ? AppTheme.gold : Colors.white)
-                                    .withValues(alpha: 0.5),
+                            color: (widget.isGold ? AppTheme.gold : Colors.white).withValues(alpha: 0.5),
                             minHeight: 2,
                           ),
                         ),
@@ -83,13 +76,11 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
                 }
 
                 return historyAsync.when(
-                  data: (data) => _buildContent(data, selectedRange),
-                  loading: () => _buildLoading(),
+                  data: _buildContent,
+                  loading: () => const CurrencyHistoryShimmer(),
                   error: (error, stack) => PremiumErrorView(
                     message: error.toString(),
-                    onRetry: () => ref.invalidate(
-                      currencyHistoryProvider(widget.currencyId),
-                    ),
+                    onRetry: () => ref.invalidate(currencyHistoryProvider(widget.currencyId)),
                   ),
                 );
               },
@@ -100,225 +91,13 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
     );
   }
 
-  Widget _buildLoading() {
-    final double topPadding = MediaQuery.of(context).padding.top +
-        AppBarWidget.getExpandedHeight(isLargeTitle: false) +
-        12.0;
-
-    return Shimmer.fromColors(
-      baseColor: Colors.white.withValues(alpha: 0.05),
-      highlightColor: Colors.white.withValues(alpha: 0.1),
-      child: ListView(
-        padding: EdgeInsets.fromLTRB(20, topPadding, 20, 20),
-        physics: const NeverScrollableScrollPhysics(),
-        children: [
-          // Header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            width: 40,
-                            height: 12,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                          ),
-                          const Gap(8),
-                          Container(
-                            width: 80,
-                            height: 24,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Gap(24),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            width: 40,
-                            height: 12,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                          ),
-                          const Gap(8),
-                          Container(
-                            width: 80,
-                            height: 24,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const Gap(12),
-                  Row(
-                    children: [
-                      Container(
-                        width: 80,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                      const Gap(8),
-                      Container(
-                        width: 120,
-                        height: 12,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const Gap(20),
-          // Chart Area
-          Container(
-            height: 250,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-            ),
-          ),
-          const Gap(16),
-          // Range Selector
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: List.generate(6, (index) {
-              return Container(
-                width: 40,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              );
-            }),
-          ),
-          const Gap(24),
-          // Investment Summary Title
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Container(
-              width: 120,
-              height: 20,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-          ),
-          const Gap(16),
-          // Investment Summary Card
-          Container(
-            height: 140,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-            ),
-          ),
-          const Gap(24),
-          // Transactions Title
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Container(
-              width: 150,
-              height: 20,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-          ),
-          const Gap(16),
-          // Transactions List
-          ...List.generate(3, (index) {
-            return Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              height: 72,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-              ),
-            );
-          }),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildContent(CurrencyHistoryData data, String selectedRange) {
+  Widget _buildContent(CurrencyHistoryData data) {
     if (data.history.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.03),
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
-              ),
-              child: Icon(
-                Iconsax.chart_21,
-                size: 48,
-                color: Colors.white.withValues(alpha: 0.2),
-              ),
-            ),
-            const Gap(24),
-            Text(
-              'Grafik Verisi Yok',
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.9),
-                fontSize: 16,
-                fontWeight: FontWeight.w400,
-                letterSpacing: 0.5,
-              ),
-            ),
-            const Gap(8),
-            Text(
-              'Bu varlık için henüz fiyat geçmişi\noluşmamış.Daha sonra tekrar deneyebilirsin.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.4),
-                fontSize: 14,
-                height: 1.5,
-              ),
-            ),
-          ],
-        ),
-      );
+      return const Center(child: CurrencyHistoryEmptyState(currencyCode: ''));
     }
 
-    // Sort by date just in case
-    // We create a copy to avoid mutating the provider state if it's cached reference
-    final sortedHistory = List<CurrencyHistory>.from(data.history);
-    sortedHistory.sort((a, b) => a.date.compareTo(b.date));
+    final sortedHistory = List<CurrencyHistory>.from(data.history)
+      ..sort((a, b) => a.date.compareTo(b.date));
 
     final lastItem = sortedHistory.last;
     final firstItem = sortedHistory.first;
@@ -333,7 +112,6 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
     return ListView(
       padding: EdgeInsets.fromLTRB(20, topPadding, 20, 20),
       children: [
-        // Header info
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -352,13 +130,9 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: (isPositive ? Colors.green : Colors.red)
-                            .withValues(alpha: 0.1),
+                        color: (isPositive ? Colors.green : Colors.red).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Row(
@@ -384,10 +158,7 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
                     const Gap(8),
                     Text(
                       'Son güncelleme: ${lastItem.date.hour == 0 && lastItem.date.minute == 0 ? DateFormat('dd.MM.yyyy').format(lastItem.date) : DateFormat('HH:mm').format(lastItem.date)}',
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.5),
-                        fontSize: 12,
-                      ),
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 12),
                     ),
                   ],
                 ),
@@ -396,276 +167,36 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
           ],
         ),
         const Gap(20),
-        // Chart
-        SizedBox(height: 250, child: _buildChart(sortedHistory)),
+        SizedBox(
+          height: 250,
+          child: CurrencyHistoryChart(history: sortedHistory, isGold: widget.isGold),
+        ),
         const Gap(16),
-        // Range Selector
-        _buildRangeSelector(selectedRange),
+        CurrencyHistoryRangeSelector(currencyId: widget.currencyId, isGold: widget.isGold),
         const Gap(24),
-        // Transactions List
         if (data.userAssets.isNotEmpty) ...[
           const Align(
             alignment: Alignment.centerLeft,
             child: Text(
               'Yatırım Özeti',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.w400,
-              ),
+              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w400),
             ),
           ),
           const Gap(16),
-          CurrencyInvestmentSummary(
-            assets: data.userAssets,
-            currentPrice: lastItem.buying,
-          ),
+          CurrencyInvestmentSummary(assets: data.userAssets, currentPrice: lastItem.buying),
           const Gap(24),
           const Align(
             alignment: Alignment.centerLeft,
             child: Text(
               'Geçmiş İşlemlerim',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.w400,
-              ),
+              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w400),
             ),
           ),
           const Gap(16),
-          CurrencyHistoryTimeline(
-            assets: data.userAssets,
-          ),
+          CurrencyHistoryTimeline(assets: data.userAssets),
         ] else
-          _buildEmptyTransactionsState(),
-        const Gap(40), // Bottom padding
-      ],
-    );
-  }
-
-  Widget _buildChart(List<CurrencyHistory> history) {
-    final spots = history
-        .asMap()
-        .entries
-        .map((e) => FlSpot(e.key.toDouble(), e.value.buying))
-        .toList();
-
-    // Prevent crash if history is empty (handled above but safe check)
-    if (history.isEmpty) return const SizedBox();
-
-    // Calculate Y range
-    double minY = history.map((e) => e.buying).reduce((a, b) => a < b ? a : b);
-    double maxY = history.map((e) => e.buying).reduce((a, b) => a > b ? a : b);
-
-    minY = minY * 0.999;
-    maxY = maxY * 1.001;
-
-    return LineChart(
-      LineChartData(
-        gridData: FlGridData(
-          show: true,
-          drawVerticalLine: false,
-          getDrawingHorizontalLine: (value) => FlLine(
-            color: Colors.white.withValues(alpha: 0.05),
-            strokeWidth: 1,
-          ),
-        ),
-        titlesData: FlTitlesData(
-          show: true,
-          rightTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          topTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          bottomTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-        ),
-        borderData: FlBorderData(show: false),
-        minY: minY,
-        maxY: maxY,
-        lineBarsData: [
-          LineChartBarData(
-            spots: spots,
-            isCurved: true,
-            color: widget.isGold ? AppTheme.gold : const Color(0xFF64B5F6),
-            barWidth: 3,
-            isStrokeCapRound: true,
-            dotData: const FlDotData(show: false),
-            belowBarData: BarAreaData(
-              show: true,
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  (widget.isGold ? AppTheme.gold : const Color(0xFF64B5F6))
-                      .withValues(alpha: 0.3),
-                  (widget.isGold ? AppTheme.gold : const Color(0xFF64B5F6))
-                      .withValues(alpha: 0.0),
-                ],
-              ),
-            ),
-          ),
-        ],
-        lineTouchData: LineTouchData(
-          touchTooltipData: LineTouchTooltipData(
-            fitInsideHorizontally: true,
-            fitInsideVertically: true, // Added for safety
-            getTooltipColor: (_) => AppTheme.surface,
-            getTooltipItems: (touchedSpots) {
-              return touchedSpots.map((spot) {
-                final index = spot.x.toInt();
-                if (index < 0 || index >= history.length) return null;
-                final date = history[index].date;
-                return LineTooltipItem(
-                  '₺${NumberFormat('#,##0.00', 'tr_TR').format(spot.y)}\n',
-                  const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w400,
-                  ),
-                  children: [
-                    TextSpan(
-                      text: date.hour == 0 && date.minute == 0
-                          ? DateFormat('dd.MM.yyyy').format(date)
-                          : DateFormat('dd.MM HH:mm').format(date),
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.5),
-                        fontSize: 10,
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                  ],
-                );
-              }).toList();
-            },
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRangeSelector(String selectedRange) {
-    final ranges = ['1d', '1w', '1m', '3m', '1y', 'all'];
-    final labels = {
-      '1d': '1G',
-      '1w': '1H',
-      '1m': '1A',
-      '3m': '3A',
-      '1y': '1Y',
-      'all': 'Tümü',
-    };
-
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: ranges.map((range) {
-          final isSelected = range == selectedRange;
-          return Expanded(
-            child: GestureDetector(
-              onTap: () {
-                ref
-                    .read(currencyHistoryRangeProvider.notifier)
-                    .setRange(widget.currencyId, range);
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? (widget.isGold ? AppTheme.gold : Colors.white)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Center(
-                  child: Text(
-                    labels[range]!,
-                    style: TextStyle(
-                      color: isSelected ? Colors.black : Colors.white54,
-                      fontWeight: isSelected
-                          ? FontWeight.w400
-                          : FontWeight.normal,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget _buildEmptyTransactionsState() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.05),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            Iconsax.receipt_1,
-            size: 32,
-            color: Colors.white.withValues(alpha: 0.3),
-          ),
-        ),
-        const Gap(16),
-        Text(
-          'İşlem Geçmişi Yok',
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.7),
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-          ),
-        ),
-        const Gap(4),
-        Text(
-          'Bu varlık için henüz işlem kaydınız bulunmuyor.',
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.4),
-            fontSize: 12,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        const Gap(24),
-        ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    AddAssetScreen(initialCurrencyCode: widget.currencyCode),
-              ),
-            );
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.white.withValues(alpha: 0.1),
-            foregroundColor: AppTheme.gold,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          ),
-          child: const Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Iconsax.add_circle, size: 18),
-              Gap(8),
-              Text('İşlem Ekle'),
-            ],
-          ),
-        ),
+          CurrencyHistoryEmptyState(currencyCode: widget.currencyCode),
+        const Gap(40),
       ],
     );
   }
@@ -676,11 +207,7 @@ class _CurrencyHistoryScreenState extends ConsumerState<CurrencyHistoryScreen> {
       children: [
         Text(
           label,
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.7),
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-          ),
+          style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 12, fontWeight: FontWeight.w500),
         ),
         const Gap(4),
         Text(
