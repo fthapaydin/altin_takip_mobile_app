@@ -48,10 +48,10 @@ class AuthNotifier extends Notifier<AuthState> {
         await _repository.updateOneSignalId(oneSignalId);
       }
 
-      // Ensure minimum splash screen display time for animation & prefetch
+      // Ensure minimum splash screen display time for animation
       final elapsed = stopwatch.elapsedMilliseconds;
-      if (elapsed < 2500) {
-        await Future.delayed(Duration(milliseconds: 2500 - elapsed));
+      if (elapsed < 800) {
+        await Future.delayed(Duration(milliseconds: 800 - elapsed));
       }
 
       if (user.isEncrypted && encryptionKey == null) {
@@ -62,8 +62,8 @@ class AuthNotifier extends Notifier<AuthState> {
     } else {
       // Ensure minimum splash screen display time for unauthenticated as well
       final elapsed = stopwatch.elapsedMilliseconds;
-      if (elapsed < 2500) {
-        await Future.delayed(Duration(milliseconds: 2500 - elapsed));
+      if (elapsed < 800) {
+        await Future.delayed(Duration(milliseconds: 800 - elapsed));
       }
 
       state = const AuthUnauthenticated();
