@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:altin_takip/core/theme/app_theme.dart';
@@ -9,6 +10,7 @@ import 'package:altin_takip/core/widgets/app_bar_widget.dart';
 import 'package:altin_takip/features/notifications/presentation/widgets/notification_detail_skeleton.dart';
 import 'package:altin_takip/features/notifications/presentation/widgets/notification_performance_chart.dart';
 import 'package:altin_takip/features/notifications/presentation/widgets/notification_assets_list.dart';
+import 'package:altin_takip/features/notifications/presentation/widgets/notification_detail_header.dart';
 
 class NotificationDetailScreen extends ConsumerStatefulWidget {
   final domain.Notification notification;
@@ -49,41 +51,80 @@ class _NotificationDetailScreenState
         isLargeTitle: false,
         centerTitle: true,
       ),
-      body: SafeArea(
-        top: false,
-        child: Column(
-          children: [
-            Expanded(
-              child: data == null
-                  ? const NotificationDetailSkeleton()
-                  : SingleChildScrollView(
-                      padding: EdgeInsets.fromLTRB(
-                        24,
-                        MediaQuery.of(context).padding.top + AppBarWidget.getExpandedHeight(isLargeTitle: false) + 12.0,
-                        24,
-                        24,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (chartDataPoints.isNotEmpty) ...[
-                            NotificationPerformanceChart(
-                              chartDataPoints: chartDataPoints,
-                              currentValue: data.currentValue ?? 0.0,
-                              changeAmount: data.changeAmount ?? 0.0,
-                              changePercentage: changePercentage,
-                            ),
-                            const Gap(24),
-                          ],
-                          if (assets != null && assets.isNotEmpty) ...[
-                            NotificationAssetsList(assets: assets),
-                          ],
-                        ],
-                      ),
-                    ),
+      body: Stack(
+        children: [
+          // Ambient Glow Backgrounds
+          Positioned(
+            top: 100,
+            right: -50,
+            child: ImageFiltered(
+              imageFilter: ImageFilter.blur(sigmaX: 90, sigmaY: 90),
+              child: Container(
+                width: 220,
+                height: 220,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppTheme.gold.withValues(alpha: 0.1),
+                ),
+              ),
             ),
-          ],
-        ),
+          ),
+          Positioned(
+            bottom: 100,
+            left: -50,
+            child: ImageFiltered(
+              imageFilter: ImageFilter.blur(sigmaX: 90, sigmaY: 90),
+              child: Container(
+                width: 240,
+                height: 240,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(0xFF4C82F7).withValues(alpha: 0.08),
+                ),
+              ),
+            ),
+          ),
+          
+          // Main Body Content
+          SafeArea(
+            top: false,
+            child: Column(
+              children: [
+                Expanded(
+                  child: data == null
+                      ? const NotificationDetailSkeleton()
+                      : SingleChildScrollView(
+                          padding: EdgeInsets.fromLTRB(
+                            24,
+                            MediaQuery.of(context).padding.top + AppBarWidget.getExpandedHeight(isLargeTitle: false) + 16.0,
+                            24,
+                            120, // Bottom padding to prevent overlap with bottom system nav
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              NotificationDetailHeader(notification: widget.notification),
+                              const Gap(24),
+                              if (chartDataPoints.isNotEmpty) ...[
+                                NotificationPerformanceChart(
+                                  chartDataPoints: chartDataPoints,
+                                  currentValue: data.currentValue ?? 0.0,
+                                  changeAmount: data.changeAmount ?? 0.0,
+                                  changePercentage: changePercentage,
+                                ),
+                                const Gap(24),
+                              ],
+                              if (assets != null && assets.isNotEmpty) ...[
+                                NotificationAssetsList(assets: assets),
+                              ],
+                            ],
+                          ),
+                        ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
