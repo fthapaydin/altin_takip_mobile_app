@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 import 'package:gap/gap.dart';
@@ -7,7 +8,7 @@ import 'package:altin_takip/core/theme/app_theme.dart';
 import 'package:altin_takip/core/widgets/currency_icon.dart';
 import 'package:altin_takip/features/currencies/domain/currency.dart';
 
-/// Card selector that opens a styled bottom sheet to choose currency.
+/// Card selector that opens a styled bottom sheet to choose currency, styled with glassmorphism and Ubuntu typography.
 class CalculatorCurrencySelector extends StatelessWidget {
   final Currency? selectedCurrency;
   final List<Currency> currencies;
@@ -26,54 +27,92 @@ class CalculatorCurrencySelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () => _showCurrencyPicker(context),
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.02),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    selectedCurrency == null && allowNull
-                        ? 'Türk Lirası'
-                        : selectedCurrency?.name ?? 'Varlık Seçin',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w400,
-                      fontSize: 14,
+    final bool isTL = selectedCurrency == null && allowNull;
+    final Widget leadingIcon = isTL
+        ? const Icon(Icons.currency_lira, color: AppTheme.gold, size: 20)
+        : (selectedCurrency != null
+            ? CurrencyIcon(iconUrl: null, isGold: selectedCurrency!.isGold, size: 20)
+            : const Icon(Iconsax.wallet_3, color: AppTheme.gold, size: 20));
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.02),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            offset: const Offset(0, 8),
+            blurRadius: 16,
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => _showCurrencyPicker(context),
+              borderRadius: BorderRadius.circular(20),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+                child: Row(
+                  children: [
+                    // Icon Container
+                    Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.03),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.06),
+                        ),
+                      ),
+                      alignment: Alignment.center,
+                      child: leadingIcon,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const Gap(2),
-                  Text(
-                    selectedCurrency != null
-                        ? 'Canlı Değer: ₺${NumberFormat('#,##0.00', 'tr_TR').format(selectedCurrency!.selling)}'
-                        : 'Baz Para Birimi',
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.4),
-                      fontSize: 11,
-                      fontWeight: FontWeight.w400,
+                    const Gap(14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            isTL ? 'Türk Lirası' : selectedCurrency?.name ?? 'Varlık Seçin',
+                            style: GoogleFonts.ubuntu(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w400,
+                              fontSize: 14,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const Gap(2),
+                          Text(
+                            selectedCurrency != null
+                                ? 'Canlı Değer: ₺${NumberFormat('#,##0.00', 'tr_TR').format(selectedCurrency!.selling)}'
+                                : 'Baz Para Birimi (TRY)',
+                            style: GoogleFonts.ubuntu(
+                              color: Colors.white.withValues(alpha: 0.45),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                    Icon(
+                      Iconsax.arrow_down_1,
+                      color: Colors.white.withValues(alpha: 0.45),
+                      size: 18,
+                    ),
+                  ],
+                ),
               ),
             ),
-            Icon(
-              Iconsax.arrow_down_1,
-              color: Colors.white.withValues(alpha: 0.4),
-              size: 18,
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -126,9 +165,9 @@ class CalculatorCurrencySelector extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
+                          Text(
                             'Varlık Seçimi',
-                            style: TextStyle(
+                            style: GoogleFonts.ubuntu(
                               color: Colors.white,
                               fontSize: 18,
                               fontWeight: FontWeight.w500,
@@ -156,33 +195,39 @@ class CalculatorCurrencySelector extends StatelessWidget {
                     const Gap(16),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Container(
-                        height: 38,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.02),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.05),
-                            width: 1.0,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                          child: Container(
+                            height: 38,
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.02),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.05),
+                                width: 1.0,
+                              ),
+                            ),
+                            child: TabBar(
+                              indicatorSize: TabBarIndicatorSize.tab,
+                              dividerColor: Colors.transparent,
+                              indicator: BoxDecoration(
+                                gradient: AppTheme.goldGradient,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              labelColor: Colors.black,
+                              unselectedLabelColor: Colors.white38,
+                              labelStyle: GoogleFonts.ubuntu(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 12,
+                              ),
+                              tabs: const [
+                                Tab(text: 'ALTIN'),
+                                Tab(text: 'DÖVİZ'),
+                              ],
+                            ),
                           ),
-                        ),
-                        child: TabBar(
-                          indicatorSize: TabBarIndicatorSize.tab,
-                          dividerColor: Colors.transparent,
-                          indicator: BoxDecoration(
-                            color: AppTheme.gold,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          labelColor: Colors.black,
-                          unselectedLabelColor: Colors.white38,
-                          labelStyle: const TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 12,
-                          ),
-                          tabs: const [
-                            Tab(text: 'ALTIN'),
-                            Tab(text: 'DÖVİZ'),
-                          ],
                         ),
                       ),
                     ),
@@ -260,48 +305,55 @@ class CalculatorCurrencySelector extends StatelessWidget {
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.02),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.02),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w400,
-                        fontSize: 14,
-                      ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: Row(
+                children: [
+                  icon,
+                  const Gap(12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: GoogleFonts.ubuntu(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w400,
+                            fontSize: 14,
+                          ),
+                        ),
+                        const Gap(2),
+                        Text(
+                          subtitle,
+                          style: GoogleFonts.ubuntu(
+                            color: Colors.white.withValues(alpha: 0.4),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ],
                     ),
-                    const Gap(2),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.4),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                  Icon(
+                    Iconsax.arrow_right_3,
+                    color: Colors.white.withValues(alpha: 0.2),
+                    size: 16,
+                  ),
+                ],
               ),
-              Icon(
-                Iconsax.arrow_right_3,
-                color: Colors.white.withValues(alpha: 0.2),
-                size: 16,
-              ),
-            ],
+            ),
           ),
         ),
       ),

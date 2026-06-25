@@ -1,11 +1,12 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:altin_takip/core/theme/app_theme.dart';
 import 'package:altin_takip/core/widgets/currency_icon.dart';
-import 'package:altin_takip/core/widgets/app_bar_widget.dart';
 import 'package:altin_takip/core/utils/currency_input_formatter.dart';
 import 'package:altin_takip/features/assets/presentation/asset_notifier.dart';
 import 'package:altin_takip/features/assets/presentation/asset_state.dart';
@@ -18,10 +19,12 @@ class CalculatorConverterTab extends ConsumerStatefulWidget {
   const CalculatorConverterTab({super.key});
 
   @override
-  ConsumerState<CalculatorConverterTab> createState() => _CalculatorConverterTabState();
+  ConsumerState<CalculatorConverterTab> createState() =>
+      _CalculatorConverterTabState();
 }
 
-class _CalculatorConverterTabState extends ConsumerState<CalculatorConverterTab> {
+class _CalculatorConverterTabState
+    extends ConsumerState<CalculatorConverterTab> {
   Currency? _fromCurrency;
   Currency? _toCurrency;
   final _converterController = TextEditingController();
@@ -35,10 +38,14 @@ class _CalculatorConverterTabState extends ConsumerState<CalculatorConverterTab>
   }
 
   void _calculateConversion() {
-    final amountText = _converterController.text.replaceAll('.', '').replaceAll(',', '.');
+    final amountText = _converterController.text
+        .replaceAll('.', '')
+        .replaceAll(',', '.');
     final amount = double.tryParse(amountText) ?? 0;
 
-    final tlValue = _fromCurrency == null ? amount : amount * _fromCurrency!.selling;
+    final tlValue = _fromCurrency == null
+        ? amount
+        : amount * _fromCurrency!.selling;
 
     if (_toCurrency == null) {
       setState(() => _convertedValue = tlValue);
@@ -61,9 +68,12 @@ class _CalculatorConverterTabState extends ConsumerState<CalculatorConverterTab>
       _calculateConversion();
     }
 
-    final double topPadding = MediaQuery.of(context).padding.top +
-        AppBarWidget.getExpandedHeight(isLargeTitle: false) +
-        48.0 + 16.0;
+    final double topPadding = 164.0;
+
+    // Formatting target code
+    final String targetCode = (_toCurrency?.code ?? 'TRY')
+        .replaceAll('_', ' ')
+        .toUpperCase();
 
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -71,13 +81,12 @@ class _CalculatorConverterTabState extends ConsumerState<CalculatorConverterTab>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'KAYNAK',
-            style: TextStyle(
-              color: AppTheme.gold,
+          Text(
+            'Kaynak',
+            style: GoogleFonts.ubuntu(
+              color: AppTheme.gold.withValues(alpha: 0.8),
               fontSize: 10,
               fontWeight: FontWeight.w500,
-              letterSpacing: 1.5,
             ),
           ),
           const Gap(12),
@@ -96,44 +105,68 @@ class _CalculatorConverterTabState extends ConsumerState<CalculatorConverterTab>
             controller: _converterController,
             label: 'Miktar',
             hint: 'Eklenecek miktar',
-            suffix: _fromCurrency?.name,
+            suffix: _fromCurrency != null
+                ? _fromCurrency!.code.toUpperCase().replaceAll('_', ' ')
+                : 'TRY',
             formatters: [TurkishCurrencyFormatter()],
             onChanged: (_) => _calculateConversion(),
           ),
           const Gap(24),
           Center(
-            child: InkWell(
-              onTap: () {
-                setState(() {
-                  final temp = _fromCurrency;
-                  _fromCurrency = _toCurrency;
-                  _toCurrency = temp;
-                });
-                _calculateConversion();
-              },
-              borderRadius: BorderRadius.circular(30),
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.02),
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: AppTheme.gold.withValues(alpha: 0.15),
-                    width: 1.0,
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppTheme.gold.withValues(alpha: 0.15),
+                    Colors.white.withValues(alpha: 0.02),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: AppTheme.gold.withValues(alpha: 0.3),
+                  width: 1.0,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.gold.withValues(alpha: 0.08),
+                    blurRadius: 16,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    setState(() {
+                      final temp = _fromCurrency;
+                      _fromCurrency = _toCurrency;
+                      _toCurrency = temp;
+                    });
+                    _calculateConversion();
+                  },
+                  borderRadius: BorderRadius.circular(30),
+                  child: const Padding(
+                    padding: EdgeInsets.all(12),
+                    child: Icon(
+                      Icons.swap_vert_rounded,
+                      color: AppTheme.gold,
+                      size: 22,
+                    ),
                   ),
                 ),
-                child: const Icon(Icons.swap_vert_rounded, color: AppTheme.gold, size: 22),
               ),
             ),
           ).animate().rotate(duration: 400.ms),
           const Gap(24),
-          const Text(
-            'HEDEF (BOŞ BIRAKILIRSA TL)',
-            style: TextStyle(
-              color: AppTheme.gold,
+          Text(
+            'Hedef (Boş bırakılırsa TL)',
+            style: GoogleFonts.ubuntu(
+              color: AppTheme.gold.withValues(alpha: 0.8),
               fontSize: 10,
               fontWeight: FontWeight.w500,
-              letterSpacing: 1.5,
             ),
           ),
           const Gap(12),
@@ -148,150 +181,171 @@ class _CalculatorConverterTabState extends ConsumerState<CalculatorConverterTab>
             },
           ),
           const Gap(32),
-          _buildResultCard(),
+          _buildResultCard(targetCode),
           const Gap(120),
         ],
       ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.05, end: 0),
     );
   }
 
-  Widget _buildResultCard() {
+  Widget _buildResultCard(String targetCode) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF0F1116), Color(0xFF09090A)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05), width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.4),
-            blurRadius: 40,
-            offset: const Offset(0, 20),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.03),
-              borderRadius: BorderRadius.circular(12),
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.02),
+            borderRadius: BorderRadius.circular(32),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.08),
+              width: 1.2,
             ),
-            child: Text(
-              'TAHMİN EDİLEN DEĞER',
-              style: TextStyle(
-                color: AppTheme.gold.withValues(alpha: 0.8),
-                fontSize: 9,
-                fontWeight: FontWeight.w500,
-                letterSpacing: 1.5,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.45),
+                blurRadius: 40,
+                offset: const Offset(0, 20),
               ),
-            ),
+            ],
           ),
-          const Gap(24),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  NumberFormat('#,##0.00', 'tr_TR').format(_convertedValue),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 40,
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: -1.0,
-                  ),
-                ),
-                const Gap(8),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 6),
-                  child: Text(
-                    _toCurrency?.code ?? 'TRY',
-                    style: const TextStyle(
-                      color: AppTheme.gold,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Gap(6),
-          Text(
-            _toCurrency?.name ?? 'Türk Lirası',
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.4),
-              fontSize: 13,
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-          if (_fromCurrency != null) ...[
-            const Gap(24),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.01),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.03)),
-              ),
-              child: Row(
-                children: [
-                  CurrencyIcon(iconUrl: null, isGold: _fromCurrency!.isGold, size: 24),
-                  const Gap(12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'GÜNCEL KUR',
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.3),
-                          fontSize: 8,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 1.2,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(32),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+              child: Padding(
+                padding: const EdgeInsets.all(28),
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.03),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.05),
                         ),
                       ),
-                      const Gap(2),
-                      Text(
-                        '1 ${_fromCurrency!.name}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w400,
+                      child: Text(
+                        'Tahmin Edilen Değer',
+                        style: GoogleFonts.ubuntu(
+                          color: AppTheme.gold.withValues(alpha: 0.85),
+                          fontSize: 9,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    const Gap(24),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            NumberFormat(
+                              '#,##0.00',
+                              'tr_TR',
+                            ).format(_convertedValue),
+                            style: GoogleFonts.ubuntu(
+                              color: Colors.white,
+                              fontSize: 42,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: -1.0,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Gap(6),
+                    Text(
+                      _toCurrency?.name ?? 'Türk Lirası',
+                      style: GoogleFonts.ubuntu(
+                        color: Colors.white.withValues(alpha: 0.4),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    if (_fromCurrency != null) ...[
+                      const Gap(28),
+                      Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.01),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.03),
+                          ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 18,
+                            vertical: 16,
+                          ),
+                          child: Row(
+                            children: [
+                              CurrencyIcon(
+                                iconUrl: null,
+                                isGold: _fromCurrency!.isGold,
+                                size: 24,
+                              ),
+                              const Gap(12),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Güncel Kur',
+                                    style: GoogleFonts.ubuntu(
+                                      color: Colors.white.withValues(
+                                        alpha: 0.3,
+                                      ),
+                                      fontSize: 8,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  const Gap(2),
+                                  Text(
+                                    '1 ${_fromCurrency!.name}',
+                                    style: GoogleFonts.ubuntu(
+                                      color: Colors.white,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const Spacer(),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.gold.withValues(alpha: 0.06),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  '₺${NumberFormat('#,##0.00', 'tr_TR').format(_fromCurrency!.selling)}',
+                                  style: GoogleFonts.ubuntu(
+                                    color: AppTheme.gold,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
-                  ),
-                  const Spacer(),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: AppTheme.gold.withValues(alpha: 0.06),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      '₺${NumberFormat('#,##0.00', 'tr_TR').format(_fromCurrency!.selling)}',
-                      style: const TextStyle(
-                        color: AppTheme.gold,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ],
-        ],
-      ),
-    ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.1, end: 0, curve: Curves.easeOutCubic);
+          ),
+        )
+        .animate()
+        .fadeIn(duration: 500.ms)
+        .slideY(begin: 0.1, end: 0, curve: Curves.easeOutCubic);
   }
 }
