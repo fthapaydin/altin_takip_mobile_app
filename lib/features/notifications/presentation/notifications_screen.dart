@@ -3,14 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:altin_takip/core/theme/app_theme.dart';
 import 'package:altin_takip/features/notifications/presentation/notifications_notifier.dart';
 import 'package:altin_takip/features/notifications/presentation/notification_state.dart';
-import 'package:altin_takip/features/notifications/domain/notification.dart'
-    as domain;
-import 'package:altin_takip/features/notifications/presentation/notification_detail_screen.dart';
-import 'package:intl/intl.dart';
+import 'package:altin_takip/features/notifications/domain/notification.dart' as domain;
 import 'package:gap/gap.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:altin_takip/core/widgets/app_bar_widget.dart';
+import 'package:altin_takip/features/notifications/presentation/widgets/notification_card.dart';
+import 'package:altin_takip/features/notifications/presentation/widgets/notifications_list_shimmer.dart';
 
 class NotificationsScreen extends ConsumerStatefulWidget {
   const NotificationsScreen({super.key});
@@ -26,7 +24,6 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     super.initState();
     Future.microtask(() {
       final state = ref.read(notificationsProvider);
-      // Only load if not already loaded or if specifically needed
       if (state is NotificationInitial) {
         ref
             .read(notificationsProvider.notifier)
@@ -78,12 +75,10 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
   }
 
   Widget _buildBody(NotificationState state) {
-    // Handling initial loading state
     if (state is NotificationInitial) {
-      return _buildShimmerList();
+      return const NotificationsListShimmer();
     }
 
-    // Attempt to extract existing notifications from any state that might have them
     List<domain.Notification>? currentData;
     if (state is NotificationLoaded) {
       currentData = state.notifications;
@@ -93,13 +88,11 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       currentData = state.currentNotifications;
     }
 
-    // If we have no data at all and we are loading, show shimmer
     if (state is NotificationLoading &&
         (currentData == null || currentData.isEmpty)) {
-      return _buildShimmerList();
+      return const NotificationsListShimmer();
     }
 
-    // If error and no data, show error screen
     if (state is NotificationError &&
         (currentData == null || currentData.isEmpty)) {
       return Center(
@@ -131,7 +124,6 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       );
     }
 
-    // If we have data (or empty list after load), show it
     final notifications = currentData ?? [];
 
     if (notifications.isEmpty) {
@@ -176,218 +168,8 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
         itemCount: notifications.length,
         itemBuilder: (context, index) {
           final notification = notifications[index];
-          return _buildNotificationCard(notification);
+          return NotificationCard(notification: notification);
         },
-      ),
-    );
-  }
-
-  Widget _buildNotificationCard(domain.Notification notification) {
-    final isRead = notification.isRead;
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF141518), Color(0xFF0E0F11)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isRead ? Colors.white.withValues(alpha: 0.05) : AppTheme.gold.withValues(alpha: 0.25),
-          width: isRead ? 1.0 : 1.2,
-        ),
-        boxShadow: [
-          if (!isRead)
-            BoxShadow(
-              color: AppTheme.gold.withValues(alpha: 0.03),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () {
-            ref
-                .read(notificationsProvider.notifier)
-                .markAsRead(notification.id);
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    NotificationDetailScreen(notification: notification),
-              ),
-            );
-          },
-          borderRadius: BorderRadius.circular(20),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppTheme.gold.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(
-                      color: AppTheme.gold.withValues(alpha: 0.15),
-                      width: 1,
-                    ),
-                  ),
-                  child: const Icon(
-                    Iconsax.chart_21,
-                    color: AppTheme.gold,
-                    size: 20,
-                  ),
-                ),
-                const Gap(16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              notification.title,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: isRead
-                                    ? FontWeight.w400
-                                    : FontWeight.w500,
-                                fontSize: 15,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          const Gap(8),
-                          if (!isRead)
-                            Container(
-                              width: 8,
-                              height: 8,
-                              decoration: const BoxDecoration(
-                                color: AppTheme.gold,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                        ],
-                      ),
-                      const Gap(8),
-                      Text(
-                        notification.body,
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.5),
-                          fontSize: 13,
-                          height: 1.4,
-                          fontWeight: FontWeight.w400,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const Gap(12),
-                      Row(
-                        children: [
-                          Icon(
-                            Iconsax.clock,
-                            size: 12,
-                            color: Colors.white.withValues(alpha: 0.3),
-                          ),
-                          const Gap(6),
-                          Text(
-                            DateFormat(
-                              'd MMMM, HH:mm',
-                              'tr_TR',
-                            ).format(notification.createdAt),
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.35),
-                              fontSize: 11,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildShimmerList() {
-    return ListView.builder(
-      padding: const EdgeInsets.all(24),
-      itemCount: 8,
-      itemBuilder: (_, __) => Padding(
-        padding: const EdgeInsets.only(bottom: 16),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: AppTheme.surface,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
-          ),
-          child: Shimmer.fromColors(
-            baseColor: Colors.white.withValues(alpha: 0.05),
-            highlightColor: Colors.white.withValues(alpha: 0.1),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                const Gap(16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: double.infinity,
-                        height: 16,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      const Gap(8),
-                      Container(
-                        width: 200,
-                        height: 14,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      const Gap(12),
-                      Container(
-                        width: 100,
-                        height: 12,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }
